@@ -134,6 +134,11 @@ export async function getNews(organizationId: string) {
   return res
 }
 
+export async function getSingleNews(organizationId: string, newsId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/news/${newsId}`)
+  return res
+}
+
 export async function createNews(organizationId: string, data: { space_id: string; title: string; content: string; status?: string }) {
   const res = await apiFetch(`/organizations/${organizationId}/news`, {
     method: 'POST',

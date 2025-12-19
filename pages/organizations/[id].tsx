@@ -210,12 +210,8 @@ const OrganizationDetailsPage: React.FC = () => {
                   Spaces
                 </button>
                 <button
-                  onClick={() => setActiveTab('news')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'news'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                  onClick={() => router.push(`/organizations/${id}/news`)}
+                  className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 >
                   Manage News
                 </button>
@@ -378,65 +374,6 @@ const OrganizationDetailsPage: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'news' && (currentUserRole === 'admin' || currentUserRole === 'editor' || currentUserRole === 'author') && (
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Manage News</h2>
-              {(currentUserRole === 'admin' || currentUserRole === 'editor' || currentUserRole === 'author') && (
-                <button
-                  onClick={() => router.push(`/organizations/${organization?.id}/news/create`)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                  Create News
-                </button>
-              )}
-            </div>
-
-            <div>
-              {news.length === 0 ? (
-                <p>No news found.</p>
-              ) : (
-                news.map(item => (
-                  <div key={item.id} className="bg-white p-4 rounded-lg shadow mb-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold">{item.title}</h3>
-                        <p className="text-gray-600 text-sm mt-1">
-                          By {item.user?.name} in {item.space?.name} • {item.status}
-                        </p>
-                        <p className="text-gray-700 mt-2 line-clamp-2">{item.content.substring(0, 200)}...</p>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <button
-                          onClick={() => router.push(`/organizations/${organization?.id}/news/${item.id}/edit`)}
-                          className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                        >
-                          Edit
-                        </button>
-                        {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status === 'need_review' && (
-                          <>
-                            <button
-                              onClick={() => handleReviewNews(item.id, 'publish')}
-                              className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
-                            >
-                              Publish
-                            </button>
-                            <button
-                              onClick={() => handleReviewNews(item.id, 'reject')}
-                              className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-                            >
-                              Reject
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
