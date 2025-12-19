@@ -1,14 +1,20 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../utils/api'
 import { useLocale } from '../context/LocaleContext'
+import { useAuth } from '../context/AuthContext'
 
 export default function Notifications(){
   const [notes, setNotes] = useState([])
   const { t } = useLocale()
+  const { refreshNotificationsCount } = useAuth()
 
   async function load(){
     const res = await apiFetch('/notifications')
     if (res.body && res.body.statusCode===2000) setNotes(res.body.data.notifications || [])
+    // Mark as read
+    await apiFetch('/notifications/mark-read', { method: 'POST' })
+    // Refresh count
+    refreshNotificationsCount()
   }
 
   useEffect(()=>{ load() }, [])
