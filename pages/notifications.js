@@ -15,7 +15,6 @@ export default function Notifications(){
 
   return (
     <div className="container py-8">
-      <h2 className="text-xl font-semibold mb-4">{/* translated */}{typeof window!=='undefined' && ''}{/* placeholder to avoid hydration issues */}{/* real text: */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{/* */}{t('notifications')}</h2>
         <h2 className="text-xl font-semibold mb-4">{t('notifications')}</h2>
       {notes.length===0 && <div className="text-sm text-gray-600">{t('no_notifications')}</div>}
       <ul className="space-y-3">

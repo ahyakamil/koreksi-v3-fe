@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 
 export default function Header(){
-  const { user, setUser, pendingRequestsCount, refreshPendingCount } = useAuth()
+  const { user, setUser, pendingRequestsCount, refreshPendingCount, notificationsCount } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const logout = async () => {
@@ -49,7 +49,12 @@ export default function Header(){
                   <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                 )}
               </Link>
-              <Link href="/notifications" className="text-sm text-gray-200 hover:text-white">{t('notifications')}</Link>
+              <Link href="/notifications" className="relative text-sm text-gray-200 hover:text-white">
+                {t('notifications')}
+                {notificationsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                )}
+              </Link>
             </div>
           )}
         </div>
@@ -102,7 +107,12 @@ export default function Header(){
                   <span className="ml-2 h-2 w-2 bg-red-500 rounded-full"></span>
                 )}
               </Link>
-              <Link href="/notifications" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">{t('notifications')}</Link>
+              <Link href="/notifications" onClick={()=>setMenuOpen(false)} className="relative px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded flex items-center">
+                {t('notifications')}
+                {notificationsCount > 0 && (
+                  <span className="ml-2 h-2 w-2 bg-red-500 rounded-full"></span>
+                )}
+              </Link>
               <button onClick={async ()=>{ await logout(); setMenuOpen(false) }} className="px-3 py-2 text-sm text-left text-red-400 hover:bg-gray-700 rounded">{t('logout')}</button>
             </div>
           </div>
