@@ -97,8 +97,17 @@ export default function Home() {
             <ul className="space-y-4">
               {posts.map(p => (
                 <li key={p.id} className="p-4 bg-white rounded shadow">
-                  <div className="text-sm text-gray-500">by {p.user?.name || t('unknown')}</div>
-                  <div className="mt-2">{p.content}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-500">by {p.user?.name || t('unknown')}</div>
+                    <div className="text-xs text-gray-400">{formatDate(p.created_at)}</div>
+                  </div>
+                  <div className="mt-2">
+                    {p.title && <h3 className="font-semibold">{p.title}</h3>}
+                    <div className="mt-1">{p.content}</div>
+                  </div>
+                  <div className="mt-3">
+                    <CommentsList postId={p.id} />
+                  </div>
                 </li>
               ))}
             </ul>

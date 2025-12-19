@@ -3,11 +3,13 @@ import { apiFetch } from '../utils/api'
 import CommentForm from './CommentForm'
 import { formatDate } from '../utils/format'
 import { useLocale } from '../context/LocaleContext'
+import { useAuth } from '../context/AuthContext'
 
 export default function CommentsList({ postId }){
   const [comments, setComments] = useState([])
   const [pageable, setPageable] = useState(null)
   const [loadedSize, setLoadedSize] = useState(3)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   async function load(currentSize = loadedSize){
     const res = await apiFetch(`/posts/${postId}/comments?page=0&size=${currentSize}`)
@@ -16,15 +18,18 @@ export default function CommentsList({ postId }){
       setComments(items)
       setPageable(res.body.data.pageable || null)
     }
+    setLoadingMore(false)
   }
 
   useEffect(()=>{ load() }, [postId, loadedSize])
 
   const { t } = useLocale()
+  const { user } = useAuth()
 
   const total = pageable ? pageable.totalElements : comments.length
 
   function handleLoadMore(){
+    setLoadingMore(true)
     setLoadedSize(s => s + 10)
   }
 
@@ -45,12 +50,14 @@ export default function CommentsList({ postId }){
       <div className="mt-2 flex items-center justify-between">
         <div>
           {comments.length < total && (
-            <button className="px-3 py-1 bg-gray-200 rounded" onClick={handleLoadMore}>{t('load_more')}</button>
+            <button className="px-3 py-1 bg-gray-200 rounded" onClick={handleLoadMore} disabled={loadingMore}>
+              {loadingMore ? t('loading') : t('load_more')}
+            </button>
           )}
         </div>
         <div className="text-xs text-gray-600">{t('showing_range', { count: comments.length, total })}</div>
       </div>
-      <CommentForm postId={postId} onCreated={() => { setLoadedSize(s => s + 1) }} />
+      {user && <CommentForm postId={postId} onCreated={() => { setLoadedSize(s => s + 1) }} />}
     </div>
   )
 }
