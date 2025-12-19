@@ -17,6 +17,7 @@ export default function Home() {
   const [size] = useState(10)
   const [pageable, setPageable] = useState<Pageable | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [showPostForm, setShowPostForm] = useState(false)
   const mountedRef = useRef(false)
   const isFetchingRef = useRef(false)
   const initialLoadedRef = useRef(false)
@@ -74,7 +75,18 @@ export default function Home() {
           <div>{t('loading')}</div>
         ) : user ? (
           <>
-            <PostForm onCreated={() => { setPage(0); load(0) }} />
+            <div className="flex justify-center mb-4">
+              <button
+                onClick={() => setShowPostForm(!showPostForm)}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                <svg className={`w-5 h-5 transition-transform ${showPostForm ? 'rotate-45' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>{showPostForm ? t('hide_post_form') : t('show_post_form')}</span>
+              </button>
+            </div>
+            {showPostForm && <PostForm onCreated={() => { setPage(0); load(0); setShowPostForm(false) }} />}
             <ul className="space-y-4">
               {posts.map(p => (
                 <li key={p.public_id} className="p-4 bg-white rounded shadow">

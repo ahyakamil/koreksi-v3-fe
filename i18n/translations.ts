@@ -48,6 +48,8 @@ type TranslationKeys = {
   login_failed: string
   load_comments: string
   file_too_large: string
+  show_post_form: string
+  hide_post_form: string
 }
 
 type Translations = {
@@ -106,6 +108,8 @@ const translations: Translations = {
     login_failed: 'Gagal masuk',
     load_comments: 'Muat komentar',
     file_too_large: '{name} terlalu besar. Ukuran maksimal adalah 2MB.',
+    show_post_form: 'Bikin postingan',
+    hide_post_form: 'Batalkan postingan',
   },
   en: {
     comments: 'Comments',
@@ -157,6 +161,8 @@ const translations: Translations = {
     login_failed: 'Login failed',
     load_comments: 'Load Comments',
     file_too_large: '{name} is too large. Maximum size is 2MB.',
+    show_post_form: 'Create Post',
+    hide_post_form: 'Cancel Post',
   }
 }
 
