@@ -63,7 +63,8 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
               <button
                 onClick={(e) => {
                   e.preventDefault()
-                  navigator.clipboard.writeText(window.location.origin + '/post/' + commentableId + '?commentId=' + comment.id)
+                  const path = commentableType === 'posts' ? '/post/' : commentableType === 'news' ? '/news/' : '/post/'
+                  navigator.clipboard.writeText(window.location.origin + path + commentableId + '?commentId=' + comment.id)
                   alert('Comment URL copied to clipboard!')
                 }}
                 className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"

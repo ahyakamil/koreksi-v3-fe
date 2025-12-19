@@ -5,29 +5,42 @@ import CommentsList from '../../components/CommentsList'
 import CommentForm from '../../components/CommentForm'
 import { formatDate } from '../../utils/format'
 import { useAuth } from '../../context/AuthContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createComment, getComments } from '../../utils/api'
 
 interface NewsDetailProps {
-  news: News | null
-  comments: Comment[]
-  pageable?: Pageable | null
-  error?: string
+    news: News | null
+    comments: Comment[]
+    pageable?: Pageable | null
+    error?: string
+    specificCommentId?: number | null
+    initialReplies?: Record<string, Comment[]>
+    initialShowReplies?: Record<string, boolean>
+    initialRepliesPageable?: Record<string, any>
 }
 
-export default function NewsDetail({ news, comments: initialComments, pageable: initialPageable, error }: NewsDetailProps) {
+export default function NewsDetail({ news, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable }: NewsDetailProps) {
   const { user } = useAuth()
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [pageable, setPageable] = useState<Pageable | null>(initialPageable || null)
   const [loadingMore, setLoadingMore] = useState(false)
   const [totalComments, setTotalComments] = useState(news?.comments_count || initialComments.length)
 
+  useEffect(() => {
+    if (specificCommentId) {
+      const element = document.getElementById(`comment-${specificCommentId}`)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  }, [comments, specificCommentId])
+
   if (error || !news) {
     return (
       <div className="container py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600">News not found</h1>
-          <p>{error || 'The news article you are looking for does not exist.'}</p>
+          <p>{error || 'The news you are looking for does not exist.'}</p>
         </div>
       </div>
     )
@@ -71,6 +84,7 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
     setLoadingMore(false)
   }
 
+
   return (
     <>
       <Head>
@@ -90,43 +104,23 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
         )}
       </Head>
       <div className="container py-8">
-        <article className="max-w-4xl mx-auto p-6 bg-white rounded shadow">
-          <header className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-sm text-gray-500">
-                by {news.user?.name || 'Unknown'} in{' '}
-                <span className="font-medium">{news.organization?.title || 'Organization'}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="text-xs text-gray-400">{formatDate(news.published_at || news.created_at)}</div>
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                  {news.space?.name || 'Space'}
-                </span>
-              </div>
+        <article className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
+          <header className="mb-4">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-500">Published {formatDate(news.published_at || news.created_at)}</div>
             </div>
-            <h1 className="text-3xl font-bold leading-tight">{news.title}</h1>
+            <h1 className="text-2xl font-bold mt-2">{news.title}</h1>
           </header>
-
-          {news.image && (
-            <div className="mb-6">
-              <img
-                src={news.image}
-                alt={news.title}
-                className="w-full h-64 md:h-96 object-cover rounded-lg"
-              />
-            </div>
-          )}
-
-          <div className="prose prose-lg max-w-none mb-8">
-            <div dangerouslySetInnerHTML={{ __html: news.content }} />
+          <div className="prose max-w-none">
+            {news.image && <img src={news.image} alt={news.title} className="w-full mb-4" />}
+            <p>{news.content}</p>
           </div>
+          <footer className="mt-6">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold">Comments ({totalComments})</h3>
 
-          <footer className="border-t pt-8">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-4">Comments ({totalComments})</h2>
-
-              {user && (
-                <div className="mb-6">
+              {user && !specificCommentId && (
+                <div className="mt-4">
                   <CommentForm
                     commentableType="news"
                     commentableId={news.public_id}
@@ -141,9 +135,13 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
                 currentUser={user}
                 commentableType="news"
                 commentableId={news.public_id}
+                highlightedCommentId={specificCommentId}
+                initialReplies={initialReplies}
+                initialShowReplies={initialShowReplies}
+                initialRepliesPageable={initialRepliesPageable}
               />
 
-              {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
+              {pageable && pageable.pageNumber + 1 < pageable.totalPages && !specificCommentId && (
                 <div className="mt-4 text-center">
                   <button
                     onClick={loadMoreComments}
@@ -154,6 +152,7 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
                   </button>
                 </div>
               )}
+
             </div>
           </footer>
         </article>
@@ -164,14 +163,12 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
 
 export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (context) => {
   const { public_id } = context.params as { public_id: string }
+  const { commentId } = context.query
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
   try {
-    // Fetch news and comments in parallel
-    const [newsRes, commentsRes] = await Promise.all([
-      fetch(`${API_BASE}/news/${public_id}`),
-      fetch(`${API_BASE}/news/${public_id}/comments?page=0&size=10`)
-    ])
+    // Fetch news
+    const newsRes = await fetch(`${API_BASE}/news/${public_id}`)
 
     if (!newsRes.ok) {
       return {
@@ -185,7 +182,6 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
     }
 
     const newsData = await newsRes.json()
-    const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { comments: [] } }
 
     if (newsData.statusCode !== 2000) {
       return {
@@ -198,11 +194,47 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
       }
     }
 
+    let comments: Comment[] = []
+    let pageable: any = null
+    let specificCommentId: number | null = null
+    let initialReplies: Record<string, Comment[]> = {}
+    let initialShowReplies: Record<string, boolean> = {}
+    let initialRepliesPageable: Record<string, any> = {}
+
+    if (commentId) {
+      // Fetch specific comment tree
+      const commentRes = await fetch(`${API_BASE}/news/${public_id}/comments/${commentId}?page=0&size=10`)
+      if (commentRes.ok) {
+        const commentData = await commentRes.json()
+        if (commentData.statusCode === 2000) {
+          const specificComment = commentData.data.comment as Comment
+          const specificReplies = commentData.data.replies as any[] || []
+          const pageable = commentData.data.pageable
+          comments = [specificComment]
+          // Set replies for the component
+          initialReplies = { [specificComment.id]: specificReplies }
+          initialShowReplies = { [specificComment.id]: true }
+          initialRepliesPageable = { [specificComment.id]: pageable }
+          specificCommentId = parseInt(commentId as string)
+        }
+      }
+    } else {
+      // Fetch all comments
+      const commentsRes = await fetch(`${API_BASE}/news/${public_id}/comments?page=0&size=10`)
+      const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { comments: [] } }
+      comments = commentsData.data?.comments || []
+      pageable = commentsData.data?.pageable || null
+    }
+
     return {
       props: {
         news: newsData.data.news,
-        comments: commentsData.data?.comments || [],
-        pageable: commentsData.data?.pageable || null
+        comments,
+        pageable,
+        specificCommentId,
+        initialReplies,
+        initialShowReplies,
+        initialRepliesPageable
       }
     }
   } catch (error) {
