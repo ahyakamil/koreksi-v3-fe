@@ -16,9 +16,10 @@ export default function Home() {
   const [pageable, setPageable] = useState(null)
   const [loadingMore, setLoadingMore] = useState(false)
   const mountedRef = useRef(false)
+  const isFetchingRef = useRef(false)
 
   async function load(pageToLoad = 0){
-    if (pageToLoad > 0) setLoadingMore(true)
+    if (pageToLoad > 0) { setLoadingMore(true); isFetchingRef.current = true }
     const res = await apiFetch(`/posts?page=${pageToLoad}&size=${size}`)
     if (res.body && res.body.statusCode === 2000) {
       const items = res.body.data.content || []
@@ -27,6 +28,7 @@ export default function Home() {
       setPageable(res.body.data.pageable || null)
     }
     setLoadingMore(false)
+    isFetchingRef.current = false
   }
 
   useEffect(() => {
@@ -41,6 +43,24 @@ export default function Home() {
     if (page === 0) return
     load(page)
   }, [page])
+
+  // infinite scroll listener: when near bottom and not fetching, increment page
+  useEffect(()=>{
+    function onScroll(){
+      try{
+        if (isFetchingRef.current) return
+        if (!pageable) return
+        const hasMore = (pageable.pageNumber + 1) < pageable.totalPages
+        if (!hasMore) return
+        if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)){
+          // increment page to trigger load
+          setPage(p=>p+1)
+        }
+      }catch(e){}
+    }
+    window.addEventListener('scroll', onScroll)
+    return ()=> window.removeEventListener('scroll', onScroll)
+  }, [pageable])
 
   return (
     <div className="container py-8">
