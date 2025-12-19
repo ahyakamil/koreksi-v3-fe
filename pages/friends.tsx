@@ -142,7 +142,7 @@ export default function Friends(){
         </ul>
       </section>
 
-      <section>
+      <section className="mb-8">
         <h3 className="font-medium mb-3">{t('friends')}</h3>
         {friends.length===0 && <div className="text-sm text-gray-600 p-4 bg-gray-50 rounded">{t('no_friends')}</div>}
         <ul className="space-y-3">

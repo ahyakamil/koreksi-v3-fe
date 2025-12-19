@@ -7,7 +7,7 @@ html, body, #__next {
 }
 
 body {
-  @apply bg-gray-50 text-gray-800;
+  @apply bg-gray-100 text-gray-800;
 }
 
 .container { @apply max-w-3xl mx-auto px-4; }
