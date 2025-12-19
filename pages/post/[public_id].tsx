@@ -120,6 +120,16 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
           <footer className="mt-6">
             <div className="mb-4">
               <h3 className="text-lg font-semibold">Comments ({totalComments})</h3>
+              {specificCommentId && (
+                <div className="mt-2">
+                  <button
+                    onClick={() => window.location.href = `/post/${post.public_id}`}
+                    className="text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    Show all comments
+                  </button>
+                </div>
+              )}
 
               {user && !specificCommentId && (
                 <div className="mt-4">
