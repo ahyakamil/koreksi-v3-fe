@@ -67,7 +67,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
               onClick={() => handleShowReplies(comment.id)}
               className="text-xs text-blue-600 hover:text-blue-800"
             >
-              Show replies
+              Show replies ({comment.replies_count})
             </button>
           )}
         </div>
