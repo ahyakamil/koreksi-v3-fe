@@ -10,6 +10,7 @@ export interface Post {
   created_at: string
   title?: string
   content: string
+  image?: string
 }
 
 export interface Comment {

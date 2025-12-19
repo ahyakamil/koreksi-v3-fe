@@ -84,6 +84,7 @@ export default function Home() {
                   <div className="mt-2">
                     {p.title && <h3 className="font-semibold">{p.title}</h3>}
                     <div className="mt-1">{p.content}</div>
+                    {p.image && <img src={p.image} alt="Post image" className="mt-2 max-w-full h-auto rounded" />}
                   </div>
                   <div className="mt-3">
                     <CommentsList postId={p.public_id} />
@@ -108,6 +109,7 @@ export default function Home() {
                   <div className="mt-2">
                     {p.title && <h3 className="font-semibold">{p.title}</h3>}
                     <div className="mt-1">{p.content}</div>
+                    {p.image && <img src={p.image} alt="Post image" className="mt-2 max-w-full h-auto rounded" />}
                   </div>
                   <div className="mt-3">
                     <CommentsList postId={p.public_id} />
