@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, User, Space, News } from '../../types'
-import { getOrganization, getPublicOrganization, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, getPublishedNews } from '../../utils/api'
+import { getOrganization, getPublicOrganization, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization } from '../../utils/api'
 import { useAuth } from '../../context/AuthContext'
 import SpaceForm from '../../components/SpaceForm'
 import NewsItem from '../../components/NewsItem'
@@ -17,6 +17,7 @@ const OrganizationDetailsPage: React.FC = () => {
   const [news, setNews] = useState<News[]>([])
   const [showCreateSpace, setShowCreateSpace] = useState(false)
   const [editingSpace, setEditingSpace] = useState<Space | null>(null)
+  const [joining, setJoining] = useState(false)
   const { user } = useAuth()
   const router = useRouter()
   const { id } = router.query
@@ -59,13 +60,6 @@ const OrganizationDetailsPage: React.FC = () => {
     }
   }
 
-  const fetchPublishedNews = async () => {
-    const res = await getPublishedNews()
-    if (res.ok) {
-      const orgNews = res.body.data.news.filter((n: News) => n.organization_id === id)
-      setNews(orgNews)
-    }
-  }
 
   const handleCreateSpace = async (data: { name: string; description?: string; image?: string }) => {
     if (!organization) return
@@ -162,6 +156,18 @@ const OrganizationDetailsPage: React.FC = () => {
     }
   }
 
+  const handleJoin = async () => {
+    if (!organization || joining) return
+    setJoining(true)
+    const res = await joinOrganization(organization.id)
+    if (res.ok) {
+      await fetchOrganization() // Reload organization data
+    } else {
+      alert(res.body.message || 'Failed to join organization')
+    }
+    setJoining(false)
+  }
+
   const currentUserRole = useMemo(() => {
     return organization?.users?.find(u => u.id === user?.id)?.pivot?.role
   }, [organization, user])
@@ -171,12 +177,8 @@ const OrganizationDetailsPage: React.FC = () => {
   useEffect(() => {
     if (organization && activeTab === 'spaces' && currentUserRole) {
       fetchSpaces()
-    } else if (organization && activeTab === 'news') {
-      if (currentUserRole) {
-        fetchNews()
-      } else {
-        fetchPublishedNews()
-      }
+    } else if (organization && activeTab === 'news' && currentUserRole) {
+      fetchNews()
     }
   }, [organization, activeTab, currentUserRole])
 
@@ -201,7 +203,7 @@ const OrganizationDetailsPage: React.FC = () => {
         )}
       </div>
 
-      {canManage ? (
+      {canManage && (
         <div className="mb-8">
           <div className="border-b border-gray-200 mb-6">
             <nav className="flex space-x-8">
@@ -417,7 +419,9 @@ const OrganizationDetailsPage: React.FC = () => {
             </div>
           )}
         </div>
-      ) : (
+      )}
+
+      {currentUserRole && !canManage && (
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Published News</h2>
           {news.length === 0 ? (
@@ -429,6 +433,24 @@ const OrganizationDetailsPage: React.FC = () => {
               ))}
             </ul>
           )}
+        </div>
+      )}
+
+      {!currentUserRole && (
+        <div className="mb-8">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">Join to See Published News</h3>
+            <p className="text-blue-700 mb-4">
+              Become a member of this organization to view and access all published news articles.
+            </p>
+            <button
+              onClick={handleJoin}
+              disabled={joining}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+            >
+              {joining ? 'Joining...' : 'Join Organization'}
+            </button>
+          </div>
         </div>
       )}
     </div>
