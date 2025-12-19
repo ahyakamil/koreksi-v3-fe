@@ -1,4 +1,60 @@
-const translations = {
+type TranslationKeys = {
+  comments: string
+  user: string
+  load_more: string
+  showing: string
+  showing_range: string
+  name: string
+  email: string
+  password: string
+  login: string
+  register: string
+  logout: string
+  posts: string
+  friends: string
+  notifications: string
+  no_notifications: string
+  incoming_requests: string
+  request_sent: string
+  from: string
+  loading: string
+  unknown: string
+  public_posts: string
+  page_of: string
+  prev: string
+  next: string
+  title: string
+  content_placeholder: string
+  image_placeholder: string
+  write_comment: string
+  send: string
+  post: string
+  post_button: string
+  posting_as: string
+  find_friend: string
+  search_by_name: string
+  friend_user_id_placeholder: string
+  send_friend_request: string
+  friend_request: string
+  accept: string
+  decline: string
+  remove: string
+  no_requests: string
+  no_friends: string
+  blocked_users: string
+  no_blocked_users: string
+  unblock: string
+  no_more: string
+  login_failed: string
+  load_comments: string
+}
+
+type Translations = {
+  id: TranslationKeys
+  en: TranslationKeys
+}
+
+const translations: Translations = {
   id: {
     comments: 'Komentar',
     user: 'Pengguna',

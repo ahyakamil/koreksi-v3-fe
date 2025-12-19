@@ -1,9 +1,9 @@
-export function formatDate(ts) {
+export function formatDate(ts: string | number | Date): string {
   if (!ts) return ''
   try {
     const d = new Date(ts)
     return d.toLocaleString()
   } catch (e) {
-    return ts
+    return String(ts)
   }
 }

@@ -3,9 +3,10 @@ import Head from 'next/head'
 import Header from '../components/Header'
 import { AuthProvider } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
+import { AppProps } from 'next/app'
 
-export default function App({ Component, pageProps }) {
-  const title = Component.title || pageProps.title || 'Koreksi'
+export default function App({ Component, pageProps }: AppProps) {
+  const title = (Component as any).title || pageProps.title || 'Koreksi'
   return (
     <AuthProvider>
       <LocaleProvider>

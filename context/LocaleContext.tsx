@@ -1,0 +1,55 @@
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import translations from '../i18n/translations'
+
+type Locale = 'id' | 'en'
+
+type LocaleContextType = {
+  locale: Locale
+  changeLocale: (l: Locale) => void
+  t: (key: string, params?: Record<string, any>) => string
+}
+
+const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
+
+export function LocaleProvider({ children }: { children: ReactNode }){
+  const [locale, setLocale] = useState<Locale>('id') // default Indonesian
+
+  useEffect(()=>{
+    const stored = typeof window !== 'undefined' && localStorage.getItem('locale')
+    if(stored && (stored === 'id' || stored === 'en')) setLocale(stored as Locale)
+  },[])
+
+  function changeLocale(l: Locale){
+    setLocale(l)
+    if(typeof window !== 'undefined') localStorage.setItem('locale', l)
+  }
+
+  function t(key: string){
+    const group = translations[locale] || translations['id']
+    return group[key as keyof typeof group] || translations['en'][key as keyof typeof group] || key
+  }
+
+  // support simple interpolation: t('key', {name: 'Alice'}) replaces {name}
+  function tInterp(key: string, params: Record<string, any> = {}){
+    let str = t(key)
+    Object.keys(params).forEach(k=>{
+      const re = new RegExp(`\\{${k}\\}`,'g')
+      str = str.replace(re, String(params[k]))
+    })
+    return str
+  }
+
+  return (
+    <LocaleContext.Provider value={{ locale, changeLocale, t: tInterp }}>
+      {children}
+    </LocaleContext.Provider>
+  )
+}
+
+export function useLocale(){
+  const context = useContext(LocaleContext)
+  if (!context) {
+    throw new Error('useLocale must be used within a LocaleProvider')
+  }
+  return context
+}

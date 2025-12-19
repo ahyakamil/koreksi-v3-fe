@@ -1,10 +1,33 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { apiFetch } from '../utils/api'
 
-const AuthContext = createContext(null)
+type User = {
+  id: string
+  name: string
+  email: string
+}
 
-export function AuthProvider({ children }){
-  const [user, setUser] = useState(null)
+type Notification = {
+  id: string
+  read_at: string | null
+  // other fields if needed
+}
+
+type AuthContextType = {
+  user: User | null
+  setUser: (user: User | null) => void
+  loading: boolean
+  refresh: () => Promise<boolean>
+  pendingRequestsCount: number
+  refreshPendingCount: () => Promise<void>
+  notificationsCount: number
+  refreshNotificationsCount: () => Promise<void>
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export function AuthProvider({ children }: { children: ReactNode }){
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
   const [notificationsCount, setNotificationsCount] = useState(0)
@@ -28,7 +51,7 @@ export function AuthProvider({ children }){
         try {
           const notifRes = await apiFetch('/notifications')
           if (notifRes.body && notifRes.body.statusCode === 2000) {
-            const unreadCount = notifRes.body.data.notifications?.filter(n => !n.read_at).length || 0
+            const unreadCount = notifRes.body.data.notifications?.filter((n: any) => !n.read_at).length || 0
             setNotificationsCount(unreadCount)
           }
         } catch (error) {
@@ -74,7 +97,7 @@ export function AuthProvider({ children }){
       try {
         const res = await apiFetch('/notifications')
         if (res.body && res.body.statusCode === 2000) {
-          const unreadCount = res.body.data.notifications?.filter(n => !n.read_at).length || 0
+          const unreadCount = res.body.data.notifications?.filter((n: any) => !n.read_at).length || 0
           setNotificationsCount(unreadCount)
         }
       } catch (error) {
@@ -101,5 +124,9 @@ export function AuthProvider({ children }){
 }
 
 export function useAuth(){
-  return useContext(AuthContext)
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
 }

@@ -1,6 +1,16 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
-export async function apiFetch(path, options = {}) {
+type ApiOptions = RequestInit & {
+  headers?: Record<string, string>
+}
+
+type ApiResponse = {
+  ok: boolean
+  status: number
+  body: any
+}
+
+export async function apiFetch(path: string, options: ApiOptions = {}): Promise<ApiResponse> {
   const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
   const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {})
   if (token) headers['Authorization'] = `Bearer ${token}`
