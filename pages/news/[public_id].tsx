@@ -46,6 +46,9 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
       // If it's a top-level comment, add to list
       if (!parentId) {
         setComments([...comments, res.body.data.comment])
+      } else {
+        // Update replies_count for the parent comment
+        setComments(comments.map(c => c.id === parentId ? { ...c, replies_count: (c.replies_count || 0) + 1 } : c))
       }
       setTotalComments(prev => prev + 1)
     } else {
