@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../utils/api'
 import CommentForm from './CommentForm'
 import { formatDate } from '../utils/format'
+import { useLocale } from '../context/LocaleContext'
 
 export default function CommentsList({ postId }){
   const [comments, setComments] = useState([])
@@ -19,6 +20,8 @@ export default function CommentsList({ postId }){
 
   useEffect(()=>{ load() }, [postId, loadedSize])
 
+  const { t } = useLocale()
+
   const total = pageable ? pageable.totalElements : comments.length
 
   function handleLoadMore(){
@@ -27,12 +30,12 @@ export default function CommentsList({ postId }){
 
   return (
     <div className="mt-3">
-      <h4 className="text-sm font-medium">Comments ({total})</h4>
+      <h4 className="text-sm font-medium">{t('comments')} ({total})</h4>
       <div className="mt-2 space-y-2">
         {comments.map(c => (
           <div key={c.id} className="p-2 bg-gray-50 rounded">
             <div className="flex items-center justify-between">
-              <div className="text-xs text-gray-600">{c.user?.name || 'User'}</div>
+              <div className="text-xs text-gray-600">{c.user?.name || t('user')}</div>
               <div className="text-xs text-gray-400">{formatDate(c.created_at)}</div>
             </div>
             <div className="mt-1">{c.content}</div>
@@ -42,10 +45,10 @@ export default function CommentsList({ postId }){
       <div className="mt-2 flex items-center justify-between">
         <div>
           {comments.length < total && (
-            <button className="px-3 py-1 bg-gray-200 rounded" onClick={handleLoadMore}>Load more</button>
+            <button className="px-3 py-1 bg-gray-200 rounded" onClick={handleLoadMore}>{t('load_more')}</button>
           )}
         </div>
-        <div className="text-xs text-gray-600">Showing {comments.length} of {total}</div>
+        <div className="text-xs text-gray-600">{t('showing_range', { count: comments.length, total })}</div>
       </div>
       <CommentForm postId={postId} onCreated={() => { setLoadedSize(s => s + 1) }} />
     </div>

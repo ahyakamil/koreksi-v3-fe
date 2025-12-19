@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { apiFetch } from '../utils/api'
+import { useLocale } from '../context/LocaleContext'
 
 export default function CommentForm({ postId, onCreated, parentId=null }){
   const [content, setContent] = useState('')
   const [error, setError] = useState(null)
+  const { t } = useLocale()
 
   async function submit(e){
     e.preventDefault()
@@ -21,10 +23,10 @@ export default function CommentForm({ postId, onCreated, parentId=null }){
 
   return (
     <form onSubmit={submit} className="mt-2">
-      <textarea rows={2} className="w-full border rounded p-2" placeholder="Write a comment..." value={content} onChange={e=>setContent(e.target.value)} />
+      <textarea rows={2} className="w-full border rounded p-2" placeholder={t('write_comment')} value={content} onChange={e=>setContent(e.target.value)} />
       {error && <div className="text-red-600">{error}</div>}
       <div className="mt-2">
-        <button className="px-3 py-1 bg-gray-200 rounded">Reply</button>
+        <button className="px-3 py-1 bg-gray-200 rounded">{t('send')}</button>
       </div>
     </form>
   )

@@ -5,9 +5,11 @@ import PostForm from '../components/PostForm'
 import { useAuth } from '../context/AuthContext'
 import CommentsList from '../components/CommentsList'
 import { formatDate } from '../utils/format'
+import { useLocale } from '../context/LocaleContext'
 
 export default function Home() {
   const { user, loading } = useAuth()
+  const { t } = useLocale()
   const [posts, setPosts] = useState([])
   const [page, setPage] = useState(0)
   const [size] = useState(10)
@@ -27,7 +29,7 @@ export default function Home() {
     <div className="container py-8">
       <main>
         {loading ? (
-          <div>Loading...</div>
+          <div>{/* translated */}{typeof window!=='undefined' && ''}{/* */}{t('loading')}</div>
         ) : user ? (
           <>
             <PostForm onCreated={() => load()} />
@@ -35,7 +37,7 @@ export default function Home() {
               {posts.map(p => (
                 <li key={p.id} className="p-4 bg-white rounded shadow">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">by {p.user?.name || 'Unknown'}</div>
+                    <div className="text-sm text-gray-500">by {p.user?.name || t('unknown')}</div>
                     <div className="text-xs text-gray-400">{formatDate(p.created_at)}</div>
                   </div>
                   <div className="mt-2">
@@ -51,11 +53,11 @@ export default function Home() {
           </>
         ) : (
           <div className="space-y-4">
-            <h2 className="text-lg font-medium mb-2">Public posts</h2>
+            <h2 className="text-lg font-medium mb-2">{t('public_posts')}</h2>
             <ul className="space-y-4">
               {posts.map(p => (
                 <li key={p.id} className="p-4 bg-white rounded shadow">
-                  <div className="text-sm text-gray-500">by {p.user?.name || 'Unknown'}</div>
+                  <div className="text-sm text-gray-500">by {p.user?.name || t('unknown')}</div>
                   <div className="mt-2">{p.content}</div>
                 </li>
               ))}
@@ -65,10 +67,10 @@ export default function Home() {
 
         {pageable && (
           <div className="mt-6 flex items-center justify-between">
-            <div className="text-sm text-gray-600">Page {pageable.pageNumber + 1} of {pageable.totalPages}</div>
+            <div className="text-sm text-gray-600">{t('page_of', { page: pageable.pageNumber + 1, total: pageable.totalPages })}</div>
             <div className="space-x-2">
-              <button className="px-3 py-1 bg-gray-200 rounded" disabled={page<=0} onClick={()=>setPage(p=>Math.max(0,p-1))}>Prev</button>
-              <button className="px-3 py-1 bg-gray-200 rounded" disabled={page>=pageable.totalPages-1} onClick={()=>setPage(p=>p+1)}>Next</button>
+              <button className="px-3 py-1 bg-gray-200 rounded" disabled={page<=0} onClick={()=>setPage(p=>Math.max(0,p-1))}>{t('prev')}</button>
+              <button className="px-3 py-1 bg-gray-200 rounded" disabled={page>=pageable.totalPages-1} onClick={()=>setPage(p=>p+1)}>{t('next')}</button>
             </div>
           </div>
         )}

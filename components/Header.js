@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Router from 'next/router'
 import { useAuth } from '../context/AuthContext'
+import { useLocale } from '../context/LocaleContext'
 
 export default function Header(){
   const { user, setUser } = useAuth()
@@ -26,6 +27,7 @@ export default function Header(){
   }
 
   const isLogged = !!user
+  const { t, locale, changeLocale } = useLocale()
 
   return (
     <header className="bg-gray-800 text-gray-100 shadow">
@@ -36,19 +38,29 @@ export default function Header(){
           </Link>
           {isLogged && (
             <>
-              <Link href="/posts/create" className="text-sm text-gray-200 hover:text-white">Create Post</Link>
-              <Link href="/friends" className="text-sm text-gray-200 hover:text-white">Friends</Link>
-              <Link href="/notifications" className="text-sm text-gray-200 hover:text-white">Notifications</Link>
+              <Link href="/posts/create" className="text-sm text-gray-200 hover:text-white">{t('post_button')}</Link>
+              <Link href="/friends" className="text-sm text-gray-200 hover:text-white">{t('friends')}</Link>
+              <Link href="/notifications" className="text-sm text-gray-200 hover:text-white">{t('notifications')}</Link>
             </>
           )}
         </div>
-        <div>
+        <div className="flex items-center space-x-3">
+          <select
+            value={locale}
+            onChange={(e) => changeLocale(e.target.value)}
+            className="bg-gray-700 text-gray-100 border-transparent rounded px-2 py-1 text-sm"
+            aria-label="Language"
+          >
+            <option value="id">ID</option>
+            <option value="en">EN</option>
+          </select>
+
           {isLogged ? (
-            <button onClick={logout} className="px-3 py-1 bg-red-600 text-white rounded">Logout</button>
+            <button onClick={logout} className="px-3 py-1 bg-red-600 text-white rounded">{t('logout')}</button>
           ) : (
             <div className="space-x-3">
-              <Link href="/login" className="text-sm text-blue-300 hover:text-white">Login</Link>
-              <Link href="/register" className="text-sm text-green-300 hover:text-white">Register</Link>
+              <Link href="/login" className="text-sm text-blue-300 hover:text-white">{t('login')}</Link>
+              <Link href="/register" className="text-sm text-green-300 hover:text-white">{t('register')}</Link>
             </div>
           )}
         </div>

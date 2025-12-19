@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { apiFetch } from '../../utils/api'
+import { useLocale } from '../../context/LocaleContext'
 
 export default function CreatePost(){
   const [content,setContent] = useState('')
   const [image,setImage] = useState('')
   const [error,setError] = useState(null)
   const router = useRouter()
+  const { t } = useLocale()
 
   async function submit(e){
     e.preventDefault()
@@ -21,17 +23,17 @@ export default function CreatePost(){
 
   return (
     <div className="container py-8">
-      <h2 className="text-xl font-semibold mb-4">Create Post</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('posts')}</h2>
       <form onSubmit={submit} className="space-y-3 max-w-lg">
         <div>
-          <textarea rows={6} className="w-full border rounded p-2" value={content} onChange={e=>setContent(e.target.value)} placeholder="Write something..." />
+          <textarea rows={6} className="w-full border rounded p-2" value={content} onChange={e=>setContent(e.target.value)} placeholder={t('content_placeholder')} />
         </div>
         <div>
-          <input className="w-full border rounded p-2" placeholder="Image URL (optional)" value={image} onChange={e=>setImage(e.target.value)} />
+          <input className="w-full border rounded p-2" placeholder={t('image_placeholder')} value={image} onChange={e=>setImage(e.target.value)} />
         </div>
         {error && <div className="text-red-600">{error}</div>}
         <div>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded">Post</button>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded">{t('post_button')}</button>
         </div>
       </form>
     </div>
