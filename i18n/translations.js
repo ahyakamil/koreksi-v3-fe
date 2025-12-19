@@ -39,6 +39,7 @@ const translations = {
     remove: 'Hapus',
     no_requests: 'Tidak ada permintaan',
     no_friends: 'Belum ada teman',
+    no_more: 'Tidak ada lagi postingan',
   },
   en: {
     comments: 'Comments',
@@ -80,6 +81,7 @@ const translations = {
     remove: 'Remove',
     no_requests: 'No requests',
     no_friends: 'No friends yet',
+    no_more: 'No more posts',
   }
 }
 

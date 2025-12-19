@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { apiFetch } from '../utils/api'
 import PostForm from '../components/PostForm'
@@ -14,22 +14,39 @@ export default function Home() {
   const [page, setPage] = useState(0)
   const [size] = useState(10)
   const [pageable, setPageable] = useState(null)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const mountedRef = useRef(false)
 
-  async function load(){
-    const res = await apiFetch(`/posts?page=${page}&size=${size}`)
+  async function load(pageToLoad = 0){
+    if (pageToLoad > 0) setLoadingMore(true)
+    const res = await apiFetch(`/posts?page=${pageToLoad}&size=${size}`)
     if (res.body && res.body.statusCode === 2000) {
-      setPosts(res.body.data.content || [])
+      const items = res.body.data.content || []
+      if (pageToLoad === 0) setPosts(items)
+      else setPosts(prev => [...prev, ...items])
       setPageable(res.body.data.pageable || null)
     }
+    setLoadingMore(false)
   }
 
-  useEffect(() => { load() }, [page, size])
+  useEffect(() => {
+    // initial load
+    load(0)
+    mountedRef.current = true
+  }, [size])
+
+  useEffect(() => {
+    // when page increments (not initial), load next page
+    if (!mountedRef.current) return
+    if (page === 0) return
+    load(page)
+  }, [page])
 
   return (
     <div className="container py-8">
       <main>
         {loading ? (
-          <div>{/* translated */}{typeof window!=='undefined' && ''}{/* */}{t('loading')}</div>
+          <div>{t('loading')}</div>
         ) : user ? (
           <>
             <PostForm onCreated={() => load()} />
@@ -50,6 +67,9 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+            <div className="mt-4 text-center text-sm text-gray-600">
+              {loadingMore ? t('loading') : (pageable && pageable.pageNumber+1 >= pageable.totalPages ? t('no_more') || 'No more posts' : t('loading'))}
+            </div>
           </>
         ) : (
           <div className="space-y-4">
@@ -62,19 +82,46 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+            <div className="mt-4 text-center text-sm text-gray-600">{loadingMore ? t('loading') : (pageable && pageable.pageNumber+1 >= pageable.totalPages ? t('no_more') || 'No more posts' : '')}</div>
           </div>
         )}
-
-        {pageable && (
-          <div className="mt-6 flex items-center justify-between">
-            <div className="text-sm text-gray-600">{t('page_of', { page: pageable.pageNumber + 1, total: pageable.totalPages })}</div>
-            <div className="space-x-2">
-              <button className="px-3 py-1 bg-gray-200 rounded" disabled={page<=0} onClick={()=>setPage(p=>Math.max(0,p-1))}>{t('prev')}</button>
-              <button className="px-3 py-1 bg-gray-200 rounded" disabled={page>=pageable.totalPages-1} onClick={()=>setPage(p=>p+1)}>{t('next')}</button>
-            </div>
-          </div>
-        )}
+        
       </main>
     </div>
   )
+}
+
+// infinite scroll listener (outside render to avoid re-creating on each render)
+function useInfiniteScroll({ onLoadMore, canLoad }){
+  useEffect(()=>{
+    function onScroll(){
+      if (!canLoad()) return
+      if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)){
+        onLoadMore()
+      }
+    }
+    window.addEventListener('scroll', onScroll)
+    return ()=>window.removeEventListener('scroll', onScroll)
+  }, [onLoadMore, canLoad])
+}
+
+// Attach infinite scroll to Home by default (imported hook style)
+// We use a small wrapper via a side-effect: create a global hook that finds the page component's loader.
+// Instead of complex wiring, implement a simple listener here using window - increment page when near bottom.
+if (typeof window !== 'undefined'){
+  let loading = false
+  let lastPage = 0
+  const observer = setInterval(()=>{
+    try{
+      const el = document.querySelector('body')
+      if(!el) return
+      if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)){
+        // find a global function exposed by the page to increment page
+        const inc = window.__koreksi_inc_page
+        const can = window.__koreksi_can_load
+        if (typeof inc==='function' && typeof can==='function' && can()) inc()
+      }
+    }catch(e){ }
+  }, 500)
+  // keep it running; it will be cleaned on full reload
 }
