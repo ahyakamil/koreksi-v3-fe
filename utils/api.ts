@@ -86,6 +86,19 @@ export async function removeMember(organizationId: string, userId: string) {
   return res
 }
 
+export async function inviteUser(organizationId: string, userId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/invite`, {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId })
+  })
+  return res
+}
+
+export async function searchUsers(query: string) {
+  const res = await apiFetch(`/users/search?q=${encodeURIComponent(query)}`)
+  return res
+}
+
 export async function uploadImage(formData: FormData) {
   const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
   const headers: Record<string, string> = {}
