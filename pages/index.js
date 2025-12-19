@@ -72,7 +72,7 @@ export default function Home() {
           <div>{t('loading')}</div>
         ) : user ? (
           <>
-            <PostForm onCreated={() => load()} />
+            <PostForm onCreated={() => { setPage(0); load(0) }} />
             <ul className="space-y-4">
               {posts.map(p => (
                 <li key={p.public_id} className="p-4 bg-white rounded shadow">
