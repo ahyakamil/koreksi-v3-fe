@@ -113,7 +113,7 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
           </header>
           <div className="prose max-w-none">
             {news.image && <img src={news.image} alt={news.title} className="w-full mb-4" />}
-            <p>{news.content}</p>
+            <div dangerouslySetInnerHTML={{ __html: news.content }} />
           </div>
           <footer className="mt-6">
             <div className="mb-4">
