@@ -47,6 +47,7 @@ type TranslationKeys = {
   no_more: string
   login_failed: string
   load_comments: string
+  file_too_large: string
 }
 
 type Translations = {
@@ -104,6 +105,7 @@ const translations: Translations = {
     no_more: 'Tidak ada lagi postingan',
     login_failed: 'Gagal masuk',
     load_comments: 'Muat komentar',
+    file_too_large: '{name} terlalu besar. Ukuran maksimal adalah 2MB.',
   },
   en: {
     comments: 'Comments',
@@ -154,6 +156,7 @@ const translations: Translations = {
     no_more: 'No more posts',
     login_failed: 'Login failed',
     load_comments: 'Load Comments',
+    file_too_large: '{name} is too large. Maximum size is 2MB.',
   }
 }
 

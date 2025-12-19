@@ -31,7 +31,13 @@ export default function PostForm({ onCreated }: { onCreated?: (post: any) => voi
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files || [])
+    const files = Array.from(e.target.files || []).filter(file => {
+      if (file.size > 2 * 1024 * 1024) { // 2MB
+        alert(t('file_too_large', { name: file.name }))
+        return false
+      }
+      return true
+    })
     setImageFiles(prev => [...prev, ...files])
     // Reset input value to allow selecting same files again
     e.target.value = ''
@@ -90,7 +96,14 @@ export default function PostForm({ onCreated }: { onCreated?: (post: any) => voi
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault()
-            const files = Array.from(e.dataTransfer.files).filter(f => f.type === 'image/png' || f.type === 'image/jpeg')
+            const files = Array.from(e.dataTransfer.files).filter(f => {
+              if (f.type !== 'image/png' && f.type !== 'image/jpeg') return false
+              if (f.size > 2 * 1024 * 1024) {
+                alert(t('file_too_large', { name: f.name }))
+                return false
+              }
+              return true
+            })
             setImageFiles(prev => [...prev, ...files])
           }}
         >
@@ -130,7 +143,7 @@ export default function PostForm({ onCreated }: { onCreated?: (post: any) => voi
                     </svg>
                   </button>
                 </div>
-                <div className="p-2 bg-white">
+                <div className="p-2 bg-gray-50">
                   <p className="text-xs text-gray-600 truncate">{file.name}</p>
                 </div>
               </div>

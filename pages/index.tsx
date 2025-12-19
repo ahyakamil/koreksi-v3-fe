@@ -2,11 +2,12 @@ import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { apiFetch } from '../utils/api'
 import PostForm from '../components/PostForm'
+import Carousel from '../components/Carousel'
 import { useAuth } from '../context/AuthContext'
 import CommentsList from '../components/CommentsList'
 import { formatDate } from '../utils/format'
 import { useLocale } from '../context/LocaleContext'
-import { Post, Pageable } from '../types'
+import { Post, Pageable, Media } from '../types'
 
 export default function Home() {
   const { user, loading } = useAuth()
@@ -84,13 +85,7 @@ export default function Home() {
                   <div className="mt-2">
                     {p.title && <h3 className="font-semibold">{p.title}</h3>}
                     <div className="mt-1">{p.content}</div>
-                    {p.medias && p.medias.length > 0 && (
-                      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {p.medias.map(m => (
-                          <img key={m.id} src={m.url} alt="Post media" className={`max-w-full h-auto rounded ${m.type === 'main' ? 'border-2 border-blue-500' : ''}`} />
-                        ))}
-                      </div>
-                    )}
+                    {p.medias && <Carousel medias={p.medias} />}
                   </div>
                   <div className="mt-3">
                     <CommentsList postId={p.public_id} />
@@ -115,13 +110,7 @@ export default function Home() {
                   <div className="mt-2">
                     {p.title && <h3 className="font-semibold">{p.title}</h3>}
                     <div className="mt-1">{p.content}</div>
-                    {p.medias && p.medias.length > 0 && (
-                      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {p.medias.map(m => (
-                          <img key={m.id} src={m.url} alt="Post media" className={`max-w-full h-auto rounded ${m.type === 'main' ? 'border-2 border-blue-500' : ''}`} />
-                        ))}
-                      </div>
-                    )}
+                    {p.medias && <Carousel medias={p.medias} />}
                   </div>
                   <div className="mt-3">
                     <CommentsList postId={p.public_id} />
