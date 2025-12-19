@@ -90,5 +90,6 @@ export interface News {
   published_at?: string
   created_at: string
   space?: Space
+  organization?: Organization
   user?: User
 }

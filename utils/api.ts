@@ -129,6 +129,11 @@ export async function deleteSpace(organizationId: string, spaceId: string) {
 }
 
 // News API functions
+export async function getPublishedNews() {
+  const res = await apiFetch('/news')
+  return res
+}
+
 export async function getNews(organizationId: string) {
   const res = await apiFetch(`/organizations/${organizationId}/news`)
   return res
