@@ -4,13 +4,20 @@ export interface User {
   email: string
 }
 
+export interface Media {
+  id: string
+  url: string
+  type: 'main' | 'additional'
+  order: number
+}
+
 export interface Post {
   public_id: string
   user?: User
   created_at: string
   title?: string
   content: string
-  image?: string
+  medias?: Media[]
 }
 
 export interface Comment {
