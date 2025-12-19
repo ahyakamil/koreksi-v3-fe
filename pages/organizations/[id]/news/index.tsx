@@ -161,40 +161,49 @@ const NewsManagementPage: React.FC = () => {
                       </p>
                     </div>
                   )}
-                </div>
-                <div className="flex gap-2 ml-4">
-                  {item.user_id === user?.id && (
-                    <button
-                      onClick={() => router.push(`/organizations/${id}/news/${item.id}/edit`)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                    >
-                      Edit
-                    </button>
-                  )}
-                  {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status === 'need_review' && (
-                    <>
+                  <div className="flex gap-2 mt-3 flex-wrap">
+                    {((item.user_id === user?.id && item.status !== 'published') || currentUserRole === 'admin' || currentUserRole === 'editor') && (
                       <button
-                        onClick={() => handleReview(item.id, 'publish')}
-                        className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                        onClick={() => router.push(`/organizations/${id}/news/${item.id}/edit`)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
                       >
-                        Publish
+                        Edit
                       </button>
+                    )}
+                    {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status === 'need_review' && (
+                      <>
+                        <button
+                          onClick={() => handleReview(item.id, 'publish')}
+                          className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                        >
+                          Publish
+                        </button>
+                        <button
+                          onClick={() => handleReview(item.id, 'reject')}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+                    {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status !== 'need_review' && (
                       <button
                         onClick={() => handleReview(item.id, 'reject')}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                        className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600"
+                        title="Reject this news"
                       >
                         Reject
                       </button>
-                    </>
-                  )}
-                  {item.user_id === user?.id && (
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  )}
+                    )}
+                    {((item.user_id === user?.id && item.status !== 'published') || currentUserRole === 'admin' || currentUserRole === 'editor') && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="bg-red-700 text-white px-3 py-1 rounded text-sm hover:bg-red-800"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

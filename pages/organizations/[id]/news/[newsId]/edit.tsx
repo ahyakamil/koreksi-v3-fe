@@ -17,7 +17,7 @@ const EditNewsPage: React.FC = () => {
     content: '',
     image: '',
     space_id: '',
-    status: 'draft' as 'draft' | 'need_review'
+    status: 'draft' as 'draft' | 'need_review' | 'published'
   })
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const { user } = useAuth()
@@ -49,7 +49,7 @@ const EditNewsPage: React.FC = () => {
           content: newsData.content,
           image: newsData.image || '',
           space_id: newsData.space_id,
-          status: newsData.status === 'draft' || newsData.status === 'need_review' ? newsData.status : 'draft'
+          status: newsData.status === 'rejected' ? 'draft' : newsData.status
         })
       }
     } catch (error) {
@@ -107,7 +107,13 @@ const EditNewsPage: React.FC = () => {
 
   const canEditNews = () => {
     if (!news || !user) return false
-    return news.user_id === user.id
+    const role = getCurrentUserRole()
+    return (news.user_id === user.id && news.status !== 'published') || role === 'admin' || role === 'editor'
+  }
+
+  const canPublishNews = () => {
+    const role = getCurrentUserRole()
+    return role === 'admin' || role === 'editor'
   }
 
   if (loading) return <div>Loading...</div>
@@ -181,37 +187,48 @@ const EditNewsPage: React.FC = () => {
             />
           </div>
 
-          {(news.status === 'draft' || news.status === 'rejected') && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="status"
+                  value="draft"
+                  checked={formData.status === 'draft'}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                <span className="text-sm">Save as Draft</span>
               </label>
-              <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="status"
+                  value="need_review"
+                  checked={formData.status === 'need_review'}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                <span className="text-sm">Submit for Review</span>
+              </label>
+              {canPublishNews() && (
                 <label className="flex items-center">
                   <input
                     type="radio"
                     name="status"
-                    value="draft"
-                    checked={formData.status === 'draft'}
+                    value="published"
+                    checked={formData.status === 'published'}
                     onChange={handleChange}
                     className="mr-2"
                   />
-                  <span className="text-sm">Save as Draft</span>
+                  <span className="text-sm">Published</span>
                 </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="status"
-                    value="need_review"
-                    checked={formData.status === 'need_review'}
-                    onChange={handleChange}
-                    className="mr-2"
-                  />
-                  <span className="text-sm">Submit for Review</span>
-                </label>
-              </div>
+              )}
             </div>
-          )}
+          </div>
 
           <div className="flex gap-4">
             <button
