@@ -78,6 +78,10 @@ const OrganizationsPage: React.FC = () => {
     const res = await joinOrganization(id)
     if (res.ok) {
       await fetchOrganizations()
+      // Update public organizations to reflect the join
+      setPublicOrganizations(publicOrganizations.map(org =>
+        org.id === id ? { ...org, users: [...(org.users || []), { id: user!.id, name: user!.name, email: user!.email, pivot: { role: 'user' } }] } : org
+      ))
     } else {
       alert(res.body.message || 'Failed to join organization')
     }
@@ -87,6 +91,10 @@ const OrganizationsPage: React.FC = () => {
     const res = await leaveOrganization(id)
     if (res.ok) {
       await fetchOrganizations()
+      // Update public organizations to reflect the leave
+      setPublicOrganizations(publicOrganizations.map(org =>
+        org.id === id ? { ...org, users: (org.users || []).filter(u => u.id !== user!.id) } : org
+      ))
     } else {
       alert(res.body.message || 'Failed to leave organization')
     }
