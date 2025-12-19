@@ -41,6 +41,7 @@ const translations = {
     no_friends: 'Belum ada teman',
     no_more: 'Tidak ada lagi postingan',
     login_failed: 'Gagal masuk',
+    load_comments: 'Muat komentar',
   },
   en: {
     comments: 'Comments',
@@ -84,6 +85,7 @@ const translations = {
     no_friends: 'No friends yet',
     no_more: 'No more posts',
     login_failed: 'Login failed',
+    load_comments: 'Load Comments',
   }
 }
 
