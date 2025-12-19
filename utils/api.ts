@@ -176,8 +176,10 @@ export async function reviewNews(organizationId: string, newsId: string, data: {
 }
 
 // Comments API functions (polymorphic)
-export async function getComments(commentableType: string, commentableId: string, page: number = 0, size: number = 3) {
-  const res = await apiFetch(`/${commentableType}/${commentableId}/comments?page=${page}&size=${size}`)
+export async function getComments(commentableType: string, commentableId: string, page: number = 0, size: number = 3, parentId?: string) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  if (parentId) params.append('parent_id', parentId)
+  const res = await apiFetch(`/${commentableType}/${commentableId}/comments?${params}`)
   return res
 }
 

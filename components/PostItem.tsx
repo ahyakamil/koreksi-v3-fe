@@ -18,7 +18,7 @@ export default function PostItem({ post }: PostItemProps) {
   const [showComments, setShowComments] = useState(false)
   const [commentsLoaded, setCommentsLoaded] = useState(false)
   const [commentsCount, setCommentsCount] = useState(post.comments_count || 0)
-  const [pageable, setPageable] = useState<Pageable | null>(null)
+  const [commentsPageable, setCommentsPageable] = useState<any>(null)
   const [loadingMoreComments, setLoadingMoreComments] = useState(false)
 
   useEffect(() => {
@@ -27,28 +27,23 @@ export default function PostItem({ post }: PostItemProps) {
     }
   }, [showComments, commentsLoaded])
 
-  const loadComments = async () => {
-    const res = await getComments('posts', post.public_id, 0, 3)
+  const loadComments = async (page: number = 0, size: number = 3) => {
+    const res = await getComments('posts', post.public_id, page, size)
     if (res.ok) {
-      setComments(res.body.data.comments || [])
-      setPageable(res.body.data.pageable || null)
+      setComments(prev => page === 0 ? res.body.data.comments || [] : [...prev, ...res.body.data.comments])
+      setCommentsPageable(res.body.data.pageable)
       setCommentsLoaded(true)
     }
   }
 
-  const loadMoreComments = async () => {
-    if (!pageable || loadingMoreComments) return
-    const nextPage = pageable.pageNumber + 1
-    if (nextPage >= pageable.totalPages) return
-
+  const loadMoreComments = () => {
+    if (!commentsPageable || loadingMoreComments) return
+    const nextPage = commentsPageable.pageNumber + 1
+    if (nextPage >= commentsPageable.totalPages) return
     setLoadingMoreComments(true)
-    const res = await getComments('posts', post.public_id, nextPage, 3)
-    if (res.ok) {
-      setComments(prev => [...prev, ...res.body.data.comments])
-      setPageable(res.body.data.pageable)
-    }
-    setLoadingMoreComments(false)
+    loadComments(nextPage, 3).finally(() => setLoadingMoreComments(false))
   }
+
 
   const handleCommentSubmit = async (content: string, parentId?: string) => {
     const res = await createComment('posts', post.public_id, {
@@ -62,6 +57,7 @@ export default function PostItem({ post }: PostItemProps) {
     } else {
       alert(res.body.message || 'Failed to post comment')
     }
+    return res
   }
 
   return (
@@ -111,9 +107,11 @@ export default function PostItem({ post }: PostItemProps) {
               comments={comments}
               onReply={handleCommentSubmit}
               currentUser={user}
+              commentableType="posts"
+              commentableId={post.public_id}
             />
 
-            {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
+            {commentsPageable && commentsPageable.pageNumber + 1 < commentsPageable.totalPages && (
               <div className="mt-3 text-center">
                 <button
                   onClick={loadMoreComments}
@@ -124,6 +122,7 @@ export default function PostItem({ post }: PostItemProps) {
                 </button>
               </div>
             )}
+
           </div>
         )}
       </div>

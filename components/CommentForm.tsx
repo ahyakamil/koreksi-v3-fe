@@ -5,7 +5,7 @@ import { useLocale } from '../context/LocaleContext'
 interface CommentFormProps {
   commentableType: string
   commentableId: string
-  onSubmit: (content: string, parentId?: string) => Promise<void>
+  onSubmit: (content: string, parentId?: string) => Promise<any>
   parentId?: string | null
 }
 

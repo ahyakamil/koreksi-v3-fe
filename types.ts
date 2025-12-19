@@ -26,6 +26,8 @@ export interface Comment {
   user?: User
   created_at: string
   content: string
+  parent_id?: string
+  replies_count?: number
 }
 
 export interface Pageable {

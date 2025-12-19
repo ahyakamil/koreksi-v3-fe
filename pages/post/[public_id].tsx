@@ -44,11 +44,15 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
     })
 
     if (res.ok) {
-      setComments([...comments, res.body.data.comment])
+      // If it's a top-level comment, add to list
+      if (!parentId) {
+        setComments([...comments, res.body.data.comment])
+      }
       setTotalComments(prev => prev + 1)
     } else {
       alert(res.body.message || 'Failed to post comment')
     }
+    return res
   }
 
   const loadMoreComments = async () => {
@@ -57,13 +61,14 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
     if (nextPage >= pageable.totalPages) return
 
     setLoadingMore(true)
-    const res = await getComments('posts', post.public_id, nextPage, 3)
+    const res = await getComments('posts', post.public_id, nextPage, 10)
     if (res.ok) {
       setComments(prev => [...prev, ...res.body.data.comments])
       setPageable(res.body.data.pageable)
     }
     setLoadingMore(false)
   }
+
 
   return (
     <>
@@ -114,6 +119,8 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
                 comments={comments}
                 onReply={handleCommentSubmit}
                 currentUser={user}
+                commentableType="posts"
+                commentableId={post.public_id}
               />
 
               {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
@@ -127,6 +134,7 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
                   </button>
                 </div>
               )}
+
             </div>
           </footer>
         </article>
@@ -143,7 +151,7 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
     // Fetch post and comments in parallel
     const [postRes, commentsRes] = await Promise.all([
       fetch(`${API_BASE}/posts/${public_id}`),
-      fetch(`${API_BASE}/posts/${public_id}/comments?page=0&size=3`)
+      fetch(`${API_BASE}/posts/${public_id}/comments?page=0&size=10`)
     ])
 
     if (!postRes.ok) {
