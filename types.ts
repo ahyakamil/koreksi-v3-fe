@@ -67,3 +67,27 @@ export interface OrganizationUser {
     role: 'admin' | 'editor' | 'author' | 'user'
   }
 }
+
+export interface Space {
+  id: string
+  organization_id: string
+  name: string
+  description?: string
+  image?: string
+  created_at: string
+}
+
+export interface News {
+  id: string
+  organization_id: string
+  space_id: string
+  user_id: string
+  title: string
+  content: string
+  status: 'draft' | 'need_review' | 'published' | 'rejected'
+  review_notes?: string
+  published_at?: string
+  created_at: string
+  space?: Space
+  user?: User
+}

@@ -99,6 +99,72 @@ export async function searchUsers(query: string) {
   return res
 }
 
+// Space API functions
+export async function getSpaces(organizationId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/spaces`)
+  return res
+}
+
+export async function createSpace(organizationId: string, data: { name: string; description?: string; image?: string }) {
+  const res = await apiFetch(`/organizations/${organizationId}/spaces`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function updateSpace(organizationId: string, spaceId: string, data: { name?: string; description?: string; image?: string }) {
+  const res = await apiFetch(`/organizations/${organizationId}/spaces/${spaceId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function deleteSpace(organizationId: string, spaceId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/spaces/${spaceId}`, {
+    method: 'DELETE'
+  })
+  return res
+}
+
+// News API functions
+export async function getNews(organizationId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/news`)
+  return res
+}
+
+export async function createNews(organizationId: string, data: { space_id: string; title: string; content: string; status?: string }) {
+  const res = await apiFetch(`/organizations/${organizationId}/news`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function updateNews(organizationId: string, newsId: string, data: any) {
+  const res = await apiFetch(`/organizations/${organizationId}/news/${newsId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function deleteNews(organizationId: string, newsId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/news/${newsId}`, {
+    method: 'DELETE'
+  })
+  return res
+}
+
+export async function reviewNews(organizationId: string, newsId: string, data: { action: string; review_notes?: string }) {
+  const res = await apiFetch(`/organizations/${organizationId}/news/${newsId}/review`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
 export async function uploadImage(formData: FormData) {
   const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
   const headers: Record<string, string> = {}
