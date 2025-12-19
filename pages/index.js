@@ -72,7 +72,7 @@ export default function Home() {
             <PostForm onCreated={() => load()} />
             <ul className="space-y-4">
               {posts.map(p => (
-                <li key={p.id} className="p-4 bg-white rounded shadow">
+                <li key={p.public_id} className="p-4 bg-white rounded shadow">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">by {p.user?.name || t('unknown')}</div>
                     <div className="text-xs text-gray-400">{formatDate(p.created_at)}</div>
@@ -82,7 +82,7 @@ export default function Home() {
                     <div className="mt-1">{p.content}</div>
                   </div>
                   <div className="mt-3">
-                    <CommentsList postId={p.id} />
+                    <CommentsList postId={p.public_id} />
                   </div>
                 </li>
               ))}
@@ -96,7 +96,7 @@ export default function Home() {
             <h2 className="text-lg font-medium mb-2">{t('public_posts')}</h2>
             <ul className="space-y-4">
               {posts.map(p => (
-                <li key={p.id} className="p-4 bg-white rounded shadow">
+                <li key={p.public_id} className="p-4 bg-white rounded shadow">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">by {p.user?.name || t('unknown')}</div>
                     <div className="text-xs text-gray-400">{formatDate(p.created_at)}</div>
@@ -106,7 +106,7 @@ export default function Home() {
                     <div className="mt-1">{p.content}</div>
                   </div>
                   <div className="mt-3">
-                    <CommentsList postId={p.id} />
+                    <CommentsList postId={p.public_id} />
                   </div>
                 </li>
               ))}
