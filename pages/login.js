@@ -11,10 +11,13 @@ export default function Login(){
   const [email,setEmail]=useState('')
   const [password,setPassword]=useState('')
   const [error,setError]=useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
   async function submit(e){
     e.preventDefault()
+    if (submitting) return
     setError(null)
+    setSubmitting(true)
     const res = await fetch(`${API}/auth/login`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -29,6 +32,7 @@ export default function Login(){
     } else {
       setError(j.message || (j.errCode? j.errCode:'Login failed'))
     }
+    setSubmitting(false)
   }
 
   return (
@@ -45,7 +49,7 @@ export default function Login(){
         </div>
         {error && <div className="text-red-600">{error}</div>}
         <div>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded">{t('login')}</button>
+          <button disabled={submitting} className="px-4 py-2 bg-blue-600 text-white rounded">{submitting ? t('loading') : t('login')}</button>
         </div>
       </form>
     </div>
