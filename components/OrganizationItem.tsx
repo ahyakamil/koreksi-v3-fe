@@ -1,8 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
 import { Organization } from '../types'
-import ImageUpload from './ImageUpload'
-import { updateOrganization, uploadImage } from '../utils/api'
 
 interface OrganizationItemProps {
   organization: Organization
@@ -23,33 +21,18 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
   onUpdate,
   currentUserRole
 }) => {
-  const [isEditingImage, setIsEditingImage] = useState(false)
   const router = useRouter()
   const isMember = organization.users?.some(user => user.pivot?.role)
   const userRole = organization.users?.find(user => user.pivot?.role)?.pivot?.role
 
-  const handleFileSelected = async (file: File | null) => {
-    if (file) {
-      const formData = new FormData()
-      formData.append('image', file)
-      const uploadRes = await uploadImage(formData)
-      if (uploadRes.ok && uploadRes.body?.data?.url) {
-        const res = await updateOrganization(organization.id, { image: uploadRes.body.data.url })
-        if (res.ok) {
-          const updatedOrg = { ...organization, image: uploadRes.body.data.url }
-          onUpdate?.(updatedOrg)
-          setIsEditingImage(false)
-        } else {
-          alert('Failed to update organization image')
-        }
-      } else {
-        alert('Failed to upload image')
-      }
+  const handleCardClick = () => {
+    if (isMember) {
+      router.push(`/organizations/${organization.id}`)
     }
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-4">
+    <div className={`bg-white rounded-lg shadow-md p-6 mb-4 ${isMember ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''}`} onClick={handleCardClick}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
@@ -62,36 +45,11 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
             <p className="text-gray-600 mb-4">{organization.description}</p>
           )}
           <div className="mb-4">
-            {isEditingImage ? (
-              <div>
-                <ImageUpload
-                  onFileSelected={handleFileSelected}
-                  currentImage={organization.image}
-                />
-                <button
-                  onClick={() => setIsEditingImage(false)}
-                  className="mt-2 bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-              </div>
+            {organization.image ? (
+              <img src={organization.image} alt={organization.title} className="w-full h-48 object-cover rounded-lg" />
             ) : (
-              <div className="relative">
-                {organization.image ? (
-                  <img src={organization.image} alt={organization.title} className="w-full h-48 object-cover rounded-lg" />
-                ) : (
-                  <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-500">No image</span>
-                  </div>
-                )}
-                {currentUserRole === 'admin' && (
-                  <button
-                    onClick={() => setIsEditingImage(true)}
-                    className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
-                  >
-                    Change Image
-                  </button>
-                )}
+              <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+                <span className="text-gray-500">No image</span>
               </div>
             )}
           </div>
@@ -101,15 +59,7 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
         </div>
       </div>
 
-      <div className="flex gap-2 mt-4">
-        {isMember && (
-          <button
-            onClick={() => router.push(`/organizations/${organization.id}`)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            View Details
-          </button>
-        )}
+      <div className="flex gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
         {currentUserRole === 'admin' && (
           <>
             <button
