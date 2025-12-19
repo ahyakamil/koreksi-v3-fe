@@ -50,6 +50,10 @@ type TranslationKeys = {
   file_too_large: string
   show_post_form: string
   hide_post_form: string
+  now: string
+  m: string
+  h: string
+  d: string
 }
 
 type Translations = {
@@ -110,6 +114,10 @@ const translations: Translations = {
     file_too_large: '{name} terlalu besar. Ukuran maksimal adalah 2MB.',
     show_post_form: 'Bikin postingan',
     hide_post_form: 'Batalkan postingan',
+    now: 'sekarang',
+    m: 'm',
+    h: 'j',
+    d: 'h',
   },
   en: {
     comments: 'Comments',
@@ -163,6 +171,10 @@ const translations: Translations = {
     file_too_large: '{name} is too large. Maximum size is 2MB.',
     show_post_form: 'Create Post',
     hide_post_form: 'Cancel Post',
+    now: 'now',
+    m: 'm',
+    h: 'h',
+    d: 'd',
   }
 }
 
