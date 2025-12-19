@@ -1,22 +1,26 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
-import { News, Comment } from '../../types'
+import { News, Comment, Pageable } from '../../types'
 import CommentsList from '../../components/CommentsList'
 import CommentForm from '../../components/CommentForm'
 import { formatDate } from '../../utils/format'
 import { useAuth } from '../../context/AuthContext'
 import { useState } from 'react'
-import { createComment } from '../../utils/api'
+import { createComment, getComments } from '../../utils/api'
 
 interface NewsDetailProps {
   news: News | null
   comments: Comment[]
+  pageable?: Pageable | null
   error?: string
 }
 
-export default function NewsDetail({ news, comments: initialComments, error }: NewsDetailProps) {
+export default function NewsDetail({ news, comments: initialComments, pageable: initialPageable, error }: NewsDetailProps) {
   const { user } = useAuth()
   const [comments, setComments] = useState<Comment[]>(initialComments)
+  const [pageable, setPageable] = useState<Pageable | null>(initialPageable || null)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [totalComments, setTotalComments] = useState(news?.comments_count || initialComments.length)
 
   if (error || !news) {
     return (
@@ -39,11 +43,29 @@ export default function NewsDetail({ news, comments: initialComments, error }: N
     })
 
     if (res.ok) {
-      // Refresh comments - in a real app you'd fetch updated comments
-      setComments([...comments, res.body.data.comment])
+      // If it's a top-level comment, add to list
+      if (!parentId) {
+        setComments([...comments, res.body.data.comment])
+      }
+      setTotalComments(prev => prev + 1)
     } else {
       alert(res.body.message || 'Failed to post comment')
     }
+    return res
+  }
+
+  const loadMoreComments = async () => {
+    if (!pageable || loadingMore) return
+    const nextPage = pageable.pageNumber + 1
+    if (nextPage >= pageable.totalPages) return
+
+    setLoadingMore(true)
+    const res = await getComments('news', news.public_id, nextPage, 10)
+    if (res.ok) {
+      setComments(prev => [...prev, ...res.body.data.comments])
+      setPageable(res.body.data.pageable)
+    }
+    setLoadingMore(false)
   }
 
   return (
@@ -65,7 +87,7 @@ export default function NewsDetail({ news, comments: initialComments, error }: N
         )}
       </Head>
       <div className="container py-8">
-        <article className="max-w-4xl mx-auto">
+        <article className="max-w-4xl mx-auto p-6 bg-white rounded shadow">
           <header className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="text-sm text-gray-500">
@@ -98,7 +120,7 @@ export default function NewsDetail({ news, comments: initialComments, error }: N
 
           <footer className="border-t pt-8">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-4">Comments ({comments.length})</h2>
+              <h2 className="text-2xl font-bold mb-4">Comments ({totalComments})</h2>
 
               {user && (
                 <div className="mb-6">
@@ -114,7 +136,21 @@ export default function NewsDetail({ news, comments: initialComments, error }: N
                 comments={comments}
                 onReply={handleCommentSubmit}
                 currentUser={user}
+                commentableType="news"
+                commentableId={news.public_id}
               />
+
+              {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={loadMoreComments}
+                    disabled={loadingMore}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {loadingMore ? 'Loading...' : 'Load More Comments'}
+                  </button>
+                </div>
+              )}
             </div>
           </footer>
         </article>
@@ -131,7 +167,7 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
     // Fetch news and comments in parallel
     const [newsRes, commentsRes] = await Promise.all([
       fetch(`${API_BASE}/news/${public_id}`),
-      fetch(`${API_BASE}/news/${public_id}/comments?page=0&size=50`)
+      fetch(`${API_BASE}/news/${public_id}/comments?page=0&size=10`)
     ])
 
     if (!newsRes.ok) {
@@ -139,19 +175,21 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
         props: {
           news: null,
           comments: [],
+          pageable: null,
           error: 'News not found'
         }
       }
     }
 
     const newsData = await newsRes.json()
-    const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { comments: { data: [] } } }
+    const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { comments: [] } }
 
     if (newsData.statusCode !== 2000) {
       return {
         props: {
           news: null,
           comments: [],
+          pageable: null,
           error: newsData.message || 'Failed to load news'
         }
       }
@@ -160,7 +198,8 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
     return {
       props: {
         news: newsData.data.news,
-        comments: commentsData.data?.comments?.data || []
+        comments: commentsData.data?.comments || [],
+        pageable: commentsData.data?.pageable || null
       }
     }
   } catch (error) {
@@ -168,6 +207,7 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
       props: {
         news: null,
         comments: [],
+        pageable: null,
         error: 'Failed to load news'
       }
     }
