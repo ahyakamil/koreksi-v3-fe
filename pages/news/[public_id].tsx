@@ -5,6 +5,7 @@ import CommentsList from '../../components/CommentsList'
 import CommentForm from '../../components/CommentForm'
 import { formatDate } from '../../utils/format'
 import { useAuth } from '../../context/AuthContext'
+import { useLocale } from '../../context/LocaleContext'
 import { useState, useEffect } from 'react'
 import { createComment, getComments } from '../../utils/api'
 
@@ -21,6 +22,7 @@ interface NewsDetailProps {
 
 export default function NewsDetail({ news, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable }: NewsDetailProps) {
   const { user } = useAuth()
+  const { t } = useLocale()
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [pageable, setPageable] = useState<Pageable | null>(initialPageable || null)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -39,8 +41,8 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
     return (
       <div className="container py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600">News not found</h1>
-          <p>{error || 'The news you are looking for does not exist.'}</p>
+          <h1 className="text-2xl font-bold text-red-600">{t('news_not_found')}</h1>
+          <p>{error || t('failed_to_load')}</p>
         </div>
       </div>
     )
@@ -107,7 +109,7 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
         <article className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
           <header className="mb-4">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">Published {formatDate(news.published_at || news.created_at)}</div>
+              <div className="text-sm text-gray-500">{t('published')} {formatDate(news.published_at || news.created_at)}</div>
             </div>
             <h1 className="text-2xl font-bold mt-2">{news.title}</h1>
           </header>
@@ -117,14 +119,14 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
           </div>
           <footer className="mt-6">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">Comments ({totalComments})</h3>
+              <h3 className="text-lg font-semibold">{t('comments')} ({totalComments})</h3>
               {specificCommentId && (
                 <div className="mt-2">
                   <button
                     onClick={() => window.location.href = `/news/${news.public_id}`}
                     className="text-sm text-blue-600 hover:text-blue-800"
                   >
-                    Show all comments
+                    {t('show_all_comments')}
                   </button>
                 </div>
               )}
@@ -158,7 +160,7 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
                     disabled={loadingMore}
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
                   >
-                    {loadingMore ? 'Loading...' : 'Load More Comments'}
+                    {loadingMore ? t('loading') : t('load_more') + ' ' + t('comments')}
                   </button>
                 </div>
               )}

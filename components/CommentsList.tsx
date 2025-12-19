@@ -72,7 +72,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                 </svg>
-                <span>Share</span>
+                <span>{t('share')}</span>
               </button>
             )}
           </div>
@@ -84,14 +84,14 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
               onClick={() => setReplyingTo(comment.id)}
               className="text-xs text-blue-600 hover:text-blue-800"
             >
-              Reply
+              {t('reply')}
             </button>
             {(comment.replies_count ?? 0) > 0 && !showReplies[comment.id] && (
               <button
                 onClick={() => handleShowReplies(comment.id)}
                 className="text-xs text-blue-600 hover:text-blue-800"
               >
-                Show replies ({comment.replies_count})
+                {t('show_replies')} ({comment.replies_count})
               </button>
             )}
           </div>
@@ -123,7 +123,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
                   disabled={loadingReplies[comment.id]}
                   className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50"
                 >
-                  {loadingReplies[comment.id] ? 'Loading...' : 'Load more replies'}
+                  {loadingReplies[comment.id] ? t('loading') : t('load_more_replies')}
                 </button>
               </div>
             )}
@@ -136,7 +136,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
   return (
     <div className="space-y-3">
       {comments.length === 0 ? (
-        <p className="text-gray-500 text-sm">No comments yet.</p>
+        <p className="text-gray-500 text-sm">{t('no_comments')}</p>
       ) : (
         comments.map(comment => renderComment(comment))
       )}

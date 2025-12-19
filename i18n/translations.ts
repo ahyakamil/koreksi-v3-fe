@@ -19,7 +19,7 @@ type TranslationKeys = {
   from: string
   loading: string
   unknown: string
-  public_posts: string
+  news: string
   page_of: string
   prev: string
   next: string
@@ -54,6 +54,18 @@ type TranslationKeys = {
   m: string
   h: string
   d: string
+  share: string
+  show_all_comments: string
+  reply: string
+  show_replies: string
+  load_more_replies: string
+  no_comments: string
+  by: string
+  published: string
+  news_not_found: string
+  post_not_found: string
+  failed_to_load: string
+  organizations: string
 }
 
 type Translations = {
@@ -83,7 +95,7 @@ const translations: Translations = {
     from: 'Dari',
     loading: 'Memuat...',
     unknown: 'Tidak diketahui',
-    public_posts: 'Posting publik',
+    news: 'Berita',
     page_of: 'Halaman {page} dari {total}',
     prev: 'Sebelumnya',
     next: 'Selanjutnya',
@@ -118,6 +130,18 @@ const translations: Translations = {
     m: 'm',
     h: 'j',
     d: 'h',
+    share: 'Bagikan',
+    show_all_comments: 'Tampilkan semua komentar',
+    reply: 'Balas',
+    show_replies: 'Tampilkan balasan',
+    load_more_replies: 'Muat lebih banyak balasan',
+    no_comments: 'Belum ada komentar.',
+    by: 'oleh',
+    published: 'Diterbitkan',
+    news_not_found: 'Berita tidak ditemukan',
+    post_not_found: 'Postingan tidak ditemukan',
+    failed_to_load: 'Gagal memuat',
+    organizations: 'Organisasi',
   },
   en: {
     comments: 'Comments',
@@ -140,7 +164,7 @@ const translations: Translations = {
     from: 'From',
     loading: 'Loading...',
     unknown: 'Unknown',
-    public_posts: 'Public posts',
+    news: 'News',
     page_of: 'Page {page} of {total}',
     prev: 'Prev',
     next: 'Next',
@@ -175,6 +199,18 @@ const translations: Translations = {
     m: 'm',
     h: 'h',
     d: 'd',
+    share: 'Share',
+    show_all_comments: 'Show all comments',
+    reply: 'Reply',
+    show_replies: 'Show replies',
+    load_more_replies: 'Load more replies',
+    no_comments: 'No comments yet.',
+    by: 'by',
+    published: 'Published',
+    news_not_found: 'News not found',
+    post_not_found: 'Post not found',
+    failed_to_load: 'Failed to load',
+    organizations: 'Organizations',
   }
 }
 

@@ -7,6 +7,7 @@ import CommentForm from './CommentForm'
 import { Post, Comment, Pageable } from '../types'
 import { getComments, createComment } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
+import { useLocale } from '../context/LocaleContext'
 
 interface PostItemProps {
   post: Post
@@ -14,6 +15,7 @@ interface PostItemProps {
 
 export default function PostItem({ post }: PostItemProps) {
   const { user } = useAuth()
+  const { t } = useLocale()
   const [comments, setComments] = useState<Comment[]>([])
   const [showComments, setShowComments] = useState(false)
   const [commentsLoaded, setCommentsLoaded] = useState(false)
@@ -68,7 +70,7 @@ export default function PostItem({ post }: PostItemProps) {
   return (
     <li className="p-4 bg-white rounded shadow">
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-500">by {post.user?.name || 'Unknown'}</div>
+        <div className="text-sm text-gray-500">{t('by')} {post.user?.name || t('unknown')}</div>
         <div className="flex items-center space-x-2">
           <TimeAgo date={post.created_at} className="text-xs text-gray-400" />
           <button
@@ -82,7 +84,7 @@ export default function PostItem({ post }: PostItemProps) {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
             </svg>
-            <span>Share</span>
+            <span>{t('share')}</span>
           </button>
         </div>
       </div>
@@ -96,7 +98,7 @@ export default function PostItem({ post }: PostItemProps) {
           onClick={() => setShowComments(!showComments)}
           className="text-sm text-blue-600 hover:text-blue-800"
         >
-          {showComments ? 'Hide Comments' : `Show Comments${commentsCount > 0 ? ` (${commentsCount})` : ''}`}
+          {showComments ? t('hide_post_form') : `${t('load_comments')}${commentsCount > 0 ? ` (${commentsCount})` : ''}`}
         </button>
 
         {showComments && (
@@ -123,7 +125,7 @@ export default function PostItem({ post }: PostItemProps) {
                   disabled={loadingMoreComments}
                   className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 disabled:opacity-50"
                 >
-                  {loadingMoreComments ? 'Loading...' : 'Load More'}
+                  {loadingMoreComments ? t('loading') : t('load_more')}
                 </button>
               </div>
             )}

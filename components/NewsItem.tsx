@@ -6,6 +6,7 @@ import CommentForm from './CommentForm'
 import { News, Comment } from '../types'
 import { getComments, createComment } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
+import { useLocale } from '../context/LocaleContext'
 
 interface NewsItemProps {
   news: News
@@ -14,6 +15,7 @@ interface NewsItemProps {
 
 export default function NewsItem({ news, hideOrganization = false }: NewsItemProps) {
   const { user } = useAuth()
+  const { t } = useLocale()
   const [isExpanded, setIsExpanded] = useState(false)
   const [comments, setComments] = useState<Comment[]>([])
   const [showComments, setShowComments] = useState(false)
@@ -83,7 +85,7 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
       <div className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm text-gray-500">
-            by {news.user?.name || 'Unknown'}
+            {t('by')} {news.user?.name || t('unknown')}
             {!hideOrganization && (
               <> in{' '}
                 <Link href={`/organizations/${news.organization_id}`} className="text-blue-500 hover:text-blue-700 font-medium">
@@ -124,14 +126,14 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="text-blue-600 hover:text-blue-800 font-medium text-sm"
               >
-                {isExpanded ? 'Read Less' : 'Read More'}
+                {isExpanded ? t('hide_post_form') : t('show_post_form')}
               </button>
             )}
             <button
               onClick={() => setShowComments(!showComments)}
               className="text-sm text-blue-600 hover:text-blue-800"
             >
-              {showComments ? 'Hide Comments' : `Show Comments${news.comments_count && news.comments_count > 0 ? ` (${news.comments_count})` : ''}`}
+              {showComments ? t('hide_post_form') : `${t('load_comments')}${news.comments_count && news.comments_count > 0 ? ` (${news.comments_count})` : ''}`}
             </button>
             <button
               onClick={(e) => {
@@ -144,7 +146,7 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
               </svg>
-              <span>Share</span>
+              <span>{t('share')}</span>
             </button>
           </div>
         </div>

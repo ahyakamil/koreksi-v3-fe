@@ -47,7 +47,7 @@ export default function NewsPage() {
   return (
     <div className="container py-8">
       <main>
-        <h1 className="text-2xl font-bold mb-6">Published News</h1>
+        <h1 className="text-2xl font-bold mb-6">{t('news')}</h1>
 
         {loadingNews ? (
           <div className="text-center py-8">{t('loading')}</div>
@@ -61,7 +61,7 @@ export default function NewsPage() {
           </ul>
         ) : (
           <div className="text-center py-8 text-gray-500">
-            No published news available.
+            {t('no_more')}
           </div>
         )}
       </main>
