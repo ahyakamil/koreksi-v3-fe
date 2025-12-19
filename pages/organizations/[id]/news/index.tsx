@@ -92,7 +92,7 @@ const NewsManagementPage: React.FC = () => {
         </button>
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Manage News - {organization.title}</h1>
-          {(currentUserRole === 'admin' || currentUserRole === 'editor' || currentUserRole === 'author') && (
+          {currentUserRole && (
             <button
               onClick={() => router.push(`/organizations/${id}/news/create`)}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -163,7 +163,7 @@ const NewsManagementPage: React.FC = () => {
                   )}
                 </div>
                 <div className="flex gap-2 ml-4">
-                  {(item.user_id === user?.id || currentUserRole === 'admin' || currentUserRole === 'editor') && (
+                  {item.user_id === user?.id && (
                     <button
                       onClick={() => router.push(`/organizations/${id}/news/${item.id}/edit`)}
                       className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"

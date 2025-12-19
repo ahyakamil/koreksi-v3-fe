@@ -80,8 +80,7 @@ const EditNewsPage: React.FC = () => {
 
   const canEditNews = () => {
     if (!news || !user) return false
-    const role = getCurrentUserRole()
-    return news.user_id === user.id || role === 'admin' || role === 'editor'
+    return news.user_id === user.id
   }
 
   if (loading) return <div>Loading...</div>

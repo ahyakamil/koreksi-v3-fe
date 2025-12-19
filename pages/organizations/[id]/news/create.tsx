@@ -70,10 +70,9 @@ const CreateNewsPage: React.FC = () => {
   if (!organization) return <div>Organization not found</div>
 
   const currentUserRole = getCurrentUserRole()
-  const canCreateNews = currentUserRole === 'admin' || currentUserRole === 'editor' || currentUserRole === 'author'
 
-  if (!canCreateNews) {
-    return <div>You don't have permission to create news.</div>
+  if (!currentUserRole) {
+    return <div>You are not a member of this organization.</div>
   }
 
   return (

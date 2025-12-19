@@ -197,7 +197,7 @@ const OrganizationDetailsPage: React.FC = () => {
             >
               Members ({organization.users?.length})
             </button>
-            {currentUserRole === 'admin' && (
+            {currentUserRole && (
               <>
                 <button
                   onClick={() => setActiveTab('spaces')}
@@ -299,19 +299,21 @@ const OrganizationDetailsPage: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'spaces' && currentUserRole === 'admin' && (
+        {activeTab === 'spaces' && currentUserRole && (
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Spaces</h2>
-              <button
-                onClick={() => setShowCreateSpace(true)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                Create Space
-              </button>
+              {currentUserRole === 'admin' && (
+                <button
+                  onClick={() => setShowCreateSpace(true)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Create Space
+                </button>
+              )}
             </div>
 
-            {showCreateSpace && (
+            {showCreateSpace && currentUserRole === 'admin' && (
               <div className="mb-8 p-4 bg-gray-50 rounded">
                 <SpaceForm
                   onSubmit={handleCreateSpace}
@@ -320,7 +322,7 @@ const OrganizationDetailsPage: React.FC = () => {
               </div>
             )}
 
-            {editingSpace && (
+            {editingSpace && currentUserRole === 'admin' && (
               <div className="mb-8 p-4 bg-gray-50 rounded">
                 <SpaceForm
                   space={editingSpace}
@@ -352,20 +354,22 @@ const OrganizationDetailsPage: React.FC = () => {
                           <p className="text-gray-600 mt-1">{space.description}</p>
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setEditingSpace(space)}
-                          className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSpace(space.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      {currentUserRole === 'admin' && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setEditingSpace(space)}
+                            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSpace(space.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))

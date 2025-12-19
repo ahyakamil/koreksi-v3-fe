@@ -2,6 +2,12 @@ import React from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
+const editorStyle = `
+  .ql-editor {
+    min-height: 300px;
+  }
+`
+
 interface RichTextEditorProps {
   value: string
   onChange: (value: string) => void
@@ -35,6 +41,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <div className={className}>
+      <style dangerouslySetInnerHTML={{ __html: editorStyle }} />
       <ReactQuill
         theme="snow"
         value={value}
@@ -42,7 +49,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         placeholder={placeholder}
         modules={modules}
         formats={formats}
-        style={{ minHeight: '300px' }}
       />
     </div>
   )
