@@ -40,28 +40,30 @@ export default function Header(){
           </Link>
 
           {/* desktop links */}
-          {isLogged && (
-            <div className="hidden sm:flex items-center space-x-3">
-              <Link href="/organizations" className="text-sm text-gray-200 hover:text-white">
-                Organizations
-              </Link>
-              <Link href="/news" className="text-sm text-gray-200 hover:text-white">
-                News
-              </Link>
-              <Link href="/friends" className="relative text-sm text-gray-200 hover:text-white">
-                {t('friends')}
-                {pendingRequestsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-                )}
-              </Link>
-              <Link href="/notifications" className="relative text-sm text-gray-200 hover:text-white">
-                {t('notifications')}
-                {notificationsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-                )}
-              </Link>
-            </div>
-          )}
+          <div className="hidden sm:flex items-center space-x-3">
+            <Link href="/news" className="text-sm text-gray-200 hover:text-white">
+              News
+            </Link>
+            {isLogged && (
+              <>
+                <Link href="/organizations" className="text-sm text-gray-200 hover:text-white">
+                  Organizations
+                </Link>
+                <Link href="/friends" className="relative text-sm text-gray-200 hover:text-white">
+                  {t('friends')}
+                  {pendingRequestsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                  )}
+                </Link>
+                <Link href="/notifications" className="relative text-sm text-gray-200 hover:text-white">
+                  {t('notifications')}
+                  {notificationsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                  )}
+                </Link>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center space-x-3">

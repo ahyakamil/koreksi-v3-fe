@@ -30,26 +30,16 @@ export default function NewsPage() {
   }
 
   useEffect(() => {
-    if (user && !mountedRef.current) {
+    if (!mountedRef.current) {
       loadNews()
       mountedRef.current = true
     }
-  }, [user])
+  }, [])
 
-  if (loading) {
+  if (loadingNews) {
     return (
       <div className="container py-8">
         <div>{t('loading')}</div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="container py-8">
-        <div className="text-center">
-          <p>Please log in to view news.</p>
-        </div>
       </div>
     )
   }
