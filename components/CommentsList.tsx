@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../utils/api'
 import CommentForm from './CommentForm'
-import { formatDate } from '../utils/format'
+import TimeAgo from './TimeAgo'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
 import { Comment, Pageable } from '../types'
@@ -52,7 +52,7 @@ export default function CommentsList({ postId }: { postId: string }){
             <div key={c.id} className="p-2 bg-gray-50 rounded">
               <div className="flex items-center justify-between">
                 <div className="text-xs text-gray-600">{c.user?.name || t('user')}</div>
-                <div className="text-xs text-gray-400">{formatDate(c.created_at)}</div>
+                <TimeAgo date={c.created_at} className="text-xs text-gray-400" />
               </div>
               <div className="mt-1">{c.content}</div>
             </div>
