@@ -30,11 +30,11 @@ export default function PostItem({ post }: PostItemProps) {
           </button>
         </div>
       </div>
-      <Link href={`/post/${post.public_id}`} className="block mt-2 hover:bg-gray-50 -m-2 p-2 rounded">
+      <div>
         {post.title && <h3 className="font-semibold">{post.title}</h3>}
         <div className="mt-1">{post.content}</div>
         {post.medias && <Carousel medias={post.medias} />}
-      </Link>
+      </div>
       <div className="mt-3">
         <CommentsList postId={post.public_id} />
       </div>
