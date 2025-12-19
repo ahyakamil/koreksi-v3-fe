@@ -22,3 +22,81 @@ export async function apiFetch(path: string, options: ApiOptions = {}): Promise<
 }
 
 export default apiFetch
+
+// Organization API functions
+export async function getOrganizations() {
+  const res = await apiFetch('/organizations')
+  return res
+}
+
+export async function createOrganization(data: { title: string; description?: string; image?: string }) {
+  const res = await apiFetch('/organizations', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function getOrganization(id: string) {
+  const res = await apiFetch(`/organizations/${id}`)
+  return res
+}
+
+export async function updateOrganization(id: string, data: { title?: string; description?: string; image?: string }) {
+  const res = await apiFetch(`/organizations/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function deleteOrganization(id: string) {
+  const res = await apiFetch(`/organizations/${id}`, {
+    method: 'DELETE'
+  })
+  return res
+}
+
+export async function joinOrganization(id: string) {
+  const res = await apiFetch(`/organizations/${id}/join`, {
+    method: 'POST'
+  })
+  return res
+}
+
+export async function leaveOrganization(id: string) {
+  const res = await apiFetch(`/organizations/${id}/leave`, {
+    method: 'POST'
+  })
+  return res
+}
+
+export async function updateUserRole(organizationId: string, userId: string, role: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/users/${userId}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role })
+  })
+  return res
+}
+
+export async function removeMember(organizationId: string, userId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/users/${userId}`, {
+    method: 'DELETE'
+  })
+  return res
+}
+
+export async function uploadOrganizationImage(formData: FormData) {
+  const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
+  const headers: Record<string, string> = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const res = await fetch(`${API_BASE}organizations/upload/image`, {
+    method: 'POST',
+    headers,
+    body: formData
+  })
+  let json = null
+  try { json = await res.json() } catch (e) { /* ignore */ }
+  return { ok: res.ok, status: res.status, body: json }
+}

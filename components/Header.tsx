@@ -43,6 +43,9 @@ export default function Header(){
           {/* desktop links */}
           {isLogged && (
             <div className="hidden sm:flex items-center space-x-3">
+              <Link href="/organizations" className="text-sm text-gray-200 hover:text-white">
+                Organizations
+              </Link>
               <Link href="/friends" className="relative text-sm text-gray-200 hover:text-white">
                 {t('friends')}
                 {pendingRequestsCount > 0 && (
@@ -100,6 +103,7 @@ export default function Header(){
         {menuOpen && (
           <div className="sm:hidden absolute right-4 top-full mt-2 w-48 bg-gray-800 border border-gray-700 rounded shadow z-50">
             <div className="flex flex-col p-2 space-y-1">
+              <Link href="/organizations" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">Organizations</Link>
               <Link href="/posts/create" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">{t('post_button')}</Link>
               <Link href="/friends" onClick={()=>setMenuOpen(false)} className="relative px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded flex items-center">
                 {t('friends')}

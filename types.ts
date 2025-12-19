@@ -48,3 +48,22 @@ export interface FriendRequest {
   id: string
   user: User
 }
+
+export interface Organization {
+  id: string
+  title: string
+  description?: string
+  image?: string
+  verified: boolean
+  created_at: string
+  users?: OrganizationUser[]
+}
+
+export interface OrganizationUser {
+  id: string
+  name: string
+  email: string
+  pivot: {
+    role: 'admin' | 'editor' | 'author' | 'user'
+  }
+}
