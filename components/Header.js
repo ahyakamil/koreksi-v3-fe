@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 
 export default function Header(){
-  const { user, setUser } = useAuth()
+  const { user, setUser, pendingRequestsCount, refreshPendingCount } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const logout = async () => {
@@ -28,6 +28,7 @@ export default function Header(){
     Router.push('/login')
   }
 
+
   const isLogged = !!user
   const { t, locale, changeLocale } = useLocale()
 
@@ -42,7 +43,12 @@ export default function Header(){
           {/* desktop links */}
           {isLogged && (
             <div className="hidden sm:flex items-center space-x-3">
-              <Link href="/friends" className="text-sm text-gray-200 hover:text-white">{t('friends')}</Link>
+              <Link href="/friends" className="relative text-sm text-gray-200 hover:text-white">
+                {t('friends')}
+                {pendingRequestsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                )}
+              </Link>
               <Link href="/notifications" className="text-sm text-gray-200 hover:text-white">{t('notifications')}</Link>
             </div>
           )}
@@ -90,7 +96,12 @@ export default function Header(){
           <div className="sm:hidden absolute right-4 top-full mt-2 w-48 bg-gray-800 border border-gray-700 rounded shadow z-50">
             <div className="flex flex-col p-2 space-y-1">
               <Link href="/posts/create" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">{t('post_button')}</Link>
-              <Link href="/friends" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">{t('friends')}</Link>
+              <Link href="/friends" onClick={()=>setMenuOpen(false)} className="relative px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded flex items-center">
+                {t('friends')}
+                {pendingRequestsCount > 0 && (
+                  <span className="ml-2 h-2 w-2 bg-red-500 rounded-full"></span>
+                )}
+              </Link>
               <Link href="/notifications" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">{t('notifications')}</Link>
               <button onClick={async ()=>{ await logout(); setMenuOpen(false) }} className="px-3 py-2 text-sm text-left text-red-400 hover:bg-gray-700 rounded">{t('logout')}</button>
             </div>
