@@ -9,9 +9,10 @@ import { useAuth } from '../context/AuthContext'
 
 interface NewsItemProps {
   news: News
+  hideOrganization?: boolean
 }
 
-export default function NewsItem({ news }: NewsItemProps) {
+export default function NewsItem({ news, hideOrganization = false }: NewsItemProps) {
   const { user } = useAuth()
   const [isExpanded, setIsExpanded] = useState(false)
   const [comments, setComments] = useState<Comment[]>([])
@@ -82,10 +83,14 @@ export default function NewsItem({ news }: NewsItemProps) {
       <div className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm text-gray-500">
-            by {news.user?.name || 'Unknown'} in{' '}
-            <Link href={`/organizations/${news.organization_id}`} className="text-blue-500 hover:text-blue-700 font-medium">
-              {news.organization?.title || 'Organization'}
-            </Link>
+            by {news.user?.name || 'Unknown'}
+            {!hideOrganization && (
+              <> in{' '}
+                <Link href={`/organizations/${news.organization_id}`} className="text-blue-500 hover:text-blue-700 font-medium">
+                  {news.organization?.title || 'Organization'}
+                </Link>
+              </>
+            )}
           </div>
           <div className="flex items-center space-x-2">
             <TimeAgo date={news.published_at || news.created_at} className="text-xs text-gray-400" />

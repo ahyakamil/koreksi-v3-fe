@@ -166,6 +166,8 @@ const OrganizationDetailsPage: React.FC = () => {
     return organization?.users?.find(u => u.id === user?.id)?.pivot?.role
   }, [organization, user])
 
+  const canManage = currentUserRole && ['admin', 'editor', 'author'].includes(currentUserRole)
+
   useEffect(() => {
     if (organization && activeTab === 'spaces' && currentUserRole) {
       fetchSpaces()
@@ -199,10 +201,20 @@ const OrganizationDetailsPage: React.FC = () => {
         )}
       </div>
 
-      {currentUserRole ? (
+      {canManage ? (
         <div className="mb-8">
           <div className="border-b border-gray-200 mb-6">
             <nav className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('news')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'news'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                News
+              </button>
               <button
                 onClick={() => setActiveTab('members')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -222,16 +234,6 @@ const OrganizationDetailsPage: React.FC = () => {
                 }`}
               >
                 Spaces
-              </button>
-              <button
-                onClick={() => setActiveTab('news')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'news'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                News
               </button>
               <button
                 onClick={() => router.push(`/organizations/${id}/news`)}
@@ -408,7 +410,7 @@ const OrganizationDetailsPage: React.FC = () => {
               ) : (
                 <ul className="space-y-4">
                   {news.map(item => (
-                    <NewsItem key={item.public_id} news={item} />
+                    <NewsItem key={item.public_id} news={item} hideOrganization={true} />
                   ))}
                 </ul>
               )}
@@ -423,7 +425,7 @@ const OrganizationDetailsPage: React.FC = () => {
           ) : (
             <ul className="space-y-4">
               {news.map(item => (
-                <NewsItem key={item.public_id} news={item} />
+                <NewsItem key={item.public_id} news={item} hideOrganization={true} />
               ))}
             </ul>
           )}
