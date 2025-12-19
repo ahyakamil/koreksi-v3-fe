@@ -55,12 +55,22 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
       </div>
       <div className="text-gray-700 mb-2">{comment.content}</div>
       {currentUser && !comment.parent_id && (
-        <button
-          onClick={() => setReplyingTo(comment.id)}
-          className="text-xs text-blue-600 hover:text-blue-800"
-        >
-          Reply
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setReplyingTo(comment.id)}
+            className="text-xs text-blue-600 hover:text-blue-800"
+          >
+            Reply
+          </button>
+          {(comment.replies_count ?? 0) > 0 && !showReplies[comment.id] && (
+            <button
+              onClick={() => handleShowReplies(comment.id)}
+              className="text-xs text-blue-600 hover:text-blue-800"
+            >
+              Show replies
+            </button>
+          )}
+        </div>
       )}
       {replyingTo === comment.id && (
         <div className="mt-2">
@@ -90,29 +100,18 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
         comments.map(comment => (
           <div key={comment.id}>
             {renderComment(comment)}
-            {currentUser && !comment.parent_id && (comment.replies_count ?? 0) > 0 && (
-              <div className="mt-1">
-                {!showReplies[comment.id] ? (
-                  <button
-                    onClick={() => handleShowReplies(comment.id)}
-                    className="text-xs text-blue-600 hover:text-blue-800"
-                  >
-                    Show replies
-                  </button>
-                ) : (
-                  <div className="ml-6 mt-2 space-y-2">
-                    {replies[comment.id]?.map(reply => renderComment(reply))}
-                    {repliesPageable[comment.id] && repliesPageable[comment.id].pageNumber + 1 < repliesPageable[comment.id].totalPages && (
-                      <div className="text-center mt-2">
-                        <button
-                          onClick={() => handleLoadMoreReplies(comment.id)}
-                          disabled={loadingReplies[comment.id]}
-                          className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50"
-                        >
-                          {loadingReplies[comment.id] ? 'Loading...' : 'Load more replies'}
-                        </button>
-                      </div>
-                    )}
+            {showReplies[comment.id] && (
+              <div className="ml-6 mt-2 space-y-2">
+                {replies[comment.id]?.map(reply => renderComment(reply))}
+                {repliesPageable[comment.id] && repliesPageable[comment.id].pageNumber + 1 < repliesPageable[comment.id].totalPages && (
+                  <div className="text-center mt-2">
+                    <button
+                      onClick={() => handleLoadMoreReplies(comment.id)}
+                      disabled={loadingReplies[comment.id]}
+                      className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                    >
+                      {loadingReplies[comment.id] ? 'Loading...' : 'Load more replies'}
+                    </button>
                   </div>
                 )}
               </div>
