@@ -95,4 +95,5 @@ export interface News {
   space?: Space
   organization?: Organization
   user?: User
+  comments_count?: number
 }
