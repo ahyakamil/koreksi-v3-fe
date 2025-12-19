@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization } from '../types'
-import { getOrganizations, createOrganization, updateOrganization, deleteOrganization, joinOrganization, leaveOrganization } from '../utils/api'
+import { getOrganizations, getPublicOrganizations, createOrganization, updateOrganization, deleteOrganization, joinOrganization, leaveOrganization } from '../utils/api'
 import OrganizationItem from '../components/OrganizationItem'
 import OrganizationForm from '../components/OrganizationForm'
 import { useAuth } from '../context/AuthContext'
 
 const OrganizationsPage: React.FC = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([])
+  const [publicOrganizations, setPublicOrganizations] = useState<Organization[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'my' | 'world'>('my')
   const [showForm, setShowForm] = useState(false)
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null)
   const { user, loading: authLoading } = useAuth()
@@ -21,6 +23,7 @@ const OrganizationsPage: React.FC = () => {
       return
     }
     fetchOrganizations()
+    fetchPublicOrganizations()
   }, [user, authLoading, router])
 
   const fetchOrganizations = async () => {
@@ -29,6 +32,13 @@ const OrganizationsPage: React.FC = () => {
       setOrganizations(res.body.data.organizations)
     }
     setLoading(false)
+  }
+
+  const fetchPublicOrganizations = async () => {
+    const res = await getPublicOrganizations()
+    if (res.ok) {
+      setPublicOrganizations(res.body.data.organizations)
+    }
   }
 
   const handleCreate = async (data: { title: string; description?: string; image?: string }) => {
@@ -94,16 +104,37 @@ const OrganizationsPage: React.FC = () => {
 
   if (loading) return <div>Loading...</div>
 
+  const currentOrganizations = activeTab === 'my' ? organizations : publicOrganizations
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Organizations</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Create Organization
-        </button>
+        {activeTab === 'my' && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Create Organization
+          </button>
+        )}
+      </div>
+
+      <div className="mb-6">
+        <div className="flex border-b">
+          <button
+            onClick={() => setActiveTab('my')}
+            className={`px-4 py-2 ${activeTab === 'my' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
+          >
+            My Organizations
+          </button>
+          <button
+            onClick={() => setActiveTab('world')}
+            className={`px-4 py-2 ${activeTab === 'world' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
+          >
+            World Organizations
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -126,10 +157,10 @@ const OrganizationsPage: React.FC = () => {
       )}
 
       <div>
-        {organizations.length === 0 ? (
+        {currentOrganizations.length === 0 ? (
           <p>No organizations found.</p>
         ) : (
-          organizations.map(org => (
+          currentOrganizations.map(org => (
             <OrganizationItem
               key={org.id}
               organization={org}

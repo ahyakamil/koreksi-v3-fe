@@ -22,17 +22,14 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
   currentUserRole
 }) => {
   const router = useRouter()
-  const isMember = organization.users?.some(user => user.pivot?.role)
-  const userRole = organization.users?.find(user => user.pivot?.role)?.pivot?.role
+  const isMember = !!currentUserRole
 
   const handleCardClick = () => {
-    if (isMember) {
-      router.push(`/organizations/${organization.id}`)
-    }
+    router.push(`/organizations/${organization.id}`)
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 mb-4 ${isMember ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''}`} onClick={handleCardClick}>
+    <div className="bg-white rounded-lg shadow-md p-6 mb-4 cursor-pointer hover:shadow-lg transition-shadow" onClick={handleCardClick}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
@@ -84,7 +81,7 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
             Join
           </button>
         )}
-        {isMember && userRole !== 'admin' && (
+        {isMember && currentUserRole !== 'admin' && (
           <button
             onClick={() => onLeave?.(organization.id)}
             className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
@@ -92,9 +89,9 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
             Leave
           </button>
         )}
-        {userRole && (
+        {currentUserRole && (
           <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
-            Role: {userRole}
+            Role: {currentUserRole}
           </span>
         )}
       </div>

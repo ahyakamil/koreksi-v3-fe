@@ -29,6 +29,16 @@ export async function getOrganizations() {
   return res
 }
 
+export async function getPublicOrganizations() {
+  const res = await apiFetch('/organizations/public')
+  return res
+}
+
+export async function getPublicOrganization(id: string) {
+  const res = await apiFetch(`/organizations/${id}/public`)
+  return res
+}
+
 export async function createOrganization(data: { title: string; description?: string; image?: string }) {
   const res = await apiFetch('/organizations', {
     method: 'POST',
