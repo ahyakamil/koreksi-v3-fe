@@ -28,25 +28,27 @@ export default function Header(){
   const isLogged = !!user
 
   return (
-    <header className="bg-white shadow">
+    <header className="bg-gray-800 text-gray-100 shadow">
       <div className="container flex items-center justify-between py-3">
         <div className="flex items-center space-x-4">
-          <Link href="/" className="font-bold">Koreksi</Link>
+          <Link href="/" className="flex items-center space-x-2">
+            <img src="/icon-512x512.png" alt="Koreksi" className="w-8 h-8 rounded" />
+          </Link>
           {isLogged && (
             <>
-              <Link href="/posts/create" className="text-sm text-gray-600">Create Post</Link>
-              <Link href="/friends" className="text-sm text-gray-600">Friends</Link>
-              <Link href="/notifications" className="text-sm text-gray-600">Notifications</Link>
+              <Link href="/posts/create" className="text-sm text-gray-200 hover:text-white">Create Post</Link>
+              <Link href="/friends" className="text-sm text-gray-200 hover:text-white">Friends</Link>
+              <Link href="/notifications" className="text-sm text-gray-200 hover:text-white">Notifications</Link>
             </>
           )}
         </div>
         <div>
           {isLogged ? (
-            <button onClick={logout} className="px-3 py-1 bg-red-500 text-white rounded">Logout</button>
+            <button onClick={logout} className="px-3 py-1 bg-red-600 text-white rounded">Logout</button>
           ) : (
             <div className="space-x-3">
-              <Link href="/login" className="text-sm text-blue-600">Login</Link>
-              <Link href="/register" className="text-sm text-green-600">Register</Link>
+              <Link href="/login" className="text-sm text-blue-300 hover:text-white">Login</Link>
+              <Link href="/register" className="text-sm text-green-300 hover:text-white">Register</Link>
             </div>
           )}
         </div>
