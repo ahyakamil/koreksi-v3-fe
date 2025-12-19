@@ -4,10 +4,11 @@ import CommentForm from './CommentForm'
 import { formatDate } from '../utils/format'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
+import { Comment, Pageable } from '../types'
 
-export default function CommentsList({ postId }){
-  const [comments, setComments] = useState([])
-  const [pageable, setPageable] = useState(null)
+export default function CommentsList({ postId }: { postId: string }){
+  const [comments, setComments] = useState<Comment[]>([])
+  const [pageable, setPageable] = useState<Pageable | null>(null)
   const [loadedSize, setLoadedSize] = useState(3)
   const [loadingMore, setLoadingMore] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -31,7 +32,7 @@ export default function CommentsList({ postId }){
   const { t } = useLocale()
   const { user } = useAuth()
 
-  const total = pageable ? pageable.totalElements : comments.length
+  const total = pageable?.totalElements ?? comments.length
 
   function handleLoadComments(){
     setLoaded(true)

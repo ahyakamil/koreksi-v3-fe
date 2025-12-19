@@ -6,14 +6,15 @@ import { useAuth } from '../context/AuthContext'
 import CommentsList from '../components/CommentsList'
 import { formatDate } from '../utils/format'
 import { useLocale } from '../context/LocaleContext'
+import { Post, Pageable } from '../types'
 
 export default function Home() {
   const { user, loading } = useAuth()
   const { t } = useLocale()
-  const [posts, setPosts] = useState([])
+  const [posts, setPosts] = useState<Post[]>([])
   const [page, setPage] = useState(0)
   const [size] = useState(10)
-  const [pageable, setPageable] = useState(null)
+  const [pageable, setPageable] = useState<Pageable | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
   const mountedRef = useRef(false)
   const isFetchingRef = useRef(false)
@@ -123,37 +124,3 @@ export default function Home() {
   )
 }
 
-// infinite scroll listener (outside render to avoid re-creating on each render)
-function useInfiniteScroll({ onLoadMore, canLoad }){
-  useEffect(()=>{
-    function onScroll(){
-      if (!canLoad()) return
-      if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)){
-        onLoadMore()
-      }
-    }
-    window.addEventListener('scroll', onScroll)
-    return ()=>window.removeEventListener('scroll', onScroll)
-  }, [onLoadMore, canLoad])
-}
-
-// Attach infinite scroll to Home by default (imported hook style)
-// We use a small wrapper via a side-effect: create a global hook that finds the page component's loader.
-// Instead of complex wiring, implement a simple listener here using window - increment page when near bottom.
-if (typeof window !== 'undefined'){
-  let loading = false
-  let lastPage = 0
-  const observer = setInterval(()=>{
-    try{
-      const el = document.querySelector('body')
-      if(!el) return
-      if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)){
-        // find a global function exposed by the page to increment page
-        const inc = window.__koreksi_inc_page
-        const can = window.__koreksi_can_load
-        if (typeof inc==='function' && typeof can==='function' && can()) inc()
-      }
-    }catch(e){ }
-  }, 500)
-  // keep it running; it will be cleaned on full reload
-}

@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../utils/api'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
+import { User, Friendship, FriendRequest } from '../types'
 
 export default function Friends(){
   const { t } = useLocale()
   const { refreshPendingCount } = useAuth()
-  const [friends, setFriends] = useState([])
-  const [requests, setRequests] = useState([])
-  const [blocked, setBlocked] = useState([])
+  const [friends, setFriends] = useState<Friendship[]>([])
+  const [requests, setRequests] = useState<FriendRequest[]>([])
+  const [blocked, setBlocked] = useState<Friendship[]>([])
   const [query, setQuery] = useState('')
-  const [searchResults, setSearchResults] = useState([])
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [msg, setMsg] = useState(null)
+  const [searchResults, setSearchResults] = useState<User[]>([])
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
 
   async function load(){
     const f = await apiFetch('/friends')
@@ -40,23 +41,23 @@ export default function Friends(){
     else setMsg(res.body?.message || 'Error')
   }
 
-  async function accept(id){
+  async function accept(id: string){
     await apiFetch(`/friends/${id}/accept`, { method: 'POST' })
     load()
     refreshPendingCount()
   }
 
-  async function decline(id){
+  async function decline(id: string){
     await apiFetch(`/friends/${id}/decline`, { method: 'POST' })
     load()
     refreshPendingCount()
   }
 
-  async function removeFriend(id){
+  async function removeFriend(id: string){
     await apiFetch(`/friends/${id}`, { method: 'DELETE' }); load()
   }
 
-  async function unblockUser(id){
+  async function unblockUser(id: string){
     await apiFetch(`/friends/${id}/unblock`, { method: 'POST' }); load()
   }
 

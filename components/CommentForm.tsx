@@ -2,18 +2,18 @@ import { useState } from 'react'
 import { apiFetch } from '../utils/api'
 import { useLocale } from '../context/LocaleContext'
 
-export default function CommentForm({ postId, onCreated, parentId=null }){
+export default function CommentForm({ postId, onCreated, parentId=null }: { postId: string, onCreated?: (comment: any) => void, parentId?: string | null }){
   const [content, setContent] = useState('')
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const { t } = useLocale()
 
-  async function submit(e){
+  async function submit(e: React.FormEvent<HTMLFormElement>){
     e.preventDefault()
     if (submitting) return
     setError(null)
     setSubmitting(true)
-    const bodyData = { content }
+    const bodyData: any = { content }
     if (parentId) bodyData.parent_id = parentId
     const res = await apiFetch(`/posts/${postId}/comments`, { method: 'POST', body: JSON.stringify(bodyData) })
     if (res.body && res.body.statusCode === 2000) {

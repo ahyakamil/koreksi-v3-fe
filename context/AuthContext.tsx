@@ -1,11 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { apiFetch } from '../utils/api'
-
-type User = {
-  id: string
-  name: string
-  email: string
-}
+import { User } from '../types'
 
 type Notification = {
   id: string

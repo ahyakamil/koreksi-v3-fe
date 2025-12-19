@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../utils/api'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
+import { Notification } from '../types'
 
 export default function Notifications(){
-  const [notes, setNotes] = useState([])
+  const [notes, setNotes] = useState<Notification[]>([])
   const { t } = useLocale()
   const { refreshNotificationsCount } = useAuth()
 

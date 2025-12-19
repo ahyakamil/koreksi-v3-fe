@@ -3,16 +3,16 @@ import { apiFetch } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 
-export default function PostForm({ onCreated }){
+export default function PostForm({ onCreated }: { onCreated?: (post: any) => void }){
   const [content,setContent] = useState('')
   const [title,setTitle] = useState('')
   const [image,setImage] = useState('')
-  const [error,setError] = useState(null)
+  const [error,setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const { user } = useAuth()
   const { t } = useLocale()
 
-  async function submit(e){
+  async function submit(e: React.FormEvent<HTMLFormElement>){
     e.preventDefault()
     if (submitting) return
     setError(null)

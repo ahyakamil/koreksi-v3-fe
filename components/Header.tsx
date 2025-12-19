@@ -63,7 +63,7 @@ export default function Header(){
           {/* language selector always visible */}
           <select
             value={locale}
-            onChange={(e) => changeLocale(e.target.value)}
+            onChange={(e) => changeLocale(e.target.value as 'id' | 'en')}
             className="bg-gray-700 text-gray-100 border-transparent rounded px-2 py-1 text-sm"
             aria-label="Language"
           >
