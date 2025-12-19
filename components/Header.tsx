@@ -109,7 +109,6 @@ export default function Header(){
             <div className="flex flex-col p-2 space-y-1">
               <Link href="/organizations" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">{t('organizations')}</Link>
               <Link href="/news" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">{t('news')}</Link>
-              <Link href="/posts/create" onClick={()=>setMenuOpen(false)} className="px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">{t('post_button')}</Link>
               <Link href="/friends" onClick={()=>setMenuOpen(false)} className="relative px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded flex items-center">
                 {t('friends')}
                 {pendingRequestsCount > 0 && (
