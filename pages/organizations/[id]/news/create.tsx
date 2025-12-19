@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Space } from '../../../../types'
-import { getOrganization, getSpaces, createNews } from '../../../../utils/api'
+import { getOrganization, getSpaces, createNews, uploadImage } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import RichTextEditor from '../../../../components/RichTextEditor'
+import ImageUpload from '../../../../components/ImageUpload'
 
 const CreateNewsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -13,9 +14,11 @@ const CreateNewsPage: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
+    image: '',
     space_id: '',
     status: 'draft' as 'draft' | 'need_review'
   })
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const { user } = useAuth()
   const router = useRouter()
   const { id } = router.query
@@ -47,7 +50,30 @@ const CreateNewsPage: React.FC = () => {
     if (!organization) return
 
     setSubmitting(true)
-    const res = await createNews(organization.id, formData)
+
+    let imageUrl = formData.image
+
+    // Upload image if selected
+    if (selectedImageFile) {
+      const formDataUpload = new FormData()
+      formDataUpload.append('image', selectedImageFile)
+
+      const uploadRes = await uploadImage(formDataUpload)
+      if (uploadRes.ok) {
+        imageUrl = uploadRes.body.data.url
+      } else {
+        alert('Failed to upload image')
+        setSubmitting(false)
+        return
+      }
+    }
+
+    const newsData = {
+      ...formData,
+      image: imageUrl
+    }
+
+    const res = await createNews(organization.id, newsData)
     setSubmitting(false)
 
     if (res.ok) {
@@ -122,6 +148,11 @@ const CreateNewsPage: React.FC = () => {
               ))}
             </select>
           </div>
+
+          <ImageUpload
+            onFileSelected={setSelectedImageFile}
+            currentImage={formData.image}
+          />
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

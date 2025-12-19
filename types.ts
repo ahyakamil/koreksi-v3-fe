@@ -84,6 +84,7 @@ export interface News {
   user_id: string
   title: string
   content: string
+  image?: string
   status: 'draft' | 'need_review' | 'published' | 'rejected'
   review_notes?: string
   published_at?: string

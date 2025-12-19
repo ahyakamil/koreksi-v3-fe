@@ -1,9 +1,15 @@
-import React from 'react'
-import ReactQuill from 'react-quill'
+import React, { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 import 'react-quill/dist/quill.snow.css'
 
+// Dynamically import ReactQuill to avoid SSR issues
+const ReactQuill = dynamic(() => import('react-quill'), {
+  ssr: false,
+  loading: () => <div className="min-h-[300px] border rounded p-4 bg-gray-50">Loading editor...</div>
+})
+
 const editorStyle = `
-  .ql-editor {
+  .custom-quill-editor .ql-editor {
     min-height: 300px;
   }
 `
@@ -27,7 +33,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'indent': '-1'}, { 'indent': '+1' }],
-      ['link'],
+      ['link', 'image'],
       [{ 'color': [] }, { 'background': [] }],
       [{ 'align': [] }],
       ['clean']
@@ -36,7 +42,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const formats = [
     'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent', 'link', 'color', 'background', 'align'
+    'list', 'bullet', 'indent', 'link', 'image', 'color', 'background', 'align'
   ]
 
   return (
@@ -49,6 +55,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         placeholder={placeholder}
         modules={modules}
         formats={formats}
+        className="custom-quill-editor"
       />
     </div>
   )

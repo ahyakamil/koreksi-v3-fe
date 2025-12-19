@@ -139,7 +139,7 @@ export async function getSingleNews(organizationId: string, newsId: string) {
   return res
 }
 
-export async function createNews(organizationId: string, data: { space_id: string; title: string; content: string; status?: string }) {
+export async function createNews(organizationId: string, data: { space_id: string; title: string; content: string; image?: string; status?: string }) {
   const res = await apiFetch(`/organizations/${organizationId}/news`, {
     method: 'POST',
     body: JSON.stringify(data)
@@ -147,7 +147,7 @@ export async function createNews(organizationId: string, data: { space_id: strin
   return res
 }
 
-export async function updateNews(organizationId: string, newsId: string, data: any) {
+export async function updateNews(organizationId: string, newsId: string, data: { space_id?: string; title?: string; content?: string; image?: string; status?: string }) {
   const res = await apiFetch(`/organizations/${organizationId}/news/${newsId}`, {
     method: 'PUT',
     body: JSON.stringify(data)

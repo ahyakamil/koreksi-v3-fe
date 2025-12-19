@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../../types'
-import { getOrganization, getSpaces, getSingleNews, updateNews } from '../../../../../utils/api'
+import { getOrganization, getSpaces, getSingleNews, updateNews, uploadImage } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
 import RichTextEditor from '../../../../../components/RichTextEditor'
+import ImageUpload from '../../../../../components/ImageUpload'
 
 const EditNewsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -14,9 +15,11 @@ const EditNewsPage: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
+    image: '',
     space_id: '',
     status: 'draft' as 'draft' | 'need_review'
   })
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const { user } = useAuth()
   const router = useRouter()
   const { id, newsId } = router.query
@@ -44,6 +47,7 @@ const EditNewsPage: React.FC = () => {
         setFormData({
           title: newsData.title,
           content: newsData.content,
+          image: newsData.image || '',
           space_id: newsData.space_id,
           status: newsData.status === 'draft' || newsData.status === 'need_review' ? newsData.status : 'draft'
         })
@@ -59,7 +63,30 @@ const EditNewsPage: React.FC = () => {
     if (!organization || !news) return
 
     setSubmitting(true)
-    const res = await updateNews(organization.id, news.id, formData)
+
+    let imageUrl = formData.image
+
+    // Upload image if selected
+    if (selectedImageFile) {
+      const formDataUpload = new FormData()
+      formDataUpload.append('image', selectedImageFile)
+
+      const uploadRes = await uploadImage(formDataUpload)
+      if (uploadRes.ok) {
+        imageUrl = uploadRes.body.data.url
+      } else {
+        alert('Failed to upload image')
+        setSubmitting(false)
+        return
+      }
+    }
+
+    const newsData = {
+      ...formData,
+      image: imageUrl
+    }
+
+    const res = await updateNews(organization.id, news.id, newsData)
     setSubmitting(false)
 
     if (res.ok) {
@@ -137,6 +164,11 @@ const EditNewsPage: React.FC = () => {
               ))}
             </select>
           </div>
+
+          <ImageUpload
+            onFileSelected={setSelectedImageFile}
+            currentImage={formData.image}
+          />
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
