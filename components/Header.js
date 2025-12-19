@@ -38,7 +38,6 @@ export default function Header(){
           </Link>
           {isLogged && (
             <>
-              <Link href="/posts/create" className="text-sm text-gray-200 hover:text-white">{t('post_button')}</Link>
               <Link href="/friends" className="text-sm text-gray-200 hover:text-white">{t('friends')}</Link>
               <Link href="/notifications" className="text-sm text-gray-200 hover:text-white">{t('notifications')}</Link>
             </>
