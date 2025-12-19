@@ -17,6 +17,7 @@ export default function Home() {
   const [loadingMore, setLoadingMore] = useState(false)
   const mountedRef = useRef(false)
   const isFetchingRef = useRef(false)
+  const initialLoadedRef = useRef(false)
 
   async function load(pageToLoad = 0){
     if (pageToLoad > 0) { setLoadingMore(true); isFetchingRef.current = true }
@@ -32,8 +33,10 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // initial load
-    load(0)
+    if (!initialLoadedRef.current) {
+      load(0)
+      initialLoadedRef.current = true
+    }
     mountedRef.current = true
   }, [size])
 
