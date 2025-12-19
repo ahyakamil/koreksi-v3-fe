@@ -1,0 +1,56 @@
+import Link from 'next/link'
+import Router from 'next/router'
+import { useAuth } from '../context/AuthContext'
+
+export default function Header(){
+  const { user, setUser } = useAuth()
+
+  const logout = async () => {
+    const refreshToken = (typeof window !== 'undefined') ? localStorage.getItem('refreshToken') : null
+    try {
+      if (refreshToken) {
+        await fetch((process.env.NEXT_PUBLIC_API_URL||'http://localhost:8000/api/v1') + '/auth/logout', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ refreshToken })
+        })
+      }
+    } catch(e) {
+      // ignore
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+    }
+    if (setUser) setUser(null)
+    Router.push('/login')
+  }
+
+  const isLogged = !!user
+
+  return (
+    <header className="bg-white shadow">
+      <div className="container flex items-center justify-between py-3">
+        <div className="flex items-center space-x-4">
+          <Link href="/" className="font-bold">Koreksi</Link>
+          {isLogged && (
+            <>
+              <Link href="/posts/create" className="text-sm text-gray-600">Create Post</Link>
+              <Link href="/friends" className="text-sm text-gray-600">Friends</Link>
+              <Link href="/notifications" className="text-sm text-gray-600">Notifications</Link>
+            </>
+          )}
+        </div>
+        <div>
+          {isLogged ? (
+            <button onClick={logout} className="px-3 py-1 bg-red-500 text-white rounded">Logout</button>
+          ) : (
+            <div className="space-x-3">
+              <Link href="/login" className="text-sm text-blue-600">Login</Link>
+              <Link href="/register" className="text-sm text-green-600">Register</Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  )
+}
