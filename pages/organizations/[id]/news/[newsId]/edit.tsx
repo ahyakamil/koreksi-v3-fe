@@ -86,7 +86,7 @@ const EditNewsPage: React.FC = () => {
       image: imageUrl
     }
 
-    const res = await updateNews(organization.id, news.id, newsData)
+    const res = await updateNews(organization.id, news.public_id, newsData)
     setSubmitting(false)
 
     if (res.ok) {

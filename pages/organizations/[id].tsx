@@ -95,7 +95,7 @@ const OrganizationDetailsPage: React.FC = () => {
     }
   }
 
-  const handleReviewNews = async (newsId: string, action: 'publish' | 'reject') => {
+  const handleReviewNews = async (newsPublicId: string, action: 'publish' | 'reject') => {
     if (!organization) return
     let reviewNotes: string | undefined = undefined
     if (action === 'reject') {
@@ -104,7 +104,7 @@ const OrganizationDetailsPage: React.FC = () => {
       reviewNotes = notes
     }
 
-    const res = await reviewNews(organization.id, newsId, { action, review_notes: reviewNotes })
+    const res = await reviewNews(organization.id, newsPublicId, { action, review_notes: reviewNotes })
     if (res.ok) {
       fetchNews() // Refresh the news list
     } else {

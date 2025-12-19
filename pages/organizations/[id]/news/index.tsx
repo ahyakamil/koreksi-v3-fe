@@ -61,7 +61,7 @@ const NewsManagementPage: React.FC = () => {
 
     const res = await deleteNews(organization.id, newsId)
     if (res.ok) {
-      setNews(news.filter(n => n.id !== newsId))
+      setNews(news.filter(n => n.public_id !== newsId))
     } else {
       alert(res.body.message || 'Failed to delete news')
     }
@@ -134,7 +134,7 @@ const NewsManagementPage: React.FC = () => {
           <p className="text-gray-500">No news found in this category.</p>
         ) : (
           filteredNews.map(item => (
-            <div key={item.id} className="bg-white p-6 rounded-lg shadow">
+            <div key={item.public_id} className="bg-white p-6 rounded-lg shadow">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
@@ -164,7 +164,7 @@ const NewsManagementPage: React.FC = () => {
                   <div className="flex gap-2 mt-3 flex-wrap">
                     {((item.user_id === user?.id && item.status !== 'published') || currentUserRole === 'admin' || currentUserRole === 'editor') && (
                       <button
-                        onClick={() => router.push(`/organizations/${id}/news/${item.id}/edit`)}
+                        onClick={() => router.push(`/organizations/${id}/news/${item.public_id}/edit`)}
                         className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
                       >
                         Edit
@@ -173,13 +173,13 @@ const NewsManagementPage: React.FC = () => {
                     {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status === 'need_review' && (
                       <>
                         <button
-                          onClick={() => handleReview(item.id, 'publish')}
+                          onClick={() => handleReview(item.public_id, 'publish')}
                           className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
                         >
                           Publish
                         </button>
                         <button
-                          onClick={() => handleReview(item.id, 'reject')}
+                          onClick={() => handleReview(item.public_id, 'reject')}
                           className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
                         >
                           Reject
@@ -188,7 +188,7 @@ const NewsManagementPage: React.FC = () => {
                     )}
                     {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status !== 'need_review' && (
                       <button
-                        onClick={() => handleReview(item.id, 'reject')}
+                        onClick={() => handleReview(item.public_id, 'reject')}
                         className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600"
                         title="Reject this news"
                       >
@@ -197,7 +197,7 @@ const NewsManagementPage: React.FC = () => {
                     )}
                     {((item.user_id === user?.id && item.status !== 'published') || currentUserRole === 'admin' || currentUserRole === 'editor') && (
                       <button
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDelete(item.public_id)}
                         className="bg-red-700 text-white px-3 py-1 rounded text-sm hover:bg-red-800"
                       >
                         Delete

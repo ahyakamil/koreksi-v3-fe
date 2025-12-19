@@ -66,7 +66,7 @@ export default function NewsPage() {
         ) : news.length > 0 ? (
           <ul className="space-y-4">
             {news.map(item => (
-              <NewsItem key={item.id} news={item} />
+              <NewsItem key={item.public_id} news={item} />
             ))}
           </ul>
         ) : (
