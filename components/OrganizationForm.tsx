@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Organization } from '../types'
 import ImageUpload from './ImageUpload'
-import { uploadOrganizationImage } from '../utils/api'
+import { uploadImage } from '../utils/api'
 
 interface OrganizationFormProps {
   organization?: Organization
@@ -26,7 +26,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
     if (selectedFile) {
       const formData = new FormData()
       formData.append('image', selectedFile)
-      const uploadRes = await uploadOrganizationImage(formData)
+      const uploadRes = await uploadImage(formData)
       if (uploadRes.ok && uploadRes.body?.data?.url) {
         imageUrl = uploadRes.body.data.url
       } else {

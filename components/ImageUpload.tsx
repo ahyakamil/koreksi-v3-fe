@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { uploadOrganizationImage } from '../utils/api'
+import { uploadImage } from '../utils/api'
 
 interface ImageUploadProps {
   onFileSelected: (file: File | null) => void

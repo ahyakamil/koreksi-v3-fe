@@ -2,8 +2,8 @@ import { useState } from 'react'
 import Router from 'next/router'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
+import { register } from '../utils/api'
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
 export default function Register(){
   const { setUser } = useAuth()
@@ -19,19 +19,15 @@ export default function Register(){
     if (submitting) return
     setError(null)
     setSubmitting(true)
-    const res = await fetch(`${API}/auth/register`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({name,email,password})
-    })
-    const j = await res.json()
-    if(res.ok && j.accessToken){
+    const res = await register(name, email, password)
+    if(res.ok && res.body && res.body.accessToken){
+      const j = res.body
       localStorage.setItem('accessToken', j.accessToken)
       if(j.refreshToken) localStorage.setItem('refreshToken', j.refreshToken)
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {
-      setError(j.message || (j.errCode? j.errCode:'Register failed'))
+      setError(res.body?.message || (res.body?.errCode ? res.body.errCode : 'Register failed'))
     }
     setSubmitting(false)
   }

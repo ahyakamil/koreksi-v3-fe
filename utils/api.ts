@@ -86,15 +86,56 @@ export async function removeMember(organizationId: string, userId: string) {
   return res
 }
 
-export async function uploadOrganizationImage(formData: FormData) {
+export async function uploadImage(formData: FormData) {
   const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
   const headers: Record<string, string> = {}
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${API_BASE}organizations/upload/image`, {
+  const res = await fetch(`${API_BASE}/upload/image`, {
     method: 'POST',
     headers,
     body: formData
+  })
+  let json = null
+  try { json = await res.json() } catch (e) { /* ignore */ }
+  return { ok: res.ok, status: res.status, body: json }
+}
+
+export async function logout(refreshToken: string) {
+  const res = await apiFetch('/auth/logout', {
+    method: 'POST',
+    body: JSON.stringify({ refreshToken })
+  })
+  return res
+}
+
+export async function refreshToken(refreshToken: string) {
+  const res = await fetch(`${API_BASE}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken })
+  })
+  let json = null
+  try { json = await res.json() } catch (e) { /* ignore */ }
+  return { ok: res.ok, status: res.status, body: json }
+}
+
+export async function login(email: string, password: string) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  })
+  let json = null
+  try { json = await res.json() } catch (e) { /* ignore */ }
+  return { ok: res.ok, status: res.status, body: json }
+}
+
+export async function register(name: string, email: string, password: string) {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password })
   })
   let json = null
   try { json = await res.json() } catch (e) { /* ignore */ }

@@ -3,6 +3,7 @@ import Router from 'next/router'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
+import { logout as apiLogout } from '../utils/api'
 
 export default function Header(){
   const { user, setUser, pendingRequestsCount, refreshPendingCount, notificationsCount } = useAuth()
@@ -12,9 +13,7 @@ export default function Header(){
     const refreshToken = (typeof window !== 'undefined') ? localStorage.getItem('refreshToken') : null
     try {
       if (refreshToken) {
-        await fetch((process.env.NEXT_PUBLIC_API_URL||'http://localhost:8000/api/v1') + '/auth/logout', {
-          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ refreshToken })
-        })
+        await apiLogout(refreshToken)
       }
     } catch(e) {
       // ignore

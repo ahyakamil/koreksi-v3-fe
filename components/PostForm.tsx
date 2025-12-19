@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { apiFetch } from '../utils/api'
+import { apiFetch, uploadImage } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 import { Media } from '../types'
@@ -19,22 +19,6 @@ export default function PostForm({ onCreated }: { onCreated?: (post: any) => voi
     setImageFiles(files)
   }
 
-  async function uploadImage(file: File): Promise<string | null> {
-    const formData = new FormData()
-    formData.append('image', file)
-    const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1') + '/upload/image', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: formData
-    })
-    const json = await res.json()
-    if (json.statusCode === 2000) {
-      return json.data.url
-    }
-    return null
-  }
 
   async function submit(e: React.FormEvent<HTMLFormElement>){
     e.preventDefault()
@@ -45,14 +29,16 @@ export default function PostForm({ onCreated }: { onCreated?: (post: any) => voi
     const medias: Omit<Media, 'id'>[] = []
     for (let i = 0; i < imageFiles.length; i++) {
       const file = imageFiles[i]
-      const url = await uploadImage(file)
-      if (!url) {
+      const formData = new FormData()
+      formData.append('image', file)
+      const uploadRes = await uploadImage(formData)
+      if (!uploadRes.ok || !uploadRes.body?.data?.url) {
         setError(`Failed to upload ${file.name}`)
         setSubmitting(false)
         return
       }
       medias.push({
-        url,
+        url: uploadRes.body.data.url,
         type: i === 0 ? 'main' : 'additional',
         order: i
       })

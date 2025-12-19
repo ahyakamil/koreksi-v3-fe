@@ -11,16 +11,17 @@ const OrganizationsPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null)
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
+    if (authLoading) return
     if (!user) {
       router.push('/login')
       return
     }
     fetchOrganizations()
-  }, [user, router])
+  }, [user, authLoading, router])
 
   const fetchOrganizations = async () => {
     const res = await getOrganizations()

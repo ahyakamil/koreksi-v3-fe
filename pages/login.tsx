@@ -2,8 +2,8 @@ import { useState } from 'react'
 import Router from 'next/router'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
+import { login } from '../utils/api'
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
 export default function Login(){
   const { setUser } = useAuth()
@@ -18,19 +18,15 @@ export default function Login(){
     if (submitting) return
     setError(null)
     setSubmitting(true)
-    const res = await fetch(`${API}/auth/login`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({email,password})
-    })
-    const j = await res.json()
-    if(res.ok && j.accessToken){
+    const res = await login(email, password)
+    if(res.ok && res.body && res.body.accessToken){
+      const j = res.body
       localStorage.setItem('accessToken', j.accessToken)
       if(j.refreshToken) localStorage.setItem('refreshToken', j.refreshToken)
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {
-      setError(j.message || (j.errCode? j.errCode:t('login_failed')))
+      setError(res.body?.message || (res.body?.errCode ? res.body.errCode : t('login_failed')))
     }
     setSubmitting(false)
   }

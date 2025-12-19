@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
-import { apiFetch } from '../utils/api'
+import { apiFetch, refreshToken } from '../utils/api'
 import { User } from '../types'
 
 type Notification = {
@@ -59,14 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }){
   }, [])
 
   const refresh = async () => {
-    const refreshToken = (typeof window !== 'undefined') ? localStorage.getItem('refreshToken') : null
-    if (!refreshToken) return false
-    const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'http://localhost:8000/api/v1') + '/auth/refresh', {
-      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ refreshToken })
-    })
-    const j = await res.json()
-    if (j && j.accessToken) {
-      localStorage.setItem('accessToken', j.accessToken)
+    const refreshTokenValue = (typeof window !== 'undefined') ? localStorage.getItem('refreshToken') : null
+    if (!refreshTokenValue) return false
+    const res = await refreshToken(refreshTokenValue)
+    if (res.ok && res.body && res.body.accessToken) {
+      localStorage.setItem('accessToken', res.body.accessToken)
       return true
     }
     return false
