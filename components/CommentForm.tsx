@@ -1,27 +1,33 @@
 import { useState } from 'react'
-import { apiFetch } from '../utils/api'
+import { createComment } from '../utils/api'
 import { useLocale } from '../context/LocaleContext'
 
-export default function CommentForm({ postId, onCreated, parentId=null }: { postId: string, onCreated?: (comment: any) => void, parentId?: string | null }){
+interface CommentFormProps {
+  commentableType: string
+  commentableId: string
+  onSubmit: (content: string, parentId?: string) => Promise<void>
+  parentId?: string | null
+}
+
+export default function CommentForm({ commentableType, commentableId, onSubmit, parentId = null }: CommentFormProps) {
   const [content, setContent] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const { t } = useLocale()
 
-  async function submit(e: React.FormEvent<HTMLFormElement>){
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (submitting) return
+    if (submitting || !content.trim()) return
     setError(null)
     setSubmitting(true)
-    const bodyData: any = { content }
-    if (parentId) bodyData.parent_id = parentId
-    const res = await apiFetch(`/posts/${postId}/comments`, { method: 'POST', body: JSON.stringify(bodyData) })
-    if (res.body && res.body.statusCode === 2000) {
+
+    try {
+      await onSubmit(content, parentId || undefined)
       setContent('')
-      if (onCreated) onCreated(res.body.data.comment)
-    } else {
-      setError(res.body?.message || 'Error')
+    } catch (err) {
+      setError('Failed to post comment')
     }
+
     setSubmitting(false)
   }
 

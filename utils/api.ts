@@ -175,6 +175,20 @@ export async function reviewNews(organizationId: string, newsId: string, data: {
   return res
 }
 
+// Comments API functions (polymorphic)
+export async function getComments(commentableType: string, commentableId: string, page: number = 0, size: number = 3) {
+  const res = await apiFetch(`/${commentableType}/${commentableId}/comments?page=${page}&size=${size}`)
+  return res
+}
+
+export async function createComment(commentableType: string, commentableId: string, data: { content: string; parent_id?: string }) {
+  const res = await apiFetch(`/${commentableType}/${commentableId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
 export async function uploadImage(formData: FormData) {
   const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
   const headers: Record<string, string> = {}

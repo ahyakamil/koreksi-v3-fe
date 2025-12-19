@@ -1,14 +1,69 @@
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import Carousel from './Carousel'
 import TimeAgo from './TimeAgo'
 import CommentsList from './CommentsList'
-import { Post } from '../types'
+import CommentForm from './CommentForm'
+import { Post, Comment, Pageable } from '../types'
+import { getComments, createComment } from '../utils/api'
+import { useAuth } from '../context/AuthContext'
 
 interface PostItemProps {
   post: Post
 }
 
 export default function PostItem({ post }: PostItemProps) {
+  const { user } = useAuth()
+  const [comments, setComments] = useState<Comment[]>([])
+  const [showComments, setShowComments] = useState(false)
+  const [commentsLoaded, setCommentsLoaded] = useState(false)
+  const [commentsCount, setCommentsCount] = useState(post.comments_count || 0)
+  const [pageable, setPageable] = useState<Pageable | null>(null)
+  const [loadingMoreComments, setLoadingMoreComments] = useState(false)
+
+  useEffect(() => {
+    if (showComments && !commentsLoaded) {
+      loadComments()
+    }
+  }, [showComments, commentsLoaded])
+
+  const loadComments = async () => {
+    const res = await getComments('posts', post.public_id, 0, 3)
+    if (res.ok) {
+      setComments(res.body.data.comments || [])
+      setPageable(res.body.data.pageable || null)
+      setCommentsLoaded(true)
+    }
+  }
+
+  const loadMoreComments = async () => {
+    if (!pageable || loadingMoreComments) return
+    const nextPage = pageable.pageNumber + 1
+    if (nextPage >= pageable.totalPages) return
+
+    setLoadingMoreComments(true)
+    const res = await getComments('posts', post.public_id, nextPage, 3)
+    if (res.ok) {
+      setComments(prev => [...prev, ...res.body.data.comments])
+      setPageable(res.body.data.pageable)
+    }
+    setLoadingMoreComments(false)
+  }
+
+  const handleCommentSubmit = async (content: string, parentId?: string) => {
+    const res = await createComment('posts', post.public_id, {
+      content,
+      parent_id: parentId
+    })
+
+    if (res.ok) {
+      setComments([...comments, res.body.data.comment])
+      setCommentsCount(prev => prev + 1)
+    } else {
+      alert(res.body.message || 'Failed to post comment')
+    }
+  }
+
   return (
     <li className="p-4 bg-white rounded shadow">
       <div className="flex items-center justify-between">
@@ -36,7 +91,41 @@ export default function PostItem({ post }: PostItemProps) {
         {post.medias && <Carousel medias={post.medias} />}
       </div>
       <div className="mt-3">
-        <CommentsList postId={post.public_id} />
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="text-sm text-blue-600 hover:text-blue-800"
+        >
+          {showComments ? 'Hide Comments' : `Show Comments${commentsCount > 0 ? ` (${commentsCount})` : ''}`}
+        </button>
+
+        {showComments && (
+          <div className="mt-3 space-y-3">
+            {user && (
+              <CommentForm
+                commentableType="posts"
+                commentableId={post.public_id}
+                onSubmit={handleCommentSubmit}
+              />
+            )}
+            <CommentsList
+              comments={comments}
+              onReply={handleCommentSubmit}
+              currentUser={user}
+            />
+
+            {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
+              <div className="mt-3 text-center">
+                <button
+                  onClick={loadMoreComments}
+                  disabled={loadingMoreComments}
+                  className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 disabled:opacity-50"
+                >
+                  {loadingMoreComments ? 'Loading...' : 'Load More'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </li>
   )

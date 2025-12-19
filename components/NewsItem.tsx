@@ -28,7 +28,7 @@ export default function NewsItem({ news }: NewsItemProps) {
   const displayContent = isExpanded ? news.content : (shouldTruncate ? truncateText(plainContent, 300) : news.content)
 
   return (
-    <li className="bg-white rounded-lg shadow-md overflow-hidden">
+    <li className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       {news.image && (
         <div className="w-full overflow-hidden" style={{ maxHeight: '550px' }}>
           <img
@@ -54,7 +54,7 @@ export default function NewsItem({ news }: NewsItemProps) {
           </div>
         </div>
 
-        <Link href={`/organizations/${news.organization_id}`} className="block group">
+        <Link href={`/news/${news.public_id}`} className="block group">
           <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-600 mb-3 leading-tight">
             {news.title}
           </h3>
@@ -73,16 +73,22 @@ export default function NewsItem({ news }: NewsItemProps) {
           )}
         </div>
 
-        {shouldTruncate && (
-          <div className="mt-4">
+        <div className="mt-4 flex items-center justify-between">
+          {shouldTruncate && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-blue-600 hover:text-blue-800 font-medium text-sm"
             >
               {isExpanded ? 'Read Less' : 'Read More'}
             </button>
-          </div>
-        )}
+          )}
+          <Link
+            href={`/news/${news.public_id}`}
+            className="text-blue-600 hover:text-blue-800 font-medium text-sm ml-auto"
+          >
+            Read Full Article →
+          </Link>
+        </div>
       </div>
     </li>
   )

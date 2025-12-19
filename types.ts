@@ -18,6 +18,7 @@ export interface Post {
   title?: string
   content: string
   medias?: Media[]
+  comments_count?: number
 }
 
 export interface Comment {
