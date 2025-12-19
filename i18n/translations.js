@@ -40,6 +40,7 @@ const translations = {
     no_requests: 'Tidak ada permintaan',
     no_friends: 'Belum ada teman',
     no_more: 'Tidak ada lagi postingan',
+    login_failed: 'Gagal masuk',
   },
   en: {
     comments: 'Comments',
@@ -82,6 +83,7 @@ const translations = {
     no_requests: 'No requests',
     no_friends: 'No friends yet',
     no_more: 'No more posts',
+    login_failed: 'Login failed',
   }
 }
 

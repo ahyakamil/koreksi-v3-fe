@@ -30,7 +30,7 @@ export default function Login(){
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {
-      setError(j.message || (j.errCode? j.errCode:'Login failed'))
+      setError(j.message || (j.errCode? j.errCode:t('login_failed')))
     }
     setSubmitting(false)
   }
