@@ -27,7 +27,7 @@ export default function PostItem({ post }: PostItemProps) {
     }
   }, [showComments, commentsLoaded])
 
-  const loadComments = async (page: number = 0, size: number = 3) => {
+  const loadComments = async (page: number = 0, size: number = 10) => {
     const res = await getComments('posts', post.public_id, page, size)
     if (res.ok) {
       setComments(prev => page === 0 ? res.body.data.comments || [] : [...prev, ...res.body.data.comments])
@@ -41,7 +41,7 @@ export default function PostItem({ post }: PostItemProps) {
     const nextPage = commentsPageable.pageNumber + 1
     if (nextPage >= commentsPageable.totalPages) return
     setLoadingMoreComments(true)
-    loadComments(nextPage, 3).finally(() => setLoadingMoreComments(false))
+    loadComments(nextPage, 10).finally(() => setLoadingMoreComments(false))
   }
 
 

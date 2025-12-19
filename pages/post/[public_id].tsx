@@ -6,22 +6,35 @@ import CommentsList from '../../components/CommentsList'
 import CommentForm from '../../components/CommentForm'
 import { formatDate } from '../../utils/format'
 import { useAuth } from '../../context/AuthContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createComment, getComments } from '../../utils/api'
 
 interface PostDetailProps {
-  post: Post | null
-  comments: Comment[]
-  pageable?: Pageable | null
-  error?: string
+    post: Post | null
+    comments: Comment[]
+    pageable?: Pageable | null
+    error?: string
+    specificCommentId?: number | null
+    initialReplies?: Record<string, Comment[]>
+    initialShowReplies?: Record<string, boolean>
+    initialRepliesPageable?: Record<string, any>
 }
 
-export default function PostDetail({ post, comments: initialComments, pageable: initialPageable, error }: PostDetailProps) {
+export default function PostDetail({ post, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable }: PostDetailProps) {
   const { user } = useAuth()
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [pageable, setPageable] = useState<Pageable | null>(initialPageable || null)
   const [loadingMore, setLoadingMore] = useState(false)
   const [totalComments, setTotalComments] = useState(post?.comments_count || initialComments.length)
+
+  useEffect(() => {
+    if (specificCommentId) {
+      const element = document.getElementById(`comment-${specificCommentId}`)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  }, [comments, specificCommentId])
 
   if (error || !post) {
     return (
@@ -108,7 +121,7 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
             <div className="mb-4">
               <h3 className="text-lg font-semibold">Comments ({totalComments})</h3>
 
-              {user && (
+              {user && !specificCommentId && (
                 <div className="mt-4">
                   <CommentForm
                     commentableType="posts"
@@ -124,9 +137,13 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
                 currentUser={user}
                 commentableType="posts"
                 commentableId={post.public_id}
+                highlightedCommentId={specificCommentId}
+                initialReplies={initialReplies}
+                initialShowReplies={initialShowReplies}
+                initialRepliesPageable={initialRepliesPageable}
               />
 
-              {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
+              {pageable && pageable.pageNumber + 1 < pageable.totalPages && !specificCommentId && (
                 <div className="mt-4 text-center">
                   <button
                     onClick={loadMoreComments}
@@ -148,14 +165,12 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
 
 export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (context) => {
   const { public_id } = context.params as { public_id: string }
+  const { commentId } = context.query
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
   try {
-    // Fetch post and comments in parallel
-    const [postRes, commentsRes] = await Promise.all([
-      fetch(`${API_BASE}/posts/${public_id}`),
-      fetch(`${API_BASE}/posts/${public_id}/comments?page=0&size=10`)
-    ])
+    // Fetch post
+    const postRes = await fetch(`${API_BASE}/posts/${public_id}`)
 
     if (!postRes.ok) {
       return {
@@ -169,7 +184,6 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
     }
 
     const postData = await postRes.json()
-    const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { comments: [] } }
 
     if (postData.statusCode !== 2000) {
       return {
@@ -182,11 +196,47 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
       }
     }
 
+    let comments: Comment[] = []
+    let pageable: any = null
+    let specificCommentId: number | null = null
+    let initialReplies: Record<string, Comment[]> = {}
+    let initialShowReplies: Record<string, boolean> = {}
+    let initialRepliesPageable: Record<string, any> = {}
+
+    if (commentId) {
+      // Fetch specific comment tree
+      const commentRes = await fetch(`${API_BASE}/posts/${public_id}/comments/${commentId}?page=0&size=10`)
+      if (commentRes.ok) {
+        const commentData = await commentRes.json()
+        if (commentData.statusCode === 2000) {
+          const specificComment = commentData.data.comment as Comment
+          const specificReplies = commentData.data.replies as any[] || []
+          const pageable = commentData.data.pageable
+          comments = [specificComment]
+          // Set replies for the component
+          initialReplies = { [specificComment.id]: specificReplies }
+          initialShowReplies = { [specificComment.id]: true }
+          initialRepliesPageable = { [specificComment.id]: pageable }
+          specificCommentId = parseInt(commentId as string)
+        }
+      }
+    } else {
+      // Fetch all comments
+      const commentsRes = await fetch(`${API_BASE}/posts/${public_id}/comments?page=0&size=10`)
+      const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { comments: [] } }
+      comments = commentsData.data?.comments || []
+      pageable = commentsData.data?.pageable || null
+    }
+
     return {
       props: {
         post: postData.data.post,
-        comments: commentsData.data?.comments || [],
-        pageable: commentsData.data?.pageable || null
+        comments,
+        pageable,
+        specificCommentId,
+        initialReplies,
+        initialShowReplies,
+        initialRepliesPageable
       }
     }
   } catch (error) {
