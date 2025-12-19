@@ -52,7 +52,12 @@ export default function PostItem({ post }: PostItemProps) {
     })
 
     if (res.ok) {
-      setComments([...comments, res.body.data.comment])
+      if (!parentId) {
+        setComments([...comments, res.body.data.comment])
+      } else {
+        // Update replies_count for the parent comment
+        setComments(comments.map(c => c.id === parentId ? { ...c, replies_count: (c.replies_count || 0) + 1 } : c))
+      }
       setCommentsCount(prev => prev + 1)
     } else {
       alert(res.body.message || 'Failed to post comment')

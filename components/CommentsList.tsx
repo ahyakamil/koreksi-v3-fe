@@ -72,6 +72,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
               if (res.ok) {
                 const newReply = res.body.data.comment
                 setReplies(prev => ({ ...prev, [comment.id]: [...(prev[comment.id] || []), newReply] }))
+                setShowReplies(prev => ({ ...prev, [comment.id]: true }))
               }
               setReplyingTo(null)
             }}
