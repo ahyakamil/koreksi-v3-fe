@@ -374,7 +374,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     updateOnlineStatus();
 
     // Set up interval to update every 30 seconds
-    const interval = setInterval(updateOnlineStatus, 30000);
+    const interval = setInterval(updateOnlineStatus, 60000);
 
     return () => clearInterval(interval);
   }, [apiUrl, token]);

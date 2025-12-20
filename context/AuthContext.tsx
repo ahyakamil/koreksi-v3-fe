@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }){
       const interval = setInterval(() => {
         refreshPendingCount()
         refreshNotificationsCount()
-      }, 30000) // 30 seconds
+      }, 60000)
 
       return () => clearInterval(interval)
     }
