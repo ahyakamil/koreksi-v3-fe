@@ -100,6 +100,7 @@ export interface News {
   title: string
   content: string
   image?: string
+  caption?: string
   status: 'draft' | 'need_review' | 'published' | 'rejected'
   review_notes?: string
   published_at?: string

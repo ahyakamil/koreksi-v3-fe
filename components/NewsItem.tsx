@@ -80,6 +80,11 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
             alt={news.title}
             className="w-full h-full object-cover"
           />
+          {news.caption && (
+            <div className="p-3 bg-gray-50 text-sm text-gray-600 italic text-center">
+              {news.caption}
+            </div>
+          )}
         </div>
       )}
       <div className="p-6">

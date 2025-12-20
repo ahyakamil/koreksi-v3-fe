@@ -15,6 +15,7 @@ const CreateNewsPage: React.FC = () => {
     title: '',
     content: '',
     image: '',
+    caption: '',
     space_id: '',
     status: 'draft' as 'draft' | 'need_review'
   })
@@ -153,6 +154,20 @@ const CreateNewsPage: React.FC = () => {
             onFileSelected={setSelectedImageFile}
             currentImage={formData.image}
           />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Caption
+            </label>
+            <input
+              type="text"
+              name="caption"
+              value={formData.caption}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Optional caption for the image"
+            />
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
