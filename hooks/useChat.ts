@@ -248,12 +248,50 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
     }
   }, [apiUrl, token, rsaKeyPair, userId, decryptWithRSA, decryptWithAESKey]);
 
+  // Update online status every 30 seconds
+  useEffect(() => {
+    if (!token) return;
+
+    const updateOnlineStatus = async () => {
+      try {
+        await fetch(`${apiUrl}/auth/update-online-status`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (error) {
+        console.error('Error updating online status:', error);
+      }
+    };
+
+    // Update immediately
+    updateOnlineStatus();
+
+    // Set up interval to update every 30 seconds
+    const interval = setInterval(updateOnlineStatus, 30000);
+
+    return () => clearInterval(interval);
+  }, [apiUrl, token]);
+
   useEffect(() => {
     if (token) {
       fetchFriends();
       fetchUnreadCounts();
     }
   }, [token, fetchFriends, fetchUnreadCounts]);
+
+  // Refresh friends list every 60 seconds to update online status
+  useEffect(() => {
+    if (!token) return;
+
+    const refreshFriends = () => {
+      fetchFriends();
+    };
+
+    // Set up interval to refresh every 60 seconds
+    const interval = setInterval(refreshFriends, 60000);
+
+    return () => clearInterval(interval);
+  }, [token, fetchFriends]);
 
   useEffect(() => {
     selectedFriendRef.current = selectedFriend;
