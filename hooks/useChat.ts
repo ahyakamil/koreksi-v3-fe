@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Pusher from 'pusher-js';
 import { useEncryption } from './useEncryption';
 
@@ -52,6 +52,8 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [friendsLoading, setFriendsLoading] = useState(false);
+  const selectedFriendRef = useRef<Friend | null>(null);
+  const channelRef = useRef<any>(null);
 
   const fetchFriends = useCallback(async () => {
     console.log('Fetching friends', { apiUrl, token: !!token });
@@ -120,49 +122,31 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
         // Encrypt content
         const encryptedContent = await encryptWithAESKey(aesKey, content);
 
-        // If first message, encrypt AES key with friend's public key
-        let encryptedKey: string;
-        if (isFirstMessage) {
-          const friend = friends.find(f => f.user.id === friendId);
-          if (!friend) throw new Error('Friend not found');
-          const friendPublicKey = await crypto.subtle.importKey(
-            'jwk',
-            JSON.parse(friend.user.public_key),
-            { name: 'RSA-OAEP', hash: 'SHA-256' },
-            false,
-            ['encrypt']
-          );
-          const exportedAES = await crypto.subtle.exportKey('raw', aesKey);
-          const encryptedAES = await encryptWithRSA(friendPublicKey, exportedAES);
-          encryptedKey = btoa(Array.from(new Uint8Array(encryptedAES), b => String.fromCharCode(b)).join(''));
-        } else {
-          // For subsequent, still send encrypted_key? Wait, backend expects it always.
-          // Actually, since backend stores it per message, need to send it always.
-          const friend = friends.find(f => f.user.id === friendId);
-          if (!friend) throw new Error('Friend not found');
-          const publicKeyStr = friend.user.public_key;
-          if (!publicKeyStr) throw new Error('Friend public key not available');
-          const jwk = JSON.parse(publicKeyStr);
-          if (!jwk) throw new Error('Invalid friend public key');
-          jwk.alg = 'RSA-OAEP-256';
-          jwk.key_ops = ['encrypt'];
-          const friendPublicKey = await crypto.subtle.importKey(
-            'jwk',
-            jwk,
-            { name: 'RSA-OAEP', hash: 'SHA-256' },
-            false,
-            ['encrypt']
-          );
-          const exportedAES = await crypto.subtle.exportKey('raw', aesKey);
-          const encryptedAES = await encryptWithRSA(friendPublicKey, exportedAES);
-          encryptedKey = btoa(Array.from(new Uint8Array(encryptedAES)).map(b => String.fromCharCode(b)).join(''));
-        }
+        // Always encrypt AES key with friend's public key (backend stores it per message)
+        const friend = friends.find(f => f.user.id === friendId);
+        if (!friend) throw new Error('Friend not found');
+        const publicKeyStr = friend.user.public_key;
+        if (!publicKeyStr) throw new Error('Friend public key not available');
+        const jwk = JSON.parse(publicKeyStr);
+        if (!jwk) throw new Error('Invalid friend public key');
+        jwk.alg = 'RSA-OAEP-256';
+        jwk.key_ops = ['encrypt'];
+        const friendPublicKey = await crypto.subtle.importKey(
+          'jwk',
+          jwk,
+          { name: 'RSA-OAEP', hash: 'SHA-256' },
+          false,
+          ['encrypt']
+        );
+        const exportedAES = await crypto.subtle.exportKey('raw', aesKey);
+        const encryptedAES = await encryptWithRSA(friendPublicKey, exportedAES);
+        const encryptedKey = btoa(Array.from(new Uint8Array(encryptedAES)).map(b => String.fromCharCode(b)).join(''));
 
         // Generate IV
         const iv = crypto.getRandomValues(new Uint8Array(12));
         const ivString = btoa(Array.from(iv, b => String.fromCharCode(b)).join(''));
 
-        // Send to API
+        // Send via HTTP API
         const response = await fetch(`${apiUrl}/chat/send`, {
           method: 'POST',
           headers: {
@@ -178,23 +162,11 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
         });
 
         const data = await response.json();
-        if (data.statusCode === 2000) {
-          // Add to messages
-          const newMsg: Message = {
-            id: Date.now(), // Temporary ID
-            sender_id: userId || '',
-            receiver_id: friendId,
-            encrypted_content: encryptedContent,
-            encrypted_key: encryptedKey,
-            iv: ivString,
-            sent_at: new Date().toISOString(),
-            read_at: null,
-            decryptedContent: content,
-          };
-          setMessages(prev => [...prev, newMsg]);
-        } else {
-          throw new Error(data.message);
+        if (data.statusCode !== 2000) {
+          throw new Error(data.message || 'Failed to send message');
         }
+
+        // Message will appear via WebSocket broadcast event
       };
     } catch (error) {
       console.error('Error sending message:', error);
@@ -204,16 +176,24 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
 
   const markAsRead = useCallback(async (friendId: string) => {
     try {
-      await fetch(`${apiUrl}/chat/mark-read/${friendId}`, {
+      const response = await fetch(`${apiUrl}/chat/mark-read/${friendId}`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      // Update local unread counts
-      setUnreadCounts(prev => ({
-        ...prev,
-        total_unread: prev.total_unread - (prev.unread_by_friend[friendId] || 0),
-        unread_by_friend: { ...prev.unread_by_friend, [friendId]: 0 },
-      }));
+
+      const data = await response.json();
+      if (data.statusCode === 2000) {
+        // Update local unread counts optimistically
+        setUnreadCounts(prev => ({
+          ...prev,
+          total_unread: prev.total_unread - (prev.unread_by_friend[friendId] || 0),
+          unread_by_friend: { ...prev.unread_by_friend, [friendId]: 0 },
+        }));
+      } else {
+        throw new Error(data.message || 'Failed to mark as read');
+      }
     } catch (error) {
       console.error('Error marking as read:', error);
     }
@@ -222,11 +202,13 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
   const fetchMessages = useCallback(async (friendId: string) => {
     if (!rsaKeyPair) return;
     try {
+      setLoading(true);
       const response = await fetch(`${apiUrl}/chat/messages/${friendId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       if (data.statusCode === 2000) {
+        // Decrypt messages
         const decryptedMessages = await Promise.all(data.data.map(async (msg: any) => {
           try {
             let aesKey: CryptoKey;
@@ -251,14 +233,18 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
             const decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
             return { ...msg, decryptedContent };
           } catch (error) {
-            console.error('Error decrypting message:', error);
+            console.error('Error decrypting fetched message:', error);
             return { ...msg, decryptedContent: 'Failed to decrypt' };
           }
         }));
         setMessages(decryptedMessages);
+      } else {
+        console.error('Failed to fetch messages:', data.message);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
+    } finally {
+      setLoading(false);
     }
   }, [apiUrl, token, rsaKeyPair, userId, decryptWithRSA, decryptWithAESKey]);
 
@@ -270,14 +256,19 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
   }, [token, fetchFriends, fetchUnreadCounts]);
 
   useEffect(() => {
+    selectedFriendRef.current = selectedFriend;
+  }, [selectedFriend]);
+
+  useEffect(() => {
     if (selectedFriend && rsaKeyPair) {
       fetchMessages(selectedFriend.user.id);
     }
   }, [selectedFriend, rsaKeyPair, fetchMessages]);
 
 
+  // Pusher connection setup
   useEffect(() => {
-    if (encryptionLoaded && rsaKeyPair && userId) {
+    if (userId && token) {
       const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
       const pusherHost = process.env.NEXT_PUBLIC_PUSHER_HOST;
       const pusherPort = process.env.NEXT_PUBLIC_PUSHER_PORT;
@@ -301,38 +292,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
           },
         } as any);
         const channel = p.subscribe(`private-user.${userId}`);
-        channel.bind('message.sent', async (data: any) => {
-          const msg = data.message;
-          try {
-            const aesKeyEncrypted = msg.encrypted_key;
-            const aesKeyData = await decryptWithRSA(rsaKeyPair!.privateKey, Uint8Array.from(atob(aesKeyEncrypted), c => c.charCodeAt(0)).buffer);
-            const aesKey = await crypto.subtle.importKey('raw', aesKeyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-            const decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
-            const decryptedMsg = { ...msg, decryptedContent };
-            if (selectedFriend && (msg.sender_id === selectedFriend.user.id || msg.receiver_id === selectedFriend.user.id)) {
-              setMessages(prev => {
-                if (prev.some(m => m.id === msg.id)) return prev;
-                return [...prev, decryptedMsg];
-              });
-            }
-            if (msg.receiver_id === userId) {
-              setUnreadCounts(prev => ({
-                total_unread: prev.total_unread + 1,
-                unread_by_friend: { ...prev.unread_by_friend, [msg.sender_id]: (prev.unread_by_friend[msg.sender_id] || 0) + 1 },
-              }));
-            }
-          } catch (error) {
-            console.error('Error decrypting incoming message:', error);
-          }
-        });
-        channel.bind('message.read', (data: any) => {
-          const { friend_id } = data;
-          setUnreadCounts(prev => ({
-            ...prev,
-            total_unread: prev.total_unread - (prev.unread_by_friend[friend_id] || 0),
-            unread_by_friend: { ...prev.unread_by_friend, [friend_id]: 0 },
-          }));
-        });
+        channelRef.current = channel;
         return () => {
           p.disconnect();
         };
@@ -340,7 +300,47 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
         console.error('Error initializing Pusher:', error);
       }
     }
-  }, [encryptionLoaded, rsaKeyPair, userId, token, selectedFriend, decryptWithRSA, decryptWithAESKey]);
+  }, [userId, token, apiUrl]);
+
+  // Pusher event bindings
+  useEffect(() => {
+    if (channelRef.current && rsaKeyPair) {
+      const channel = channelRef.current;
+      channel.bind('message.sent', async (data: any) => {
+        const msg = data.message;
+        try {
+          const aesKeyEncrypted = msg.encrypted_key;
+          const aesKeyData = await decryptWithRSA(rsaKeyPair!.privateKey, Uint8Array.from(atob(aesKeyEncrypted), c => c.charCodeAt(0)).buffer);
+          const aesKey = await crypto.subtle.importKey('raw', aesKeyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+          const decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
+          const decryptedMsg = { ...msg, decryptedContent };
+          const currentSelectedFriend = selectedFriendRef.current;
+          if (currentSelectedFriend && (msg.sender_id === currentSelectedFriend.user.id || msg.receiver_id === currentSelectedFriend.user.id)) {
+            setMessages(prev => {
+              if (prev.some(m => m.id === msg.id)) return prev;
+              return [...prev, decryptedMsg];
+            });
+          }
+          if (msg.receiver_id === userId) {
+            setUnreadCounts(prev => ({
+              total_unread: prev.total_unread + 1,
+              unread_by_friend: { ...prev.unread_by_friend, [msg.sender_id]: (prev.unread_by_friend[msg.sender_id] || 0) + 1 },
+            }));
+          }
+        } catch (error) {
+          console.error('Error decrypting incoming message:', error);
+        }
+      });
+      channel.bind('message.read', (data: any) => {
+        const { friend_id } = data;
+        setUnreadCounts(prev => ({
+          ...prev,
+          total_unread: prev.total_unread - (prev.unread_by_friend[friend_id] || 0),
+          unread_by_friend: { ...prev.unread_by_friend, [friend_id]: 0 },
+        }));
+      });
+    }
+  }, [rsaKeyPair, userId, decryptWithRSA, decryptWithAESKey]);
 
   return {
     friends,

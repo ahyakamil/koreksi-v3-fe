@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 // Utility to open IndexedDB
 const openDB = (): Promise<IDBDatabase> => {
@@ -258,42 +258,42 @@ export const useEncryption = (apiUrl: string, token: string) => {
     }
   };
 
-  const generateAESKey = async (): Promise<CryptoKey> => {
+  const generateAESKey = useCallback(async (): Promise<CryptoKey> => {
     return crypto.subtle.generateKey(
       { name: 'AES-GCM', length: 256 },
       true,
       ['encrypt', 'decrypt']
     );
-  };
+  }, []);
 
-  const encryptWithRSA = async (publicKey: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> => {
+  const encryptWithRSA = useCallback(async (publicKey: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> => {
     return crypto.subtle.encrypt(
       { name: 'RSA-OAEP' },
       publicKey,
       data
     );
-  };
+  }, []);
 
-  const decryptWithRSA = async (privateKey: CryptoKey, encryptedData: ArrayBuffer): Promise<ArrayBuffer> => {
+  const decryptWithRSA = useCallback(async (privateKey: CryptoKey, encryptedData: ArrayBuffer): Promise<ArrayBuffer> => {
     return crypto.subtle.decrypt(
       { name: 'RSA-OAEP' },
       privateKey,
       encryptedData
     );
-  };
+  }, []);
 
-  const encryptWithAESKey = async (aesKey: CryptoKey, data: string): Promise<string> => {
+  const encryptWithAESKey = useCallback(async (aesKey: CryptoKey, data: string): Promise<string> => {
     const encoder = new TextEncoder();
     const encrypted = await encryptWithAES(aesKey, encoder.encode(data).buffer);
     return btoa(Array.from(new Uint8Array(encrypted), b => String.fromCharCode(b)).join(''));
-  };
+  }, []);
 
-  const decryptWithAESKey = async (aesKey: CryptoKey, encryptedData: string): Promise<string> => {
+  const decryptWithAESKey = useCallback(async (aesKey: CryptoKey, encryptedData: string): Promise<string> => {
     const encrypted = new Uint8Array(Array.from(atob(encryptedData), c => c.charCodeAt(0)));
     const decrypted = await decryptWithAES(aesKey, encrypted.buffer);
     const decoder = new TextDecoder();
     return decoder.decode(decrypted);
-  };
+  }, []);
 
   return {
     rsaKeyPair,
