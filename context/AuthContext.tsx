@@ -56,6 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }){
       const res = await apiFetch('/auth/me')
       if (res.body && res.body.user) {
         setUser(res.body.user)
+        if (res.body.user.private_key_encrypted) localStorage.setItem('privateKeyEncrypted', res.body.user.private_key_encrypted);
+        if (res.body.user.public_key) localStorage.setItem('publicKey', res.body.user.public_key);
         // Fetch counts after user is set
         try {
           const countRes = await apiFetch('/friends/requests/count')

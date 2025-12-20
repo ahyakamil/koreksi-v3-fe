@@ -24,6 +24,8 @@ export default function Login(){
       localStorage.setItem('accessToken', j.accessToken)
       if(j.refreshToken) localStorage.setItem('refreshToken', j.refreshToken)
       localStorage.setItem('encryptionPassword', btoa(j.user.id));
+      if (j.user.private_key_encrypted) localStorage.setItem('privateKeyEncrypted', j.user.private_key_encrypted);
+      if (j.user.public_key) localStorage.setItem('publicKey', j.user.public_key);
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {

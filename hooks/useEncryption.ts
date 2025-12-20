@@ -127,16 +127,23 @@ export const useEncryption = (apiUrl: string, token: string) => {
 
   const loadKeys = async () => {
     try {
-      // First, fetch user data from backend
+      // First, try to get from localStorage
       let userData = null;
-      try {
-        const response = await fetch(`${apiUrl}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        userData = data.user;
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
+      const storedPrivate = (typeof window !== 'undefined') ? localStorage.getItem('privateKeyEncrypted') : null;
+      const storedPublic = (typeof window !== 'undefined') ? localStorage.getItem('publicKey') : null;
+      if (storedPrivate && storedPublic) {
+        userData = { private_key_encrypted: storedPrivate, public_key: storedPublic };
+      } else {
+        // Fetch user data from backend
+        try {
+          const response = await fetch(`${apiUrl}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          userData = data.user;
+        } catch (error) {
+          console.error('Failed to fetch user data:', error);
+        }
       }
 
       const db = await openDB();
@@ -304,5 +311,8 @@ export const useEncryption = (apiUrl: string, token: string) => {
     decryptWithRSA,
     encryptWithAESKey,
     decryptWithAESKey,
+    getDerivedKey,
+    encryptWithAES,
+    decryptWithAES,
   };
 };
