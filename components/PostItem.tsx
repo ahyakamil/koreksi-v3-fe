@@ -98,7 +98,7 @@ export default function PostItem({ post }: PostItemProps) {
           onClick={() => setShowComments(!showComments)}
           className="text-sm text-blue-600 hover:text-blue-800"
         >
-          {showComments ? t('hide_post_form') : `${t('load_comments')}${commentsCount > 0 ? ` (${commentsCount})` : ''}`}
+          {showComments ? t('hide') : `${t('load_comments')}${commentsCount > 0 ? ` (${commentsCount})` : ''}`}
         </button>
 
         {showComments && (

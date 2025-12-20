@@ -126,14 +126,14 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="text-blue-600 hover:text-blue-800 font-medium text-sm"
               >
-                {isExpanded ? t('hide_post_form') : t('show_post_form')}
+                {isExpanded ? t('hide') : t('show_all')}
               </button>
             )}
             <button
               onClick={() => setShowComments(!showComments)}
               className="text-sm text-blue-600 hover:text-blue-800"
             >
-              {showComments ? t('hide_post_form') : `${t('load_comments')}${news.comments_count && news.comments_count > 0 ? ` (${news.comments_count})` : ''}`}
+              {showComments ? t('hide') : `${t('load_comments')}${news.comments_count && news.comments_count > 0 ? ` (${news.comments_count})` : ''}`}
             </button>
             <button
               onClick={(e) => {

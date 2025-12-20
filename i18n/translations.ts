@@ -66,6 +66,8 @@ type TranslationKeys = {
   post_not_found: string
   failed_to_load: string
   organizations: string
+  show_all: string
+  hide: string
 }
 
 type Translations = {
@@ -142,6 +144,8 @@ const translations: Translations = {
     post_not_found: 'Postingan tidak ditemukan',
     failed_to_load: 'Gagal memuat',
     organizations: 'Organisasi',
+    show_all: 'Tampilkan semua',
+    hide: 'Sembunyikan',
   },
   en: {
     comments: 'Comments',
@@ -211,6 +215,8 @@ const translations: Translations = {
     post_not_found: 'Post not found',
     failed_to_load: 'Failed to load',
     organizations: 'Organizations',
+    show_all: 'Show all',
+    hide: 'Hide',
   }
 }
 
