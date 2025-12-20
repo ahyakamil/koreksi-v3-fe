@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Pusher from 'pusher-js';
 import { useEncryption } from './useEncryption';
+import { useAuth } from '../context/AuthContext';
 
 interface Friend {
   friendship_id: string;
@@ -70,47 +71,19 @@ const playNotificationSound = () => {
 
 export const useChat = (apiUrl: string, token: string, userId?: string, isWidgetExpanded?: boolean) => {
   const { rsaKeyPair, isLoaded: encryptionLoaded, generateRSAKeyPair, generateAESKey, encryptWithRSA, decryptWithRSA, encryptWithAESKey, decryptWithAESKey, getDerivedKey, encryptWithAES, decryptWithAES } = useEncryption(apiUrl, token);
-  const [friends, setFriends] = useState<Friend[]>([]);
-  const [unreadCounts, setUnreadCounts] = useState<UnreadCounts>({ total_unread: 0, unread_by_friend: {} });
+  const { friends, refreshFriends, unreadCounts: globalUnreadCounts, refreshUnreadCounts } = useAuth();
+  const [unreadCounts, setUnreadCounts] = useState<UnreadCounts>(globalUnreadCounts);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [friendsLoading, setFriendsLoading] = useState(false);
   const selectedFriendRef = useRef<Friend | null>(null);
   const channelRef = useRef<any>(null);
 
-  const fetchFriends = useCallback(async () => {
-    console.log('Fetching friends', { apiUrl, token: !!token });
-    setFriendsLoading(true);
-    try {
-      const response = await fetch(`${apiUrl}/friends`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      console.log('Friends response:', data);
-      if (data.statusCode === 2000) {
-        setFriends(data.data.friends);
-      }
-    } catch (error) {
-      console.error('Error fetching friends:', error);
-    } finally {
-      setFriendsLoading(false);
-    }
-  }, [apiUrl, token]);
+  useEffect(() => {
+    setUnreadCounts(globalUnreadCounts);
+  }, [globalUnreadCounts]);
 
-  const fetchUnreadCounts = useCallback(async () => {
-    try {
-      const response = await fetch(`${apiUrl}/chat/unread-count`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      if (data.statusCode === 2000) {
-        setUnreadCounts(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching unread counts:', error);
-    }
-  }, [apiUrl, token]);
+
 
 
   const sendMessage = useCallback(async (friendId: string, content: string) => {
@@ -355,50 +328,9 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     }
   }, [apiUrl, token, rsaKeyPair, userId, decryptWithRSA, decryptWithAESKey]);
 
-  // Update online status every 30 seconds
-  useEffect(() => {
-    if (!token) return;
 
-    const updateOnlineStatus = async () => {
-      try {
-        await fetch(`${apiUrl}/auth/update-online-status`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } catch (error) {
-        console.error('Error updating online status:', error);
-      }
-    };
 
-    // Update immediately
-    updateOnlineStatus();
 
-    // Set up interval to update every 30 seconds
-    const interval = setInterval(updateOnlineStatus, 60000);
-
-    return () => clearInterval(interval);
-  }, [apiUrl, token]);
-
-  useEffect(() => {
-    if (token) {
-      fetchFriends();
-      fetchUnreadCounts();
-    }
-  }, [token, fetchFriends, fetchUnreadCounts]);
-
-  // Refresh friends list every 60 seconds to update online status
-  useEffect(() => {
-    if (!token) return;
-
-    const refreshFriends = () => {
-      fetchFriends();
-    };
-
-    // Set up interval to refresh every 60 seconds
-    const interval = setInterval(refreshFriends, 60000);
-
-    return () => clearInterval(interval);
-  }, [token, fetchFriends]);
 
   useEffect(() => {
     selectedFriendRef.current = selectedFriend;
@@ -408,7 +340,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     if (selectedFriend && rsaKeyPair) {
       fetchMessages(selectedFriend.user.id);
     }
-  }, [selectedFriend, rsaKeyPair, fetchMessages]);
+  }, [selectedFriend, rsaKeyPair]);
 
 
   // Pusher connection setup
@@ -540,7 +472,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
         }));
       });
     }
-  }, [rsaKeyPair, userId, decryptWithRSA, decryptWithAESKey]);
+  }, [rsaKeyPair, userId]);
 
   return {
     friends,
@@ -549,10 +481,8 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     setSelectedFriend,
     messages,
     loading,
-    friendsLoading,
     sendMessage,
     markAsRead,
-    fetchUnreadCounts,
     encryptionLoaded,
   };
 };

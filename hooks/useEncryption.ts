@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 // Utility to open IndexedDB
 const openDB = (): Promise<IDBDatabase> => {
@@ -54,10 +54,11 @@ const decryptWithAES = async (key: CryptoKey, encryptedData: ArrayBuffer): Promi
 export const useEncryption = (apiUrl: string, token: string) => {
   const [rsaKeyPair, setRsaKeyPair] = useState<CryptoKeyPair | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const keysLoadedRef = useRef(false);
 
   useEffect(() => {
     loadKeys();
-  }, []);
+  }, [token]);
 
   const generateRSAKeyPair = async () => {
     try {
@@ -193,35 +194,9 @@ export const useEncryption = (apiUrl: string, token: string) => {
 
         setRsaKeyPair({ publicKey, privateKey });
 
-        // If backend doesn't have private key, send it
-        if (userData && !userData.private_key_encrypted) {
-          try {
-            await fetch(`${apiUrl}/auth/set-private-key`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ private_key_encrypted: btoa(Array.from(new Uint8Array(privateKeyResult.data), b => String.fromCharCode(b)).join('')) }),
-            });
-          } catch (error) {
-            console.error('Failed to send private key to backend:', error);
-          }
-        }
+        // Private key already in backend
 
-        // Send public key to backend if loaded
-        try {
-          await fetch(`${apiUrl}/auth/set-public-key`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ public_key: JSON.stringify(publicKeyResult.data) }),
-          });
-        } catch (error) {
-          console.error('Failed to send public key to backend:', error);
-        }
+        // Public key already in backend
       } else if (userData && userData.public_key && userData.private_key_encrypted) {
         // Load from backend
         // Store in IndexedDB
