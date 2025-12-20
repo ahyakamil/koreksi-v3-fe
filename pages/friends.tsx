@@ -6,7 +6,7 @@ import { User, Friendship, FriendRequest } from '../types'
 
 export default function Friends(){
   const { t } = useLocale()
-  const { refreshPendingCount } = useAuth()
+  const { refreshPendingCount, user } = useAuth()
   const [friends, setFriends] = useState<Friendship[]>([])
   const [requests, setRequests] = useState<FriendRequest[]>([])
   const [blocked, setBlocked] = useState<Friendship[]>([])
@@ -160,7 +160,7 @@ export default function Friends(){
                   <div className="text-sm text-gray-600">{f.user.email}</div>
                 </div>
               </div>
-              <div className="sm:ml-4">
+              <div className="sm:ml-4 flex space-x-2">
                 <button
                   onClick={()=>removeFriend(f.friendship_id)}
                   className="px-3 py-1.5 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors"
