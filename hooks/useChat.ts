@@ -309,10 +309,30 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
       channel.bind('message.sent', async (data: any) => {
         const msg = data.message;
         try {
-          const aesKeyEncrypted = msg.encrypted_key;
-          const aesKeyData = await decryptWithRSA(rsaKeyPair!.privateKey, Uint8Array.from(atob(aesKeyEncrypted), c => c.charCodeAt(0)).buffer);
-          const aesKey = await crypto.subtle.importKey('raw', aesKeyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-          const decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
+          let decryptedContent: string;
+          let aesKey: CryptoKey;
+
+          if (msg.sender_id === userId) {
+            // For own messages, get AES key from IndexedDB
+            const db = await openDB();
+            const transaction = db.transaction(['aesKeys'], 'readonly');
+            const store = transaction.objectStore('aesKeys');
+            const getRequest = store.get(msg.receiver_id);
+            const result = await new Promise<any>((resolve, reject) => {
+              getRequest.onsuccess = () => resolve(getRequest.result);
+              getRequest.onerror = () => reject(getRequest.error);
+            });
+            if (!result) throw new Error('AES key not found for own message');
+            aesKey = await crypto.subtle.importKey('raw', result.keyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+            decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
+          } else {
+            // For received messages, decrypt the encrypted_key
+            const aesKeyEncrypted = msg.encrypted_key;
+            const aesKeyData = await decryptWithRSA(rsaKeyPair!.privateKey, Uint8Array.from(atob(aesKeyEncrypted), c => c.charCodeAt(0)).buffer);
+            aesKey = await crypto.subtle.importKey('raw', aesKeyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+            decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
+          }
+
           const decryptedMsg = { ...msg, decryptedContent };
           const currentSelectedFriend = selectedFriendRef.current;
           if (currentSelectedFriend && (msg.sender_id === currentSelectedFriend.user.id || msg.receiver_id === currentSelectedFriend.user.id)) {
