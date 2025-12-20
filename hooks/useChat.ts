@@ -46,10 +46,13 @@ const openDB = (): Promise<IDBDatabase> => {
 };
 
 // Play notification sound for new messages
-const playNotificationSound = () => {
+const playNotificationSound = async () => {
   try {
     // Create a simple beep sound using Web Audio API
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
@@ -59,7 +62,7 @@ const playNotificationSound = () => {
     oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // 800Hz beep
     oscillator.type = 'sine';
 
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Low volume
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5); // Fade out
 
     oscillator.start(audioContext.currentTime);
