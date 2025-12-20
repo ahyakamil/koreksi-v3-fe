@@ -24,7 +24,6 @@ export default function Register(){
       const j = res.body
       localStorage.setItem('accessToken', j.accessToken)
       if(j.refreshToken) localStorage.setItem('refreshToken', j.refreshToken)
-      localStorage.setItem('encryptionPassword', btoa(j.user.id));
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {
