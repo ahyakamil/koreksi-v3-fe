@@ -14,7 +14,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, token, userId, openWith
   console.log('ChatWidget rendering', { userId, token: !!token });
   const [isExpanded, setIsExpanded] = useState(true);
   const [initialSelected, setInitialSelected] = useState<string | null>(null);
-  const { unreadCounts } = useChat(apiUrl, token, userId);
+  const { unreadCounts } = useChat(apiUrl, token, userId, isExpanded);
 
   useEffect(() => {
     if (openWithFriend) {
@@ -22,6 +22,13 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, token, userId, openWith
       setInitialSelected(openWithFriend);
     }
   }, [openWithFriend]);
+
+  // Close widget when there are no unread messages
+  useEffect(() => {
+    if (unreadCounts.total_unread === 0 && !openWithFriend) {
+      setIsExpanded(false);
+    }
+  }, [unreadCounts.total_unread, openWithFriend]);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);

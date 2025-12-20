@@ -44,7 +44,31 @@ const openDB = (): Promise<IDBDatabase> => {
   });
 };
 
-export const useChat = (apiUrl: string, token: string, userId?: string) => {
+// Play notification sound for new messages
+const playNotificationSound = () => {
+  try {
+    // Create a simple beep sound using Web Audio API
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // 800Hz beep
+    oscillator.type = 'sine';
+
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Low volume
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5); // Fade out
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5); // 0.5 second beep
+  } catch (error) {
+    console.warn('Could not play notification sound:', error);
+  }
+};
+
+export const useChat = (apiUrl: string, token: string, userId?: string, isWidgetExpanded?: boolean) => {
   const { rsaKeyPair, isLoaded: encryptionLoaded, generateRSAKeyPair, generateAESKey, encryptWithRSA, decryptWithRSA, encryptWithAESKey, decryptWithAESKey } = useEncryption(apiUrl, token);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [unreadCounts, setUnreadCounts] = useState<UnreadCounts>({ total_unread: 0, unread_by_friend: {} });
@@ -380,6 +404,11 @@ export const useChat = (apiUrl: string, token: string, userId?: string) => {
             });
           }
           if (msg.receiver_id === userId) {
+            // Play notification sound for new messages only when widget is not expanded
+            if (!isWidgetExpanded) {
+              playNotificationSound();
+            }
+
             setUnreadCounts(prev => ({
               total_unread: prev.total_unread + 1,
               unread_by_friend: { ...prev.unread_by_friend, [msg.sender_id]: (prev.unread_by_friend[msg.sender_id] || 0) + 1 },
