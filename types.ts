@@ -95,6 +95,8 @@ export interface News {
   organization_id: string
   space_id: string
   user_id: string
+  editor_id?: string
+  publisher_id?: string
   title: string
   content: string
   image?: string
@@ -105,5 +107,7 @@ export interface News {
   space?: Space
   organization?: Organization
   user?: User
+  editor?: User
+  publisher?: User
   comments_count?: number
 }
