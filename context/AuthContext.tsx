@@ -21,11 +21,33 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Function to play a simple beep sound
+function playNotificationSound() {
+  if (typeof window !== 'undefined') {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const oscillator = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
+
+    oscillator.connect(gainNode)
+    gainNode.connect(audioContext.destination)
+
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime) // Frequency in Hz
+    oscillator.type = 'sine'
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5)
+
+    oscillator.start(audioContext.currentTime)
+    oscillator.stop(audioContext.currentTime + 0.5)
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }){
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
   const [notificationsCount, setNotificationsCount] = useState(0)
+  const [previousNotificationsCount, setPreviousNotificationsCount] = useState(0)
 
   useEffect(()=>{
     async function init(){
@@ -48,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }){
           if (notifRes.body && notifRes.body.statusCode === 2000) {
             const unreadCount = notifRes.body.data.notifications?.filter((n: any) => !n.read_at).length || 0
             setNotificationsCount(unreadCount)
+            setPreviousNotificationsCount(unreadCount)
           }
         } catch (error) {
           console.error('Failed to fetch notifications count:', error)
@@ -90,6 +113,10 @@ export function AuthProvider({ children }: { children: ReactNode }){
         const res = await apiFetch('/notifications')
         if (res.body && res.body.statusCode === 2000) {
           const unreadCount = res.body.data.notifications?.filter((n: any) => !n.read_at).length || 0
+          if (unreadCount > previousNotificationsCount) {
+            playNotificationSound()
+          }
+          setPreviousNotificationsCount(unreadCount)
           setNotificationsCount(unreadCount)
         }
       } catch (error) {
@@ -97,8 +124,9 @@ export function AuthProvider({ children }: { children: ReactNode }){
       }
     } else {
       setNotificationsCount(0)
+      setPreviousNotificationsCount(0)
     }
-  }, [user])
+  }, [user, previousNotificationsCount])
 
   useEffect(() => {
     if (user) {
