@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import Pusher from 'pusher-js';
+import io, { Socket } from 'socket.io-client';
 import { useEncryption } from './useEncryption';
 import { useAuth } from '../context/AuthContext';
 
@@ -80,7 +80,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const selectedFriendRef = useRef<Friend | null>(null);
-  const channelRef = useRef<any>(null);
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     setUnreadCounts(globalUnreadCounts);
@@ -183,8 +183,6 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
       if (!publicKeyStr) throw new Error('Friend public key not available');
       const jwk = JSON.parse(publicKeyStr);
       if (!jwk) throw new Error('Invalid friend public key');
-      jwk.alg = 'RSA-OAEP-256';
-      jwk.key_ops = ['encrypt'];
       const friendPublicKey = await crypto.subtle.importKey(
         'jwk',
         jwk,
@@ -346,47 +344,40 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
   }, [selectedFriend, rsaKeyPair]);
 
 
-  // Pusher connection setup
+  // Socket.IO connection setup
   useEffect(() => {
     if (userId && token) {
-      const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
-      const pusherHost = process.env.NEXT_PUBLIC_PUSHER_HOST;
-      const pusherPort = process.env.NEXT_PUBLIC_PUSHER_PORT;
-      const pusherScheme = process.env.NEXT_PUBLIC_PUSHER_SCHEME;
-      if (!pusherKey) {
-        console.warn('Pusher key not configured, skipping WebSocket integration');
-        return;
-      }
+      const websocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001';
       try {
-        const p = new Pusher(pusherKey, {
-          wsHost: pusherHost,
-          wsPort: pusherPort ? parseInt(pusherPort) : undefined,
-          wssPort: pusherPort ? parseInt(pusherPort) : undefined,
-          forceTLS: pusherScheme === 'wss',
-          cluster: 'local', // dummy
-          authEndpoint: `${apiUrl.replace('/v1', '')}/broadcasting/auth`,
+        const socket = io(websocketUrl, {
           auth: {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            token: token,
           },
-        } as any);
-        const channel = p.subscribe(`private-user.${userId}`);
-        channelRef.current = channel;
+        });
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+          console.log('Connected to WebSocket server');
+        });
+
+        socket.on('disconnect', () => {
+          console.log('Disconnected from WebSocket server');
+        });
+
         return () => {
-          p.disconnect();
+          socket.disconnect();
         };
       } catch (error) {
-        console.error('Error initializing Pusher:', error);
+        console.error('Error initializing Socket.IO:', error);
       }
     }
-  }, [userId, token, apiUrl]);
+  }, [userId, token]);
 
-  // Pusher event bindings
+  // Socket.IO event bindings
   useEffect(() => {
-    if (channelRef.current && rsaKeyPair) {
-      const channel = channelRef.current;
-      channel.bind('message.sent', async (data: any) => {
+    if (socketRef.current && rsaKeyPair) {
+      const socket = socketRef.current;
+      socket.on('message.sent', async (data: any) => {
         const msg = data.message;
         try {
           let decryptedContent: string;
@@ -437,6 +428,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
             decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
           } else {
             // For received messages, decrypt the encrypted_key
+            console.log('Decrypting incoming message:', msg.id, 'encrypted_key length:', msg.encrypted_key.length);
             const aesKeyEncrypted = msg.encrypted_key;
             const aesKeyData = await decryptWithRSA(rsaKeyPair!.privateKey, Uint8Array.from(atob(aesKeyEncrypted), c => c.charCodeAt(0)).buffer);
             aesKey = await crypto.subtle.importKey('raw', aesKeyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
@@ -464,9 +456,28 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
           }
         } catch (error) {
           console.error('Error decrypting incoming message:', error);
+          const decryptedMsg = { ...msg, decryptedContent: 'Failed to decrypt' };
+          const currentSelectedFriend = selectedFriendRef.current;
+          if (currentSelectedFriend && (msg.sender_id === currentSelectedFriend.user.id || msg.receiver_id === currentSelectedFriend.user.id)) {
+            setMessages(prev => {
+              if (prev.some(m => m.id === msg.id)) return prev;
+              return [...prev, decryptedMsg];
+            });
+          }
+          if (msg.receiver_id === userId) {
+            // Play notification sound for new messages only when widget is not expanded
+            if (!isWidgetExpanded) {
+              playNotificationSound();
+            }
+
+            setUnreadCounts(prev => ({
+              total_unread: prev.total_unread + 1,
+              unread_by_friend: { ...prev.unread_by_friend, [msg.sender_id]: (prev.unread_by_friend[msg.sender_id] || 0) + 1 },
+            }));
+          }
         }
       });
-      channel.bind('message.read', (data: any) => {
+      socket.on('message.read', (data: any) => {
         const { friend_id } = data;
         setUnreadCounts(prev => ({
           ...prev,
