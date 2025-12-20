@@ -25,7 +25,6 @@ interface FriendListProps {
 }
 
 const FriendList: React.FC<FriendListProps> = ({ friends, unreadCounts, onSelectFriend, selectedFriendId, loading }) => {
-  console.log('FriendList friends:', friends, 'loading:', loading);
   const isOnline = (onlineAt: string | null) => {
     if (!onlineAt) return false;
     const onlineTime = new Date(onlineAt);

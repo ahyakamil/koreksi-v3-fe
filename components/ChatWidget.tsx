@@ -11,7 +11,6 @@ interface ChatWidgetProps {
 }
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, token, userId, openWithFriend }) => {
-  console.log('ChatWidget rendering', { userId, token: !!token });
   const [isExpanded, setIsExpanded] = useState(true);
   const [initialSelected, setInitialSelected] = useState<string | null>(null);
   const { unreadCounts } = useChat(apiUrl, token, userId, isExpanded);
