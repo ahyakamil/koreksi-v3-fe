@@ -39,7 +39,17 @@ export interface Pageable {
 export interface Notification {
   id: string
   created_at: string
-  data: any
+  read_at: string | null
+  data: {
+    type: 'friend_request' | 'comment'
+    friendship_id?: string
+    from_user_id: string
+    from_user_name: string
+    message: string
+    commentable_type?: 'post' | 'news'
+    commentable_id?: string
+    comment_id?: string
+  }
 }
 
 export interface Friendship {
