@@ -273,7 +273,10 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
                 getRequest.onsuccess = () => resolve(getRequest.result);
                 getRequest.onerror = () => reject(getRequest.error);
               });
-              if (!result) {
+              let aesKeyLocal: CryptoKey | null = null;
+              if (result) {
+                aesKeyLocal = await crypto.subtle.importKey('raw', result.keyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+              } else {
                 // Try to get from database
                 try {
                   const response = await fetch(`${apiUrl}/chat/aes-key/${friendId}`, {
@@ -286,25 +289,27 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
                       if (derivedKey) {
                         const encryptedKeyData = new Uint8Array(Array.from(atob(data.data.encrypted_aes_key), c => c.charCodeAt(0)));
                         const keyData = await decryptWithAES(derivedKey, encryptedKeyData.buffer);
-                        aesKey = await crypto.subtle.importKey('raw', keyData, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+                        aesKeyLocal = await crypto.subtle.importKey('raw', keyData, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
                         // Store in IndexedDB for future use
                         const storeWrite = db.transaction(['aesKeys'], 'readwrite').objectStore('aesKeys');
                         storeWrite.put({ friendId, keyData });
                       } else {
-                        throw new Error('Derived key not available');
+                        console.error('Derived key not available');
                       }
                     } else {
-                      throw new Error('AES key not found in db');
+                      console.error('AES key not found in db');
                     }
                   } else {
-                    throw new Error('Failed to fetch AES key from db');
+                    console.error('Failed to fetch AES key from db');
                   }
                 } catch (error) {
-                  throw new Error('AES key not found for sent message');
+                  console.error('Error fetching AES key from db:', error);
                 }
-              } else {
-                aesKey = await crypto.subtle.importKey('raw', result.keyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
               }
+              if (!aesKeyLocal) {
+                return { ...msg, decryptedContent: 'Failed to decrypt' };
+              }
+              aesKey = aesKeyLocal;
             } else {
               // For received messages, decrypt the encrypted_key
               const aesKeyEncrypted = msg.encrypted_key;
@@ -381,7 +386,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
         const msg = data.message;
         try {
           let decryptedContent: string;
-          let aesKey: CryptoKey;
+          let aesKey: CryptoKey | null = null;
 
           if (msg.sender_id === userId) {
             // For own messages, get AES key from IndexedDB or database
@@ -393,7 +398,9 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
               getRequest.onsuccess = () => resolve(getRequest.result);
               getRequest.onerror = () => reject(getRequest.error);
             });
-            if (!result) {
+            if (result) {
+              aesKey = await crypto.subtle.importKey('raw', result.keyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+            } else {
               // Try to get from database
               try {
                 const response = await fetch(`${apiUrl}/chat/aes-key/${msg.receiver_id}`, {
@@ -411,21 +418,23 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
                       const storeWrite = db.transaction(['aesKeys'], 'readwrite').objectStore('aesKeys');
                       storeWrite.put({ friendId: msg.receiver_id, keyData });
                     } else {
-                      throw new Error('Derived key not available');
+                      console.error('Derived key not available');
                     }
                   } else {
-                    throw new Error('AES key not found in db');
+                    console.error('AES key not found in db');
                   }
                 } else {
-                  throw new Error('Failed to fetch AES key from db');
+                  console.error('Failed to fetch AES key from db');
                 }
               } catch (error) {
-                throw new Error('AES key not found for own message');
+                console.error('Error fetching AES key from db:', error);
               }
-            } else {
-              aesKey = await crypto.subtle.importKey('raw', result.keyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
             }
-            decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
+            if (!aesKey) {
+              decryptedContent = 'Failed to decrypt';
+            } else {
+              decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
+            }
           } else {
             // For received messages, decrypt the encrypted_key
             console.log('Decrypting incoming message:', msg.id, 'encrypted_key length:', msg.encrypted_key.length);
