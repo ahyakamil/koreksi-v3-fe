@@ -34,7 +34,7 @@ const FriendList: React.FC<FriendListProps> = ({ friends, unreadCounts, onSelect
   };
 
   return (
-    <div className="w-1/3 border-r overflow-y-auto">
+    <div className="w-full border-r overflow-y-auto">
       {loading ? (
         <div className="p-4 text-center text-gray-500">Loading friends...</div>
       ) : friends.length === 0 ? (

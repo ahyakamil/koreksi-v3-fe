@@ -33,8 +33,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, token, userId, openWith
     setIsExpanded(!isExpanded);
   };
 
+  const containerClass = isExpanded
+    ? "fixed z-50 bottom-0 left-0 w-full h-96 sm:bottom-4 sm:right-4 sm:top-auto sm:left-auto sm:w-auto sm:h-auto"
+    : "fixed bottom-4 right-4 z-50";
+
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className={containerClass}>
       {isExpanded ? (
         <ChatWindow onClose={toggleExpanded} userId={userId} apiUrl={apiUrl} token={token} initialSelectedFriendId={initialSelected || undefined} />
       ) : (
