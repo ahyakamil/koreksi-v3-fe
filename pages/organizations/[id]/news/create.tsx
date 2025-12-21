@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Space } from '../../../../types'
-import { getOrganization, getSpaces, createNews, uploadImage } from '../../../../utils/api'
+import { getOrganization, getSpaces, createNews, uploadImage, createSpace } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 import RichTextEditor from '../../../../components/RichTextEditor'
 import ImageUpload from '../../../../components/ImageUpload'
+import SpaceForm from '../../../../components/SpaceForm'
 
 const CreateNewsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [spaces, setSpaces] = useState<Space[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [showCreateSpace, setShowCreateSpace] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -46,6 +48,17 @@ const CreateNewsPage: React.FC = () => {
       console.error('Failed to fetch data:', error)
     }
     setLoading(false)
+  }
+
+  const handleCreateSpace = async (data: { name: string; description?: string; image?: string }) => {
+    if (!organization) return
+    const res = await createSpace(organization.id, data)
+    if (res.ok) {
+      setSpaces([...spaces, res.body.data.space])
+      setShowCreateSpace(false)
+    } else {
+      alert(res.body.message || t('failed_to_create_space'))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,8 +129,22 @@ const CreateNewsPage: React.FC = () => {
         <h1 className="text-3xl font-bold">{t('create_news')} - {organization.title}</h1>
       </div>
 
-      <div className="max-w-4xl">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      {spaces.length === 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h2 className="text-xl font-semibold mb-4">{t('create_space')}</h2>
+            <p className="text-gray-600 mb-4">{t('no_spaces_found_create_first')}</p>
+            <SpaceForm
+              onSubmit={handleCreateSpace}
+              onCancel={() => router.push(`/organizations/${id}/news`)}
+            />
+          </div>
+        </div>
+      )}
+
+      {spaces.length > 0 && (
+        <div className="max-w-4xl">
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t('title')} *
@@ -230,6 +257,7 @@ const CreateNewsPage: React.FC = () => {
           </div>
         </form>
       </div>
+      )}
     </div>
   )
 }

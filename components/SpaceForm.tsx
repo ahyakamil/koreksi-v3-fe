@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Space } from '../types'
 import ImageUpload from './ImageUpload'
 import { uploadImage } from '../utils/api'
+import { useLocale } from '../context/LocaleContext'
 
 interface SpaceFormProps {
   space?: Space
@@ -10,6 +11,7 @@ interface SpaceFormProps {
 }
 
 const SpaceForm: React.FC<SpaceFormProps> = ({ space, onSubmit, onCancel }) => {
+  const { t } = useLocale()
   const [name, setName] = useState(space?.name || '')
   const [description, setDescription] = useState(space?.description || '')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -33,7 +35,7 @@ const SpaceForm: React.FC<SpaceFormProps> = ({ space, onSubmit, onCancel }) => {
       if (uploadRes.ok && uploadRes.body?.data?.url) {
         finalImage = uploadRes.body.data.url
       } else {
-        alert('Failed to upload image')
+        alert(t('failed_to_upload_image'))
         setUploading(false)
         return
       }
@@ -51,7 +53,7 @@ const SpaceForm: React.FC<SpaceFormProps> = ({ space, onSubmit, onCancel }) => {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Space Name
+          {t('space_name')}
         </label>
         <input
           type="text"
@@ -64,7 +66,7 @@ const SpaceForm: React.FC<SpaceFormProps> = ({ space, onSubmit, onCancel }) => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Description (Optional)
+          {t('description_optional')}
         </label>
         <textarea
           value={description}
@@ -76,7 +78,7 @@ const SpaceForm: React.FC<SpaceFormProps> = ({ space, onSubmit, onCancel }) => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Image (Optional)
+          {t('image_optional')}
         </label>
         <ImageUpload
           onFileSelected={handleFileSelected}
@@ -90,7 +92,7 @@ const SpaceForm: React.FC<SpaceFormProps> = ({ space, onSubmit, onCancel }) => {
           disabled={uploading}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {uploading ? 'Uploading...' : (space ? 'Update Space' : 'Create Space')}
+          {uploading ? t('uploading') : (space ? t('update_space') : t('create_space'))}
         </button>
         <button
           type="button"
@@ -98,7 +100,7 @@ const SpaceForm: React.FC<SpaceFormProps> = ({ space, onSubmit, onCancel }) => {
           disabled={uploading}
           className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Cancel
+          {t('cancel')}
         </button>
       </div>
     </form>

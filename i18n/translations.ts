@@ -102,6 +102,11 @@ type TranslationKeys = {
   no_news_available: string
   no_organizations_found: string
   no_spaces_found: string
+  no_spaces_found_create_first: string
+  space_name: string
+  description_optional: string
+  image_optional: string
+  update_space: string
   organization_not_found: string
   published_news: string
   search_users_by_name_or_email: string
@@ -263,6 +268,11 @@ const translations: Translations = {
     no_news_available: 'Tidak ada berita tersedia.',
     no_organizations_found: 'Tidak ada organisasi ditemukan.',
     no_spaces_found: 'Tidak ada ruang ditemukan.',
+    no_spaces_found_create_first: 'Tidak ada ruang ditemukan. Buat ruang pertama Anda untuk mulai mempublikasikan berita.',
+    space_name: 'Nama Ruang',
+    description_optional: 'Deskripsi (Opsional)',
+    image_optional: 'Gambar (Opsional)',
+    update_space: 'Perbarui Ruang',
     organization_not_found: 'Organisasi tidak ditemukan',
     published_news: 'Berita yang Diterbitkan',
     search_users_by_name_or_email: 'Cari pengguna berdasarkan nama atau email',
@@ -417,6 +427,11 @@ const translations: Translations = {
     no_news_available: 'No news available.',
     no_organizations_found: 'No organizations found.',
     no_spaces_found: 'No spaces found.',
+    no_spaces_found_create_first: 'No spaces found. Create your first space to start publishing news.',
+    space_name: 'Space Name',
+    description_optional: 'Description (Optional)',
+    image_optional: 'Image (Optional)',
+    update_space: 'Update Space',
     organization_not_found: 'Organization not found',
     published_news: 'Published News',
     search_users_by_name_or_email: 'Search users by name or email',
