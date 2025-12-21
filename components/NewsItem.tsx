@@ -117,10 +117,15 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
               className="prose prose-sm max-w-none"
               dangerouslySetInnerHTML={{ __html: displayContent }}
             />
-          ) : (
+          ) : shouldTruncate ? (
             <p className="text-gray-700 leading-relaxed">
               {displayContent}
             </p>
+          ) : (
+            <div
+              className="prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{ __html: displayContent }}
+            />
           )}
         </div>
 
