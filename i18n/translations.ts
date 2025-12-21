@@ -269,7 +269,7 @@ const translations: Translations = {
     sending: 'Mengirim...',
     spaces: 'Ruang',
     update: 'Perbarui',
-    world_organizations: 'Organisasi Dunia',
+    world_organizations: 'Semua Organisasi',
     are_you_sure_delete_organization: 'Apakah Anda yakin ingin menghapus organisasi ini?',
     are_you_sure_delete_space: 'Apakah Anda yakin ingin menghapus ruang ini?',
     are_you_sure_remove_member: 'Apakah Anda yakin ingin menghapus anggota ini?',
