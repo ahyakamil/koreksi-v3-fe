@@ -41,7 +41,7 @@ export interface Notification {
   created_at: string
   read_at: string | null
   data: {
-    type: 'friend_request' | 'comment'
+    type: 'friend_request' | 'comment' | 'reply'
     friendship_id?: string
     from_user_id: string
     from_user_name: string

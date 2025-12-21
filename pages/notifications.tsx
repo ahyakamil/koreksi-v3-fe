@@ -30,7 +30,7 @@ export default function Notifications(){
 
   function handleClick(notification: Notification){
     markAsRead(notification.id)
-    if (notification.data.type === 'comment') {
+    if (notification.data.type === 'comment' || notification.data.type === 'reply') {
       const { commentable_type, commentable_id, comment_id } = notification.data
       if (commentable_type === 'post') {
         Router.push(`/post/${commentable_id}?commentId=${comment_id}`)
