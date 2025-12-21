@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { Organization, Space } from '../../../../types'
 import { getOrganization, getSpaces, createNews, uploadImage } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
+import { useLocale } from '../../../../context/LocaleContext'
 import RichTextEditor from '../../../../components/RichTextEditor'
 import ImageUpload from '../../../../components/ImageUpload'
 
@@ -21,6 +22,7 @@ const CreateNewsPage: React.FC = () => {
   })
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const { user } = useAuth()
+  const { t } = useLocale()
   const router = useRouter()
   const { id } = router.query
 
@@ -63,7 +65,7 @@ const CreateNewsPage: React.FC = () => {
       if (uploadRes.ok) {
         imageUrl = uploadRes.body.data.url
       } else {
-        alert('Failed to upload image')
+        alert(t('failed_to_upload_image'))
         setSubmitting(false)
         return
       }
@@ -80,7 +82,7 @@ const CreateNewsPage: React.FC = () => {
     if (res.ok) {
       router.push(`/organizations/${id}/news`)
     } else {
-      alert(res.body.message || 'Failed to create news')
+      alert(res.body.message || t('failed_to_create_news'))
     }
   }
 
@@ -93,13 +95,13 @@ const CreateNewsPage: React.FC = () => {
     return organization?.users?.find(u => u.id === user?.id)?.pivot?.role
   }
 
-  if (loading) return <div>Loading...</div>
-  if (!organization) return <div>Organization not found</div>
+  if (loading) return <div>{t('loading')}</div>
+  if (!organization) return <div>{t('organization_not_found')}</div>
 
   const currentUserRole = getCurrentUserRole()
 
   if (!currentUserRole) {
-    return <div>You are not a member of this organization.</div>
+    return <div>{t('you_are_not_a_member')}</div>
   }
 
   return (
@@ -109,16 +111,16 @@ const CreateNewsPage: React.FC = () => {
           onClick={() => router.push(`/organizations/${id}/news`)}
           className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
         >
-          Back to News
+          {t('back_to_news')}
         </button>
-        <h1 className="text-3xl font-bold">Create News - {organization.title}</h1>
+        <h1 className="text-3xl font-bold">{t('create_news')} - {organization.title}</h1>
       </div>
 
       <div className="max-w-4xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Title *
+              {t('title')} *
             </label>
             <input
               type="text"
@@ -132,7 +134,7 @@ const CreateNewsPage: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Space *
+              {t('space')} *
             </label>
             <select
               name="space_id"
@@ -141,7 +143,7 @@ const CreateNewsPage: React.FC = () => {
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               required
             >
-              <option value="">Select a space</option>
+              <option value="">{t('select_a_space')}</option>
               {spaces.map(space => (
                 <option key={space.id} value={space.id}>
                   {space.name}
@@ -157,7 +159,7 @@ const CreateNewsPage: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Caption
+              {t('caption')}
             </label>
             <input
               type="text"
@@ -165,24 +167,24 @@ const CreateNewsPage: React.FC = () => {
               value={formData.caption}
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Optional caption for the image"
+              placeholder={t('optional_caption_for_the_image')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content *
+              {t('content')} *
             </label>
             <RichTextEditor
               value={formData.content}
               onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
-              placeholder="Write your news content here..."
+              placeholder={t('write_your_news_content_here')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
+              {t('status')}
             </label>
             <div className="space-y-2">
               <label className="flex items-center">
@@ -194,7 +196,7 @@ const CreateNewsPage: React.FC = () => {
                   onChange={handleChange}
                   className="mr-2"
                 />
-                <span className="text-sm">Save as Draft (you can edit later)</span>
+                <span className="text-sm">{t('save_as_draft')}</span>
               </label>
               <label className="flex items-center">
                 <input
@@ -205,7 +207,7 @@ const CreateNewsPage: React.FC = () => {
                   onChange={handleChange}
                   className="mr-2"
                 />
-                <span className="text-sm">Submit for Review (admins/editors will review)</span>
+                <span className="text-sm">{t('submit_for_review')}</span>
               </label>
             </div>
           </div>
@@ -216,14 +218,14 @@ const CreateNewsPage: React.FC = () => {
               disabled={submitting}
               className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting ? 'Creating...' : 'Create News'}
+              {submitting ? t('creating') : t('create_news_button')}
             </button>
             <button
               type="button"
               onClick={() => router.push(`/organizations/${id}/news`)}
               className="bg-gray-500 text-white px-6 py-3 rounded hover:bg-gray-600"
             >
-              Cancel
+              {t('cancel')}
             </button>
           </div>
         </form>

@@ -124,6 +124,21 @@ type TranslationKeys = {
   user_role_author: string
   user_role_editor: string
   user_role_admin: string
+  back_to_news: string
+  create_news: string
+  space: string
+  select_a_space: string
+  caption: string
+  optional_caption_for_the_image: string
+  content: string
+  write_your_news_content_here: string
+  status: string
+  save_as_draft: string
+  submit_for_review: string
+  creating: string
+  create_news_button: string
+  you_are_not_a_member: string
+  failed_to_create_news: string
 }
 
 type Translations = {
@@ -258,6 +273,21 @@ const translations: Translations = {
     user_role_author: 'Penulis',
     user_role_editor: 'Editor',
     user_role_admin: 'Admin',
+    back_to_news: 'Kembali ke Berita',
+    create_news: 'Buat Berita',
+    space: 'Ruang',
+    select_a_space: 'Pilih ruang',
+    caption: 'Keterangan',
+    optional_caption_for_the_image: 'Keterangan opsional untuk gambar',
+    content: 'Konten',
+    write_your_news_content_here: 'Tulis konten berita Anda di sini...',
+    status: 'Status',
+    save_as_draft: 'Simpan sebagai Draf (Anda dapat mengedit nanti)',
+    submit_for_review: 'Kirim untuk Ditinjau (admin/editor akan meninjau)',
+    creating: 'Membuat...',
+    create_news_button: 'Buat Berita',
+    you_are_not_a_member: 'Anda bukan anggota organisasi ini.',
+    failed_to_create_news: 'Gagal membuat berita',
   },
   en: {
     comments: 'Comments',
@@ -385,6 +415,21 @@ const translations: Translations = {
     user_role_author: 'Author',
     user_role_editor: 'Editor',
     user_role_admin: 'Admin',
+    back_to_news: 'Back to News',
+    create_news: 'Create News',
+    space: 'Space',
+    select_a_space: 'Select a space',
+    caption: 'Caption',
+    optional_caption_for_the_image: 'Optional caption for the image',
+    content: 'Content',
+    write_your_news_content_here: 'Write your news content here...',
+    status: 'Status',
+    save_as_draft: 'Save as Draft (you can edit later)',
+    submit_for_review: 'Submit for Review (admins/editors will review)',
+    creating: 'Creating...',
+    create_news_button: 'Create News',
+    you_are_not_a_member: 'You are not a member of this organization.',
+    failed_to_create_news: 'Failed to create news',
   }
 }
 
