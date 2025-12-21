@@ -18,9 +18,7 @@ interface Message {
   id: number;
   sender_id: string;
   receiver_id: string;
-  encrypted_content: string;
-  encrypted_key: string;
-  iv: string;
+  content: string;
   sent_at: string;
   read_at: string | null;
   decryptedContent?: string;
@@ -73,7 +71,6 @@ const playNotificationSound = async () => {
 };
 
 export const useChat = (apiUrl: string, token: string, userId?: string, isWidgetExpanded?: boolean) => {
-  const { rsaKeyPair, isLoaded: encryptionLoaded, generateRSAKeyPair, generateAESKey, encryptWithRSA, decryptWithRSA, encryptWithAESKey, decryptWithAESKey, getDerivedKey, encryptWithAES, decryptWithAES } = useEncryption(apiUrl, token);
   const { friends, refreshFriends, unreadCounts: globalUnreadCounts, refreshUnreadCounts } = useAuth();
   const [unreadCounts, setUnreadCounts] = useState<UnreadCounts>(globalUnreadCounts);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
@@ -90,115 +87,8 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
 
 
   const sendMessage = useCallback(async (friendId: string, content: string) => {
-    if (!rsaKeyPair) {
-      if (encryptionLoaded) {
-        await generateRSAKeyPair();
-      } else {
-        throw new Error('Encryption not loaded yet. Please wait.');
-      }
-    }
-
     try {
-      const db = await openDB();
-      const transaction = db.transaction(['aesKeys'], 'readonly');
-      const store = transaction.objectStore('aesKeys');
-      const getRequest = store.get(friendId);
-
-      const result = await new Promise<any>((resolve, reject) => {
-        getRequest.onsuccess = () => resolve(getRequest.result);
-        getRequest.onerror = () => reject(getRequest.error);
-      });
-
-      let aesKey: CryptoKey;
-      let isFirstMessage = false;
-
-      if (result) {
-        // Existing AES key
-        aesKey = await crypto.subtle.importKey('raw', result.keyData, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
-      } else {
-        // Check if AES key exists in database
-        try {
-          const response = await fetch(`${apiUrl}/chat/aes-key/${friendId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (response.ok) {
-            const data = await response.json();
-            if (data.statusCode === 2000) {
-              const derivedKey = await getDerivedKey();
-              if (derivedKey) {
-                const encryptedKeyData = new Uint8Array(Array.from(atob(data.data.encrypted_aes_key), c => c.charCodeAt(0)));
-                const keyData = await decryptWithAES(derivedKey, encryptedKeyData.buffer);
-                aesKey = await crypto.subtle.importKey('raw', keyData, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
-                // Store in IndexedDB
-                const db2 = await openDB();
-                const transaction2 = db2.transaction(['aesKeys'], 'readwrite');
-                const store2 = transaction2.objectStore('aesKeys');
-                store2.put({ friendId, keyData });
-              } else {
-                throw new Error('Derived key not available');
-              }
-            } else {
-              throw new Error('AES key not found in db');
-            }
-          } else {
-            throw new Error('Failed to fetch AES key from db');
-          }
-        } catch (error) {
-          // Generate new AES key
-          aesKey = await generateAESKey();
-          const exportedKey = await crypto.subtle.exportKey('raw', aesKey);
-          // Store in IndexedDB
-          const db2 = await openDB();
-          const transaction2 = db2.transaction(['aesKeys'], 'readwrite');
-          const store2 = transaction2.objectStore('aesKeys');
-          store2.put({ friendId, keyData: exportedKey });
-          isFirstMessage = true;
-
-          // Store in database
-          const derivedKey = await getDerivedKey();
-          if (derivedKey) {
-            const encryptedAES = await encryptWithAES(derivedKey, exportedKey);
-            await fetch(`${apiUrl}/chat/aes-key`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                friend_id: friendId,
-                encrypted_aes_key: btoa(Array.from(new Uint8Array(encryptedAES), b => String.fromCharCode(b)).join('')),
-              }),
-            });
-          }
-        }
-      }
-
-      // Encrypt content
-      const encryptedContent = await encryptWithAESKey(aesKey, content);
-
-      // Always encrypt AES key with friend's public key (backend stores it per message)
-      const friend = friends.find(f => f.user.id === friendId);
-      if (!friend) throw new Error('Friend not found');
-      const publicKeyStr = friend.user.public_key;
-      if (!publicKeyStr) throw new Error('Friend public key not available');
-      const jwk = JSON.parse(publicKeyStr);
-      if (!jwk) throw new Error('Invalid friend public key');
-      const friendPublicKey = await crypto.subtle.importKey(
-        'jwk',
-        jwk,
-        { name: 'RSA-OAEP', hash: 'SHA-256' },
-        false,
-        ['encrypt']
-      );
-      const exportedAES = await crypto.subtle.exportKey('raw', aesKey);
-      const encryptedAES = await encryptWithRSA(friendPublicKey, exportedAES);
-      const encryptedKey = btoa(Array.from(new Uint8Array(encryptedAES)).map(b => String.fromCharCode(b)).join(''));
-
-      // Generate IV
-      const iv = crypto.getRandomValues(new Uint8Array(12));
-      const ivString = btoa(Array.from(iv, b => String.fromCharCode(b)).join(''));
-
-      // Send via HTTP API
+      // Send plain content via HTTP API
       const response = await fetch(`${apiUrl}/chat/send`, {
         method: 'POST',
         headers: {
@@ -207,9 +97,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
         },
         body: JSON.stringify({
           friend_id: friendId,
-          encrypted_content: encryptedContent,
-          encrypted_key: encryptedKey,
-          iv: ivString,
+          content: content,
         }),
       });
 
@@ -223,7 +111,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
       console.error('Error sending message:', error);
       throw error;
     }
-  }, [apiUrl, token, rsaKeyPair, friends, generateAESKey, encryptWithAESKey, encryptWithRSA, getDerivedKey, encryptWithAES, decryptWithAES]);
+  }, [apiUrl, token]);
 
   const markAsRead = useCallback(async (friendId: string) => {
     try {
@@ -251,7 +139,6 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
   }, [apiUrl, token]);
 
   const fetchMessages = useCallback(async (friendId: string) => {
-    if (!rsaKeyPair) return;
     try {
       setLoading(true);
       const response = await fetch(`${apiUrl}/chat/messages/${friendId}`, {
@@ -259,71 +146,12 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
       });
       const data = await response.json();
       if (data.statusCode === 2000) {
-        // Decrypt messages
-        const decryptedMessages = await Promise.all(data.data.map(async (msg: any) => {
-          try {
-            let aesKey: CryptoKey;
-            if (msg.sender_id === userId) {
-              // For own messages, get AES key from IndexedDB or database
-              const db = await openDB();
-              const transaction = db.transaction(['aesKeys'], 'readonly');
-              const store = transaction.objectStore('aesKeys');
-              const getRequest = store.get(friendId);
-              let result = await new Promise<any>((resolve, reject) => {
-                getRequest.onsuccess = () => resolve(getRequest.result);
-                getRequest.onerror = () => reject(getRequest.error);
-              });
-              let aesKeyLocal: CryptoKey | null = null;
-              if (result) {
-                aesKeyLocal = await crypto.subtle.importKey('raw', result.keyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-              } else {
-                // Try to get from database
-                try {
-                  const response = await fetch(`${apiUrl}/chat/aes-key/${friendId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  });
-                  if (response.ok) {
-                    const data = await response.json();
-                    if (data.statusCode === 2000) {
-                      const derivedKey = await getDerivedKey();
-                      if (derivedKey) {
-                        const encryptedKeyData = new Uint8Array(Array.from(atob(data.data.encrypted_aes_key), c => c.charCodeAt(0)));
-                        const keyData = await decryptWithAES(derivedKey, encryptedKeyData.buffer);
-                        aesKeyLocal = await crypto.subtle.importKey('raw', keyData, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
-                        // Store in IndexedDB for future use
-                        const storeWrite = db.transaction(['aesKeys'], 'readwrite').objectStore('aesKeys');
-                        storeWrite.put({ friendId, keyData });
-                      } else {
-                        console.error('Derived key not available');
-                      }
-                    } else {
-                      console.error('AES key not found in db');
-                    }
-                  } else {
-                    console.error('Failed to fetch AES key from db');
-                  }
-                } catch (error) {
-                  console.error('Error fetching AES key from db:', error);
-                }
-              }
-              if (!aesKeyLocal) {
-                return { ...msg, decryptedContent: 'Failed to decrypt' };
-              }
-              aesKey = aesKeyLocal;
-            } else {
-              // For received messages, decrypt the encrypted_key
-              const aesKeyEncrypted = msg.encrypted_key;
-              const aesKeyData = await decryptWithRSA(rsaKeyPair!.privateKey, Uint8Array.from(atob(aesKeyEncrypted), c => c.charCodeAt(0)).buffer);
-              aesKey = await crypto.subtle.importKey('raw', aesKeyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-            }
-            const decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
-            return { ...msg, decryptedContent };
-          } catch (error) {
-            console.error('Error decrypting fetched message:', error);
-            return { ...msg, decryptedContent: 'Failed to decrypt' };
-          }
+        // Messages are already decrypted by backend
+        const messagesWithContent = data.data.map((msg: any) => ({
+          ...msg,
+          decryptedContent: msg.content || 'Failed to load'
         }));
-        setMessages(decryptedMessages);
+        setMessages(messagesWithContent);
       } else {
         console.error('Failed to fetch messages:', data.message);
       }
@@ -332,7 +160,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     } finally {
       setLoading(false);
     }
-  }, [apiUrl, token, rsaKeyPair, userId, decryptWithRSA, decryptWithAESKey]);
+  }, [apiUrl, token]);
 
 
 
@@ -343,10 +171,10 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
   }, [selectedFriend]);
 
   useEffect(() => {
-    if (selectedFriend && rsaKeyPair) {
+    if (selectedFriend) {
       fetchMessages(selectedFriend.user.id);
     }
-  }, [selectedFriend, rsaKeyPair]);
+  }, [selectedFriend]);
 
 
   // Socket.IO connection setup
@@ -380,110 +208,29 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
 
   // Socket.IO event bindings
   useEffect(() => {
-    if (socketRef.current && rsaKeyPair) {
+    if (socketRef.current) {
       const socket = socketRef.current;
       socket.on('message.sent', async (data: any) => {
         const msg = data.message;
-        try {
-          let decryptedContent: string;
-          let aesKey: CryptoKey | null = null;
-
-          if (msg.sender_id === userId) {
-            // For own messages, get AES key from IndexedDB or database
-            const db = await openDB();
-            const transaction = db.transaction(['aesKeys'], 'readonly');
-            const store = transaction.objectStore('aesKeys');
-            const getRequest = store.get(msg.receiver_id);
-            let result = await new Promise<any>((resolve, reject) => {
-              getRequest.onsuccess = () => resolve(getRequest.result);
-              getRequest.onerror = () => reject(getRequest.error);
-            });
-            if (result) {
-              aesKey = await crypto.subtle.importKey('raw', result.keyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-            } else {
-              // Try to get from database
-              try {
-                const response = await fetch(`${apiUrl}/chat/aes-key/${msg.receiver_id}`, {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                if (response.ok) {
-                  const data = await response.json();
-                  if (data.statusCode === 2000) {
-                    const derivedKey = await getDerivedKey();
-                    if (derivedKey) {
-                      const encryptedKeyData = new Uint8Array(Array.from(atob(data.data.encrypted_aes_key), c => c.charCodeAt(0)));
-                      const keyData = await decryptWithAES(derivedKey, encryptedKeyData.buffer);
-                      aesKey = await crypto.subtle.importKey('raw', keyData, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
-                      // Store in IndexedDB for future use
-                      const storeWrite = db.transaction(['aesKeys'], 'readwrite').objectStore('aesKeys');
-                      storeWrite.put({ friendId: msg.receiver_id, keyData });
-                    } else {
-                      console.error('Derived key not available');
-                    }
-                  } else {
-                    console.error('AES key not found in db');
-                  }
-                } else {
-                  console.error('Failed to fetch AES key from db');
-                }
-              } catch (error) {
-                console.error('Error fetching AES key from db:', error);
-              }
-            }
-            if (!aesKey) {
-              decryptedContent = 'Failed to decrypt';
-            } else {
-              decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
-            }
-          } else {
-            // For received messages, decrypt the encrypted_key
-            console.log('Decrypting incoming message:', msg.id, 'encrypted_key length:', msg.encrypted_key.length);
-            const aesKeyEncrypted = msg.encrypted_key;
-            const aesKeyData = await decryptWithRSA(rsaKeyPair!.privateKey, Uint8Array.from(atob(aesKeyEncrypted), c => c.charCodeAt(0)).buffer);
-            aesKey = await crypto.subtle.importKey('raw', aesKeyData, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-            decryptedContent = await decryptWithAESKey(aesKey, msg.encrypted_content);
+        // Backend sends decrypted content
+        const decryptedMsg = { ...msg, decryptedContent: msg.content || 'Failed to load' };
+        const currentSelectedFriend = selectedFriendRef.current;
+        if (currentSelectedFriend && (msg.sender_id === currentSelectedFriend.user.id || msg.receiver_id === currentSelectedFriend.user.id)) {
+          setMessages(prev => {
+            if (prev.some(m => m.id === msg.id)) return prev;
+            return [...prev, decryptedMsg];
+          });
+        }
+        if (msg.receiver_id === userId) {
+          // Play notification sound for new messages only when widget is not expanded
+          if (!isWidgetExpanded) {
+            playNotificationSound();
           }
 
-          const decryptedMsg = { ...msg, decryptedContent };
-          const currentSelectedFriend = selectedFriendRef.current;
-          if (currentSelectedFriend && (msg.sender_id === currentSelectedFriend.user.id || msg.receiver_id === currentSelectedFriend.user.id)) {
-            setMessages(prev => {
-              if (prev.some(m => m.id === msg.id)) return prev;
-              return [...prev, decryptedMsg];
-            });
-          }
-          if (msg.receiver_id === userId) {
-            // Play notification sound for new messages only when widget is not expanded
-            if (!isWidgetExpanded) {
-              playNotificationSound();
-            }
-
-            setUnreadCounts(prev => ({
-              total_unread: prev.total_unread + 1,
-              unread_by_friend: { ...prev.unread_by_friend, [msg.sender_id]: (prev.unread_by_friend[msg.sender_id] || 0) + 1 },
-            }));
-          }
-        } catch (error) {
-          console.error('Error decrypting incoming message:', error);
-          const decryptedMsg = { ...msg, decryptedContent: 'Failed to decrypt' };
-          const currentSelectedFriend = selectedFriendRef.current;
-          if (currentSelectedFriend && (msg.sender_id === currentSelectedFriend.user.id || msg.receiver_id === currentSelectedFriend.user.id)) {
-            setMessages(prev => {
-              if (prev.some(m => m.id === msg.id)) return prev;
-              return [...prev, decryptedMsg];
-            });
-          }
-          if (msg.receiver_id === userId) {
-            // Play notification sound for new messages only when widget is not expanded
-            if (!isWidgetExpanded) {
-              playNotificationSound();
-            }
-
-            setUnreadCounts(prev => ({
-              total_unread: prev.total_unread + 1,
-              unread_by_friend: { ...prev.unread_by_friend, [msg.sender_id]: (prev.unread_by_friend[msg.sender_id] || 0) + 1 },
-            }));
-          }
+          setUnreadCounts(prev => ({
+            total_unread: prev.total_unread + 1,
+            unread_by_friend: { ...prev.unread_by_friend, [msg.sender_id]: (prev.unread_by_friend[msg.sender_id] || 0) + 1 },
+          }));
         }
       });
       socket.on('message.read', (data: any) => {
@@ -495,7 +242,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
         }));
       });
     }
-  }, [rsaKeyPair, userId]);
+  }, [userId]);
 
   return {
     friends,
@@ -506,6 +253,6 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     loading,
     sendMessage,
     markAsRead,
-    encryptionLoaded,
+    encryptionLoaded: true, // Always loaded since no encryption on frontend
   };
 };
