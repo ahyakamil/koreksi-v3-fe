@@ -3,6 +3,8 @@ import io, { Socket } from 'socket.io-client';
 import { useEncryption } from './useEncryption';
 import { useAuth } from '../context/AuthContext';
 
+import { Message } from '../types';
+
 interface Friend {
   friendship_id: string;
   user: {
@@ -12,16 +14,6 @@ interface Friend {
     public_key: string;
     online_at: string | null;
   };
-}
-
-interface Message {
-  id: number;
-  sender_id: string;
-  receiver_id: string;
-  content: string;
-  sent_at: string;
-  read_at: string | null;
-  decryptedContent?: string;
 }
 
 interface UnreadCounts {

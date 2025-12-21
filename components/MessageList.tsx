@@ -1,16 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-
-interface Message {
-  id: number;
-  sender_id: string;
-  receiver_id: string;
-  encrypted_content: string;
-  encrypted_key: string;
-  iv: string;
-  sent_at: string;
-  read_at: string | null;
-  decryptedContent?: string;
-}
+import { Message } from '../types';
 
 interface MessageListProps {
   messages: Message[];

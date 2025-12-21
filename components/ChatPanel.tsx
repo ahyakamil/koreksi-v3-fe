@@ -1,4 +1,5 @@
 import React from 'react';
+import { Message } from '../types';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 
@@ -10,18 +11,6 @@ interface Friend {
     email: string;
     public_key: string;
   };
-}
-
-interface Message {
-  id: number;
-  sender_id: string;
-  receiver_id: string;
-  encrypted_content: string;
-  encrypted_key: string;
-  iv: string;
-  sent_at: string;
-  read_at: string | null;
-  decryptedContent?: string;
 }
 
 interface ChatPanelProps {

@@ -112,3 +112,16 @@ export interface News {
   publisher?: User
   comments_count?: number
 }
+
+export interface Message {
+  id: number
+  sender_id: string
+  receiver_id: string
+  encrypted_content: string
+  encrypted_key: string
+  iv: string
+  sent_at: string
+  read_at: string | null
+  content?: string
+  decryptedContent?: string
+}
