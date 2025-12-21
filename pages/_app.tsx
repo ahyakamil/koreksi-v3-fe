@@ -13,7 +13,7 @@ function AppContent({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <title>{title}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
         <meta name="theme-color" content="#1f2937" />
         <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/icon-512x512.png" />
