@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../types'
 import { getOrganization, getSpaces, getNews, reviewNews, deleteNews } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
+import { useLocale } from '../../../../context/LocaleContext'
 
 const NewsManagementPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -11,6 +12,7 @@ const NewsManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'all' | 'draft' | 'need_review' | 'published' | 'rejected'>('all')
   const { user } = useAuth()
+  const { t } = useLocale()
   const router = useRouter()
   const { id } = router.query
 
@@ -42,7 +44,7 @@ const NewsManagementPage: React.FC = () => {
     if (!organization) return
     let reviewNotes: string | undefined = undefined
     if (action === 'reject') {
-      const notes = prompt('Enter rejection reason:')
+      const notes = prompt(t('enter_rejection_reason'))
       if (!notes) return
       reviewNotes = notes
     }
@@ -51,19 +53,19 @@ const NewsManagementPage: React.FC = () => {
     if (res.ok) {
       fetchData() // Refresh data
     } else {
-      alert(res.body.message || 'Failed to review news')
+      alert(res.body.message || t('failed_to_review_news'))
     }
   }
 
   const handleDelete = async (newsId: string) => {
     if (!organization) return
-    if (!confirm('Are you sure you want to delete this news?')) return
+    if (!confirm(t('are_you_sure_delete_news'))) return
 
     const res = await deleteNews(organization.id, newsId)
     if (res.ok) {
       setNews(news.filter(n => n.public_id !== newsId))
     } else {
-      alert(res.body.message || 'Failed to delete news')
+      alert(res.body.message || t('failed_to_delete_news'))
     }
   }
 
@@ -76,8 +78,8 @@ const NewsManagementPage: React.FC = () => {
     return item.status === activeTab
   })
 
-  if (loading) return <div>Loading...</div>
-  if (!organization) return <div>Organization not found</div>
+  if (loading) return <div>{t('loading')}</div>
+  if (!organization) return <div>{t('organization_not_found')}</div>
 
   const currentUserRole = getCurrentUserRole()
 
@@ -88,16 +90,16 @@ const NewsManagementPage: React.FC = () => {
           onClick={() => router.push(`/organizations/${id}`)}
           className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
         >
-          Back to Organization
+          {t('back_to_organization')}
         </button>
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Manage News - {organization.title}</h1>
+          <h1 className="text-3xl font-bold">{t('manage_news')} - {organization.title}</h1>
           {currentUserRole && (
             <button
               onClick={() => router.push(`/organizations/${id}/news/create`)}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
-              Create News
+              {t('create_news')}
             </button>
           )}
         </div>
@@ -107,11 +109,11 @@ const NewsManagementPage: React.FC = () => {
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8">
             {[
-              { key: 'all', label: 'All' },
-              { key: 'draft', label: 'Draft' },
-              { key: 'need_review', label: 'Need Review' },
-              { key: 'published', label: 'Published' },
-              { key: 'rejected', label: 'Rejected' }
+              { key: 'all', label: t('all') },
+              { key: 'draft', label: t('draft') },
+              { key: 'need_review', label: t('need_review') },
+              { key: 'published', label: t('published') },
+              { key: 'rejected', label: t('rejected') }
             ].map(tab => (
               <button
                 key={tab.key}
@@ -131,7 +133,7 @@ const NewsManagementPage: React.FC = () => {
 
       <div className="space-y-4">
         {filteredNews.length === 0 ? (
-          <p className="text-gray-500">No news found in this category.</p>
+          <p className="text-gray-500">{t('no_news_found_in_this_category')}</p>
         ) : (
           filteredNews.map(item => (
             <div key={item.public_id} className="bg-white p-6 rounded-lg shadow">
@@ -139,9 +141,9 @@ const NewsManagementPage: React.FC = () => {
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                   <div className="text-sm text-gray-600 mb-2">
-                    <span>By {item.user?.name}</span>
+                    <span>{t('by')} {item.user?.name}</span>
                     <span className="mx-2">•</span>
-                    <span>In {item.space?.name}</span>
+                    <span>{t('in')} {item.space?.name}</span>
                     <span className="mx-2">•</span>
                     <span className={`px-2 py-1 rounded text-xs ${
                       item.status === 'published' ? 'bg-green-100 text-green-800' :
@@ -157,7 +159,7 @@ const NewsManagementPage: React.FC = () => {
                   {item.review_notes && (
                     <div className="mt-2 p-2 bg-red-50 border-l-4 border-red-400">
                       <p className="text-sm text-red-700">
-                        <strong>Review Notes:</strong> {item.review_notes}
+                        <strong>{t('review_notes')}:</strong> {item.review_notes}
                       </p>
                     </div>
                   )}
@@ -167,7 +169,7 @@ const NewsManagementPage: React.FC = () => {
                         onClick={() => router.push(`/organizations/${id}/news/${item.public_id}/edit`)}
                         className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
                       >
-                        Edit
+                        {t('edit')}
                       </button>
                     )}
                     {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status === 'need_review' && (
@@ -176,13 +178,13 @@ const NewsManagementPage: React.FC = () => {
                           onClick={() => handleReview(item.public_id, 'publish')}
                           className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
                         >
-                          Publish
+                          {t('publish')}
                         </button>
                         <button
                           onClick={() => handleReview(item.public_id, 'reject')}
                           className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
                         >
-                          Reject
+                          {t('reject')}
                         </button>
                       </>
                     )}
@@ -200,7 +202,7 @@ const NewsManagementPage: React.FC = () => {
                         onClick={() => handleDelete(item.public_id)}
                         className="bg-red-700 text-white px-3 py-1 rounded text-sm hover:bg-red-800"
                       >
-                        Delete
+                        {t('delete')}
                       </button>
                     )}
                   </div>

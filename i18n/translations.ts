@@ -139,6 +139,18 @@ type TranslationKeys = {
   create_news_button: string
   you_are_not_a_member: string
   failed_to_create_news: string
+  back_to_organization: string
+  all: string
+  draft: string
+  need_review: string
+  rejected: string
+  no_news_found_in_this_category: string
+  in: string
+  review_notes: string
+  publish: string
+  reject: string
+  failed_to_delete_news: string
+  are_you_sure_delete_news: string
 }
 
 type Translations = {
@@ -288,6 +300,18 @@ const translations: Translations = {
     create_news_button: 'Buat Berita',
     you_are_not_a_member: 'Anda bukan anggota organisasi ini.',
     failed_to_create_news: 'Gagal membuat berita',
+    back_to_organization: 'Kembali ke Organisasi',
+    all: 'Semua',
+    draft: 'Draf',
+    need_review: 'Perlu Ditinjau',
+    rejected: 'Ditolak',
+    no_news_found_in_this_category: 'Tidak ada berita ditemukan di kategori ini.',
+    in: 'di',
+    review_notes: 'Catatan Tinjauan',
+    publish: 'Terbitkan',
+    reject: 'Tolak',
+    failed_to_delete_news: 'Gagal menghapus berita',
+    are_you_sure_delete_news: 'Apakah Anda yakin ingin menghapus berita ini?',
   },
   en: {
     comments: 'Comments',
@@ -430,6 +454,18 @@ const translations: Translations = {
     create_news_button: 'Create News',
     you_are_not_a_member: 'You are not a member of this organization.',
     failed_to_create_news: 'Failed to create news',
+    back_to_organization: 'Back to Organization',
+    all: 'All',
+    draft: 'Draft',
+    need_review: 'Need Review',
+    rejected: 'Rejected',
+    no_news_found_in_this_category: 'No news found in this category.',
+    in: 'in',
+    review_notes: 'Review Notes',
+    publish: 'Publish',
+    reject: 'Reject',
+    failed_to_delete_news: 'Failed to delete news',
+    are_you_sure_delete_news: 'Are you sure you want to delete this news?',
   }
 }
 
