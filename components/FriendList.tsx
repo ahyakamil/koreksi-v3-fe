@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocale } from '../context/LocaleContext';
 
 interface Friend {
   friendship_id: string;
@@ -25,6 +26,7 @@ interface FriendListProps {
 }
 
 const FriendList: React.FC<FriendListProps> = ({ friends, unreadCounts, onSelectFriend, selectedFriendId, loading }) => {
+  const { t } = useLocale()
   const isOnline = (onlineAt: string | null) => {
     if (!onlineAt) return false;
     const onlineTime = new Date(onlineAt);
@@ -36,9 +38,9 @@ const FriendList: React.FC<FriendListProps> = ({ friends, unreadCounts, onSelect
   return (
     <div className="w-full border-r overflow-y-auto">
       {loading ? (
-        <div className="p-4 text-center text-gray-500">Loading friends...</div>
+        <div className="p-4 text-center text-gray-500">{t('loading_friends')}</div>
       ) : friends.length === 0 ? (
-        <div className="p-4 text-center text-gray-500">No friends yet</div>
+        <div className="p-4 text-center text-gray-500">{t('no_friends')}</div>
       ) : (
         <ul>
           {friends.map((friend) => {

@@ -5,6 +5,7 @@ import { getOrganizations, getPublicOrganizations, createOrganization, updateOrg
 import OrganizationItem from '../components/OrganizationItem'
 import OrganizationForm from '../components/OrganizationForm'
 import { useAuth } from '../context/AuthContext'
+import { useLocale } from '../context/LocaleContext'
 
 const OrganizationsPage: React.FC = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([])
@@ -14,6 +15,7 @@ const OrganizationsPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null)
   const { user, loading: authLoading } = useAuth()
+  const { t } = useLocale()
   const router = useRouter()
 
   useEffect(() => {
@@ -47,7 +49,7 @@ const OrganizationsPage: React.FC = () => {
       setOrganizations([...organizations, res.body.data.organization])
       setShowForm(false)
     } else {
-      alert(res.body.message || 'Failed to create organization')
+      alert(res.body.message || t('failed_to_create_organization'))
     }
   }
 
@@ -60,17 +62,17 @@ const OrganizationsPage: React.FC = () => {
       ))
       setEditingOrg(null)
     } else {
-      alert(res.body.message || 'Failed to update organization')
+      alert(res.body.message || t('failed_to_update_organization'))
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this organization?')) return
+    if (!confirm(t('are_you_sure_delete_organization'))) return
     const res = await deleteOrganization(id)
     if (res.ok) {
       setOrganizations(organizations.filter(org => org.id !== id))
     } else {
-      alert(res.body.message || 'Failed to delete organization')
+      alert(res.body.message || t('failed_to_delete_organization'))
     }
   }
 
@@ -83,7 +85,7 @@ const OrganizationsPage: React.FC = () => {
         org.id === id ? { ...org, users: [...(org.users || []), { id: user!.id, name: user!.name, email: user!.email, pivot: { role: 'user' } }] } : org
       ))
     } else {
-      alert(res.body.message || 'Failed to join organization')
+      alert(res.body.message || t('failed_to_join_organization'))
     }
   }
 
@@ -96,7 +98,7 @@ const OrganizationsPage: React.FC = () => {
         org.id === id ? { ...org, users: (org.users || []).filter(u => u.id !== user!.id) } : org
       ))
     } else {
-      alert(res.body.message || 'Failed to leave organization')
+      alert(res.body.message || t('failed_to_leave_organization'))
     }
   }
 
@@ -110,20 +112,20 @@ const OrganizationsPage: React.FC = () => {
     ))
   }
 
-  if (loading) return <div>Loading...</div>
+  if (loading) return <div>{t('loading')}</div>
 
   const currentOrganizations = activeTab === 'my' ? organizations : publicOrganizations
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Organizations</h1>
+        <h1 className="text-3xl font-bold">{t('organizations')}</h1>
         {activeTab === 'my' && (
           <button
             onClick={() => setShowForm(true)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Create Organization
+            {t('create_organization')}
           </button>
         )}
       </div>
@@ -134,13 +136,13 @@ const OrganizationsPage: React.FC = () => {
             onClick={() => setActiveTab('my')}
             className={`px-4 py-2 ${activeTab === 'my' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
           >
-            My Organizations
+            {t('my_organizations')}
           </button>
           <button
             onClick={() => setActiveTab('world')}
             className={`px-4 py-2 ${activeTab === 'world' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
           >
-            World Organizations
+            {t('world_organizations')}
           </button>
         </div>
       </div>
@@ -166,7 +168,7 @@ const OrganizationsPage: React.FC = () => {
 
       <div>
         {currentOrganizations.length === 0 ? (
-          <p>No organizations found.</p>
+          <p>{t('no_organizations_found')}</p>
         ) : (
           currentOrganizations.map(org => (
             <OrganizationItem

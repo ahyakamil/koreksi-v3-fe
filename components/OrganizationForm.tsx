@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Organization } from '../types'
 import ImageUpload from './ImageUpload'
 import { uploadImage } from '../utils/api'
+import { useLocale } from '../context/LocaleContext'
 
 interface OrganizationFormProps {
   organization?: Organization
@@ -17,6 +18,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
   const [title, setTitle] = useState(organization?.title || '')
   const [description, setDescription] = useState(organization?.description || '')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const { t } = useLocale()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +32,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
       if (uploadRes.ok && uploadRes.body?.data?.url) {
         imageUrl = uploadRes.body.data.url
       } else {
-        alert('Failed to upload image')
+        alert(t('failed_to_upload_image'))
         return
       }
     }
@@ -45,12 +47,12 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-4">
-        {organization ? 'Edit Organization' : 'Create Organization'}
+        {organization ? t('edit_organization') : t('create_organization')}
       </h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
-            Title
+            {t('title')}
           </label>
           <input
             type="text"
@@ -63,7 +65,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
-            Description
+            {t('description')}
           </label>
           <textarea
             id="description"
@@ -82,14 +84,14 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
-            {organization ? 'Update' : 'Create'}
+            {organization ? t('update') : t('create')}
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
-            Cancel
+            {t('cancel')}
           </button>
         </div>
       </form>

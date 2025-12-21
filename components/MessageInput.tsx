@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocale } from '../context/LocaleContext';
 
 interface MessageInputProps {
   friendId: string;
@@ -9,6 +10,7 @@ interface MessageInputProps {
 const MessageInput: React.FC<MessageInputProps> = ({ friendId, onSendMessage, encryptionLoaded }) => {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const { t } = useLocale()
 
   const handleSend = async () => {
     if (message.trim() && !sending) {
@@ -38,7 +40,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ friendId, onSendMessage, en
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyPress={handleKeyPress}
-        placeholder="Type a message..."
+        placeholder={t('type_a_message')}
         className="flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         disabled={sending}
       />
@@ -47,7 +49,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ friendId, onSendMessage, en
         disabled={sending || !message.trim() || !encryptionLoaded}
         className="px-4 py-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 disabled:bg-gray-400"
       >
-        {sending ? 'Sending...' : encryptionLoaded ? 'Send' : 'Loading...'}
+        {sending ? t('sending') : encryptionLoaded ? t('send') : t('loading')}
       </button>
     </div>
   );

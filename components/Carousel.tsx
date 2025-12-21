@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Media } from '../types'
+import { useLocale } from '../context/LocaleContext'
 
 interface CarouselProps {
   medias: Media[]
@@ -7,6 +8,7 @@ interface CarouselProps {
 
 export default function Carousel({ medias }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const { t } = useLocale()
 
   if (medias.length === 0) return null
 
@@ -18,7 +20,7 @@ export default function Carousel({ medias }: CarouselProps) {
       <div className="relative overflow-hidden rounded">
         <img
           src={medias[currentIndex].url}
-          alt="Post media"
+          alt={t('post_media')}
           className="w-full h-64 object-cover"
         />
         {medias.length > 1 && (

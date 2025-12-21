@@ -69,6 +69,61 @@ type TranslationKeys = {
   organizations: string
   show_all: string
   hide: string
+  back_to_organizations: string
+  cancel: string
+  create: string
+  create_organization: string
+  create_space: string
+  delete: string
+  description: string
+  edit: string
+  edit_organization: string
+  failed_to_create_organization: string
+  failed_to_create_space: string
+  failed_to_delete_organization: string
+  failed_to_delete_space: string
+  failed_to_invite_user: string
+  failed_to_join_organization: string
+  failed_to_leave_organization: string
+  failed_to_load_organization: string
+  failed_to_remove_member: string
+  failed_to_review_news: string
+  failed_to_update_organization: string
+  failed_to_update_role: string
+  failed_to_update_space: string
+  failed_to_upload_image: string
+  invite: string
+  invite_user: string
+  join_organization: string
+  joining: string
+  manage_news: string
+  members: string
+  my_organizations: string
+  no_news_available: string
+  no_organizations_found: string
+  no_spaces_found: string
+  organization_not_found: string
+  published_news: string
+  search_users_by_name_or_email: string
+  sending: string
+  spaces: string
+  update: string
+  world_organizations: string
+  are_you_sure_delete_organization: string
+  are_you_sure_delete_space: string
+  are_you_sure_remove_member: string
+  enter_rejection_reason: string
+  join_to_see_published_news: string
+  become_member_to_access_news: string
+  no_image: string
+  post_media: string
+  loading_friends: string
+  not_found: string
+  type_a_message: string
+  user_role_user: string
+  user_role_author: string
+  user_role_editor: string
+  user_role_admin: string
 }
 
 type Translations = {
@@ -148,6 +203,61 @@ const translations: Translations = {
     organizations: 'Organisasi',
     show_all: 'Tampilkan semua',
     hide: 'Sembunyikan',
+    back_to_organizations: 'Kembali ke Organisasi',
+    cancel: 'Batal',
+    create: 'Buat',
+    create_organization: 'Buat Organisasi',
+    create_space: 'Buat Ruang',
+    delete: 'Hapus',
+    description: 'Deskripsi',
+    edit: 'Edit',
+    edit_organization: 'Edit Organisasi',
+    failed_to_create_organization: 'Gagal membuat organisasi',
+    failed_to_create_space: 'Gagal membuat ruang',
+    failed_to_delete_organization: 'Gagal menghapus organisasi',
+    failed_to_delete_space: 'Gagal menghapus ruang',
+    failed_to_invite_user: 'Gagal mengundang pengguna',
+    failed_to_join_organization: 'Gagal bergabung dengan organisasi',
+    failed_to_leave_organization: 'Gagal keluar dari organisasi',
+    failed_to_load_organization: 'Gagal memuat organisasi',
+    failed_to_remove_member: 'Gagal menghapus anggota',
+    failed_to_review_news: 'Gagal meninjau berita',
+    failed_to_update_organization: 'Gagal memperbarui organisasi',
+    failed_to_update_role: 'Gagal memperbarui peran',
+    failed_to_update_space: 'Gagal memperbarui ruang',
+    failed_to_upload_image: 'Gagal mengunggah gambar',
+    invite: 'Undang',
+    invite_user: 'Undang Pengguna',
+    join_organization: 'Bergabung dengan Organisasi',
+    joining: 'Bergabung...',
+    manage_news: 'Kelola Berita',
+    members: 'Anggota',
+    my_organizations: 'Organisasi Saya',
+    no_news_available: 'Tidak ada berita tersedia.',
+    no_organizations_found: 'Tidak ada organisasi ditemukan.',
+    no_spaces_found: 'Tidak ada ruang ditemukan.',
+    organization_not_found: 'Organisasi tidak ditemukan',
+    published_news: 'Berita yang Diterbitkan',
+    search_users_by_name_or_email: 'Cari pengguna berdasarkan nama atau email',
+    sending: 'Mengirim...',
+    spaces: 'Ruang',
+    update: 'Perbarui',
+    world_organizations: 'Organisasi Dunia',
+    are_you_sure_delete_organization: 'Apakah Anda yakin ingin menghapus organisasi ini?',
+    are_you_sure_delete_space: 'Apakah Anda yakin ingin menghapus ruang ini?',
+    are_you_sure_remove_member: 'Apakah Anda yakin ingin menghapus anggota ini?',
+    enter_rejection_reason: 'Masukkan alasan penolakan:',
+    join_to_see_published_news: 'Bergabung untuk Melihat Berita yang Diterbitkan',
+    become_member_to_access_news: 'Menjadi anggota organisasi ini untuk melihat dan mengakses semua artikel berita yang diterbitkan.',
+    no_image: 'Tidak ada gambar',
+    post_media: 'Media postingan',
+    loading_friends: 'Memuat teman...',
+    not_found: 'Tidak ditemukan',
+    type_a_message: 'Ketik pesan...',
+    user_role_user: 'Pengguna',
+    user_role_author: 'Penulis',
+    user_role_editor: 'Editor',
+    user_role_admin: 'Admin',
   },
   en: {
     comments: 'Comments',
@@ -220,6 +330,61 @@ const translations: Translations = {
     organizations: 'Organizations',
     show_all: 'Show all',
     hide: 'Hide',
+    back_to_organizations: 'Back to Organizations',
+    cancel: 'Cancel',
+    create: 'Create',
+    create_organization: 'Create Organization',
+    create_space: 'Create Space',
+    delete: 'Delete',
+    description: 'Description',
+    edit: 'Edit',
+    edit_organization: 'Edit Organization',
+    failed_to_create_organization: 'Failed to create organization',
+    failed_to_create_space: 'Failed to create space',
+    failed_to_delete_organization: 'Failed to delete organization',
+    failed_to_delete_space: 'Failed to delete space',
+    failed_to_invite_user: 'Failed to invite user',
+    failed_to_join_organization: 'Failed to join organization',
+    failed_to_leave_organization: 'Failed to leave organization',
+    failed_to_load_organization: 'Failed to load organization',
+    failed_to_remove_member: 'Failed to remove member',
+    failed_to_review_news: 'Failed to review news',
+    failed_to_update_organization: 'Failed to update organization',
+    failed_to_update_role: 'Failed to update role',
+    failed_to_update_space: 'Failed to update space',
+    failed_to_upload_image: 'Failed to upload image',
+    invite: 'Invite',
+    invite_user: 'Invite User',
+    join_organization: 'Join Organization',
+    joining: 'Joining...',
+    manage_news: 'Manage News',
+    members: 'Members',
+    my_organizations: 'My Organizations',
+    no_news_available: 'No news available.',
+    no_organizations_found: 'No organizations found.',
+    no_spaces_found: 'No spaces found.',
+    organization_not_found: 'Organization not found',
+    published_news: 'Published News',
+    search_users_by_name_or_email: 'Search users by name or email',
+    sending: 'Sending...',
+    spaces: 'Spaces',
+    update: 'Update',
+    world_organizations: 'World Organizations',
+    are_you_sure_delete_organization: 'Are you sure you want to delete this organization?',
+    are_you_sure_delete_space: 'Are you sure you want to delete this space?',
+    are_you_sure_remove_member: 'Are you sure you want to remove this member?',
+    enter_rejection_reason: 'Enter rejection reason:',
+    join_to_see_published_news: 'Join to See Published News',
+    become_member_to_access_news: 'Become a member of this organization to view and access all published news articles.',
+    no_image: 'No image',
+    post_media: 'Post media',
+    loading_friends: 'Loading friends...',
+    not_found: 'Not found',
+    type_a_message: 'Type a message...',
+    user_role_user: 'User',
+    user_role_author: 'Author',
+    user_role_editor: 'Editor',
+    user_role_admin: 'Admin',
   }
 }
 

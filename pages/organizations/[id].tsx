@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { Organization, User, Space, News } from '../../types'
 import { getOrganization, getPublicOrganization, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization } from '../../utils/api'
 import { useAuth } from '../../context/AuthContext'
+import { useLocale } from '../../context/LocaleContext'
 import SpaceForm from '../../components/SpaceForm'
 import NewsItem from '../../components/NewsItem'
 
@@ -19,6 +20,7 @@ const OrganizationDetailsPage: React.FC = () => {
   const [editingSpace, setEditingSpace] = useState<Space | null>(null)
   const [joining, setJoining] = useState(false)
   const { user } = useAuth()
+  const { t } = useLocale()
   const router = useRouter()
   const { id } = router.query
 
@@ -38,7 +40,7 @@ const OrganizationDetailsPage: React.FC = () => {
     if (res.ok) {
       setOrganization(res.body.data.organization)
     } else {
-      alert(res.body.message || 'Failed to load organization')
+      alert(res.body.message || t('failed_to_load_organization'))
       router.push('/organizations')
     }
     setLoading(false)
@@ -68,7 +70,7 @@ const OrganizationDetailsPage: React.FC = () => {
       setSpaces([...spaces, res.body.data.space])
       setShowCreateSpace(false)
     } else {
-      alert(res.body.message || 'Failed to create space')
+      alert(res.body.message || t('failed_to_create_space'))
     }
   }
 
@@ -85,12 +87,12 @@ const OrganizationDetailsPage: React.FC = () => {
 
   const handleDeleteSpace = async (spaceId: string) => {
     if (!organization) return
-    if (!confirm('Are you sure you want to delete this space?')) return
+    if (!confirm(t('are_you_sure_delete_space'))) return
     const res = await deleteSpace(organization.id, spaceId)
     if (res.ok) {
       setSpaces(spaces.filter(s => s.id !== spaceId))
     } else {
-      alert(res.body.message || 'Failed to delete space')
+      alert(res.body.message || t('failed_to_delete_space'))
     }
   }
 
@@ -98,7 +100,7 @@ const OrganizationDetailsPage: React.FC = () => {
     if (!organization) return
     let reviewNotes: string | undefined = undefined
     if (action === 'reject') {
-      const notes = prompt('Enter rejection reason:')
+      const notes = prompt(t('enter_rejection_reason'))
       if (!notes) return
       reviewNotes = notes
     }
@@ -107,7 +109,7 @@ const OrganizationDetailsPage: React.FC = () => {
     if (res.ok) {
       fetchNews() // Refresh the news list
     } else {
-      alert(res.body.message || 'Failed to review news')
+      alert(res.body.message || t('failed_to_review_news'))
     }
   }
 
@@ -117,18 +119,18 @@ const OrganizationDetailsPage: React.FC = () => {
     if (res.ok) {
       setOrganization(res.body.data.organization)
     } else {
-      alert(res.body.message || 'Failed to update role')
+      alert(res.body.message || t('failed_to_update_role'))
     }
   }
 
   const handleRemoveMember = async (targetUserId: string) => {
     if (!organization) return
-    if (!confirm('Are you sure you want to remove this member?')) return
+    if (!confirm(t('are_you_sure_remove_member'))) return
     const res = await removeMember(organization.id, targetUserId)
     if (res.ok) {
       setOrganization(res.body.data.organization)
     } else {
-      alert(res.body.message || 'Failed to remove member')
+      alert(res.body.message || t('failed_to_remove_member'))
     }
   }
 
@@ -152,7 +154,7 @@ const OrganizationDetailsPage: React.FC = () => {
       setSearchResults([])
       setShowInvite(false)
     } else {
-      alert(res.body.message || 'Failed to invite user')
+      alert(res.body.message || t('failed_to_invite_user'))
     }
   }
 
@@ -163,7 +165,7 @@ const OrganizationDetailsPage: React.FC = () => {
     if (res.ok) {
       await fetchOrganization() // Reload organization data
     } else {
-      alert(res.body.message || 'Failed to join organization')
+      alert(res.body.message || t('failed_to_join_organization'))
     }
     setJoining(false)
   }
@@ -182,8 +184,8 @@ const OrganizationDetailsPage: React.FC = () => {
     }
   }, [organization, activeTab, currentUserRole])
 
-  if (loading) return <div>Loading...</div>
-  if (!organization) return <div>Organization not found</div>
+  if (loading) return <div>{t('loading')}</div>
+  if (!organization) return <div>{t('organization_not_found')}</div>
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -192,7 +194,7 @@ const OrganizationDetailsPage: React.FC = () => {
           onClick={() => router.push('/organizations')}
           className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
         >
-          Back to Organizations
+          {t('back_to_organizations')}
         </button>
         <h1 className="text-3xl font-bold">{organization.title}</h1>
         {organization.description && (
@@ -215,7 +217,7 @@ const OrganizationDetailsPage: React.FC = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                News
+                {t('news')}
               </button>
               <button
                 onClick={() => setActiveTab('members')}
@@ -225,7 +227,7 @@ const OrganizationDetailsPage: React.FC = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Members ({organization.users?.length})
+                {t('members')} ({organization.users?.length})
               </button>
               <button
                 onClick={() => setActiveTab('spaces')}
@@ -235,13 +237,13 @@ const OrganizationDetailsPage: React.FC = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Spaces
+                {t('spaces')}
               </button>
               <button
                 onClick={() => router.push(`/organizations/${id}/news`)}
                 className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               >
-                Manage News
+                {t('manage_news')}
               </button>
             </nav>
           </div>
@@ -249,13 +251,13 @@ const OrganizationDetailsPage: React.FC = () => {
           {activeTab === 'members' && (
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">Members</h2>
+                <h2 className="text-2xl font-semibold">{t('members')}</h2>
                 {currentUserRole === 'admin' && (
                   <button
                     onClick={() => setShowInvite(!showInvite)}
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                   >
-                    Invite User
+                    {t('invite_user')}
                   </button>
                 )}
               </div>
@@ -264,7 +266,7 @@ const OrganizationDetailsPage: React.FC = () => {
                 <div className="mb-4 p-4 bg-gray-100 rounded">
                   <input
                     type="text"
-                    placeholder="Search users by name or email"
+                    placeholder={t('search_users_by_name_or_email')}
                     value={inviteSearch}
                     onChange={(e) => {
                       setInviteSearch(e.target.value)
@@ -281,7 +283,7 @@ const OrganizationDetailsPage: React.FC = () => {
                             onClick={() => handleInvite(u.id)}
                             className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
                           >
-                            Invite
+                            {t('invite')}
                           </button>
                         </div>
                       ))}
@@ -306,16 +308,16 @@ const OrganizationDetailsPage: React.FC = () => {
                           onChange={(e) => handleRoleChange(member.id, e.target.value)}
                           className="p-1 border rounded"
                         >
-                          <option value="user">User</option>
-                          <option value="author">Author</option>
-                          <option value="editor">Editor</option>
-                          <option value="admin">Admin</option>
+                          <option value="user">{t('user_role_user')}</option>
+                          <option value="author">{t('user_role_author')}</option>
+                          <option value="editor">{t('user_role_editor')}</option>
+                          <option value="admin">{t('user_role_admin')}</option>
                         </select>
                         <button
                           onClick={() => handleRemoveMember(member.id)}
                           className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                         >
-                          Remove
+                          {t('remove')}
                         </button>
                       </div>
                     )}
@@ -328,13 +330,13 @@ const OrganizationDetailsPage: React.FC = () => {
           {activeTab === 'spaces' && (
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">Spaces</h2>
+                <h2 className="text-2xl font-semibold">{t('spaces')}</h2>
                 {currentUserRole === 'admin' && (
                   <button
                     onClick={() => setShowCreateSpace(true)}
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                   >
-                    Create Space
+                    {t('create_space')}
                   </button>
                 )}
               </div>
@@ -360,7 +362,7 @@ const OrganizationDetailsPage: React.FC = () => {
 
               <div>
                 {spaces.length === 0 ? (
-                  <p>No spaces found.</p>
+                  <p>{t('no_spaces_found')}</p>
                 ) : (
                   spaces.map(space => (
                     <div key={space.id} className="bg-white p-4 rounded-lg shadow mb-2">
@@ -370,7 +372,7 @@ const OrganizationDetailsPage: React.FC = () => {
                             <img src={space.image} alt={space.name} className="w-16 h-16 object-cover rounded-lg" />
                           ) : (
                             <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                              <span className="text-gray-500 text-xs">No image</span>
+                              <span className="text-gray-500 text-xs">{t('no_image')}</span>
                             </div>
                           )}
                         </div>
@@ -386,13 +388,13 @@ const OrganizationDetailsPage: React.FC = () => {
                               onClick={() => setEditingSpace(space)}
                               className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
                             >
-                              Edit
+                              {t('edit')}
                             </button>
                             <button
                               onClick={() => handleDeleteSpace(space.id)}
                               className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
                             >
-                              Delete
+                              {t('delete')}
                             </button>
                           </div>
                         )}
@@ -406,9 +408,9 @@ const OrganizationDetailsPage: React.FC = () => {
 
           {activeTab === 'news' && (
             <div>
-              <h2 className="text-2xl font-semibold mb-4">News</h2>
+              <h2 className="text-2xl font-semibold mb-4">{t('news')}</h2>
               {news.length === 0 ? (
-                <p>No news available.</p>
+                <p>{t('no_news_available')}</p>
               ) : (
                 <ul className="space-y-4">
                   {news.map(item => (
@@ -423,9 +425,9 @@ const OrganizationDetailsPage: React.FC = () => {
 
       {currentUserRole && !canManage && (
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Published News</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('published_news')}</h2>
           {news.length === 0 ? (
-            <p>No news available.</p>
+            <p>{t('no_news_available')}</p>
           ) : (
             <ul className="space-y-4">
               {news.map(item => (
@@ -439,16 +441,16 @@ const OrganizationDetailsPage: React.FC = () => {
       {!currentUserRole && (
         <div className="mb-8">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">Join to See Published News</h3>
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('join_to_see_published_news')}</h3>
             <p className="text-blue-700 mb-4">
-              Become a member of this organization to view and access all published news articles.
+              {t('become_member_to_access_news')}
             </p>
             <button
               onClick={handleJoin}
               disabled={joining}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
             >
-              {joining ? 'Joining...' : 'Join Organization'}
+              {joining ? t('joining') : t('join_organization')}
             </button>
           </div>
         </div>
