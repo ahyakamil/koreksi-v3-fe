@@ -177,6 +177,14 @@ export async function deleteNews(organizationId: string, newsId: string) {
   return res
 }
 
+// Post API functions
+export async function deletePost(postId: string) {
+  const res = await apiFetch(`/posts/${postId}`, {
+    method: 'DELETE'
+  })
+  return res
+}
+
 export async function reviewNews(organizationId: string, newsId: string, data: { action: string; review_notes?: string }) {
   const res = await apiFetch(`/organizations/${organizationId}/news/${newsId}/review`, {
     method: 'POST',

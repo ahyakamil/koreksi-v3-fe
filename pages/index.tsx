@@ -87,7 +87,7 @@ export default function Home() {
             {showPostForm && <PostForm onCreated={() => { setPage(0); load(0); setShowPostForm(false) }} />}
             <ul className="space-y-4">
               {posts.map(p => (
-                <PostItem key={p.public_id} post={p} />
+                <PostItem key={p.public_id} post={p} onDelete={(deletedId) => setPosts(prev => prev.filter(p => p.public_id !== deletedId))} />
               ))}
             </ul>
             <div className="mt-4 text-center text-sm text-gray-600">
@@ -99,7 +99,7 @@ export default function Home() {
             <h2 className="text-lg font-medium mb-2">{t('news')}</h2>
             <ul className="space-y-4">
               {posts.map(p => (
-                <PostItem key={p.public_id} post={p} />
+                <PostItem key={p.public_id} post={p} onDelete={(deletedId) => setPosts(prev => prev.filter(p => p.public_id !== deletedId))} />
               ))}
             </ul>
             <div className="mt-4 text-center text-sm text-gray-600">{loadingMore ? t('loading') : (pageable && pageable.pageNumber+1 >= pageable.totalPages ? t('no_more') || 'No more posts' : '')}</div>

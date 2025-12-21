@@ -4,11 +4,11 @@ import { Post, Comment, Pageable } from '../../types'
 import Carousel from '../../components/Carousel'
 import CommentsList from '../../components/CommentsList'
 import CommentForm from '../../components/CommentForm'
-import { formatDate } from '../../utils/format'
+import TimeAgo from '../../components/TimeAgo'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import { useState, useEffect } from 'react'
-import { createComment, getComments } from '../../utils/api'
+import { createComment, getComments, deletePost } from '../../utils/api'
 
 interface PostDetailProps {
     post: Post | null
@@ -74,6 +74,18 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
     return res
   }
 
+  const handleDelete = async () => {
+    if (confirm('Are you sure you want to delete this post?')) {
+      const res = await deletePost(post.public_id)
+      if (res.ok) {
+        alert('Post deleted')
+        window.location.href = '/'
+      } else {
+        alert(res.body?.message || 'Failed to delete post')
+      }
+    }
+  }
+
   const loadMoreComments = async () => {
     if (!pageable || loadingMore) return
     const nextPage = pageable.pageNumber + 1
@@ -117,7 +129,30 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
           <header className="mb-4">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-500">{t('by')} {post.user?.name || t('unknown')}</div>
-              <div className="text-xs text-gray-400">{formatDate(post.created_at)}</div>
+              <div className="flex items-center space-x-2">
+                <TimeAgo date={post.created_at} className="text-xs text-gray-400" />
+                {user && user.id === post.user?.id && (
+                  <button onClick={handleDelete} className="text-xs text-red-500 hover:text-red-700 flex items-center space-x-1">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>{t('delete')}</span>
+                  </button>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault()
+                    navigator.clipboard.writeText(window.location.href)
+                    alert('URL copied to clipboard!')
+                  }}
+                  className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                  </svg>
+                  <span>{t('share')}</span>
+                </button>
+              </div>
             </div>
             {post.title && <h1 className="text-2xl font-bold mt-2">{post.title}</h1>}
           </header>

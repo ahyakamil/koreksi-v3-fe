@@ -5,15 +5,16 @@ import TimeAgo from './TimeAgo'
 import CommentsList from './CommentsList'
 import CommentForm from './CommentForm'
 import { Post, Comment, Pageable } from '../types'
-import { getComments, createComment } from '../utils/api'
+import { getComments, createComment, deletePost } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 
 interface PostItemProps {
   post: Post
+  onDelete?: (postId: string) => void
 }
 
-export default function PostItem({ post }: PostItemProps) {
+export default function PostItem({ post, onDelete }: PostItemProps) {
   const { user } = useAuth()
   const { t } = useLocale()
   const [comments, setComments] = useState<Comment[]>([])
@@ -67,12 +68,37 @@ export default function PostItem({ post }: PostItemProps) {
     return res
   }
 
+  const handleDelete = async () => {
+    if (confirm('Are you sure you want to delete this post?')) {
+      const res = await deletePost(post.public_id)
+      if (res.ok) {
+        onDelete?.(post.public_id)
+      } else {
+        alert(res.body?.message || 'Failed to delete post')
+      }
+    }
+  }
+
   return (
     <li className="p-4 bg-white rounded shadow">
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-500">{t('by')} {post.user?.name || t('unknown')}</div>
         <div className="flex items-center space-x-2">
           <TimeAgo date={post.created_at} className="text-xs text-gray-400" />
+          {user && user.id === post.user?.id && (
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                handleDelete()
+              }}
+              className="text-xs text-red-500 hover:text-red-700 flex items-center space-x-1"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>{t('delete')}</span>
+            </button>
+          )}
           <button
             onClick={(e) => {
               e.preventDefault()
