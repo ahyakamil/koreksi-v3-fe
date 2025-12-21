@@ -19,12 +19,13 @@ interface ChatPanelProps {
   onSendMessage: (friendId: string, content: string) => Promise<void>;
   userId?: string;
   encryptionLoaded: boolean;
+  loading?: boolean;
 }
 
-const ChatPanel: React.FC<ChatPanelProps> = ({ friend, messages, onSendMessage, userId, encryptionLoaded }) => {
+const ChatPanel: React.FC<ChatPanelProps> = ({ friend, messages, onSendMessage, userId, encryptionLoaded, loading }) => {
   return (
     <div className="flex-1 flex flex-col">
-      <MessageList messages={messages} userId={userId} />
+      <MessageList messages={messages} userId={userId} loading={loading} />
       <MessageInput friendId={friend.user.id} onSendMessage={onSendMessage} encryptionLoaded={encryptionLoaded} />
     </div>
   );

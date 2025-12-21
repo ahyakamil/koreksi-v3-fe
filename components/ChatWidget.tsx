@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ChatIcon from './ChatIcon';
 import ChatWindow from './ChatWindow';
 import { useChat } from '../hooks/useChat';
@@ -11,16 +11,22 @@ interface ChatWidgetProps {
 }
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, token, userId, openWithFriend }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [initialSelected, setInitialSelected] = useState<string | null>(null);
   const { unreadCounts } = useChat(apiUrl, token, userId, isExpanded);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    if (openWithFriend) {
-      setIsExpanded(true);
-      setInitialSelected(openWithFriend);
+    if (!hasInitialized.current) {
+      if (openWithFriend || unreadCounts.total_unread > 0) {
+        setIsExpanded(true);
+        if (openWithFriend) {
+          setInitialSelected(openWithFriend);
+        }
+      }
+      hasInitialized.current = true;
     }
-  }, [openWithFriend]);
+  }, [openWithFriend, unreadCounts.total_unread]);
 
   // Close widget when there are no unread messages and widget is not expanded
   useEffect(() => {

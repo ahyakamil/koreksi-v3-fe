@@ -87,6 +87,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, apiUrl, token, userId,
             onSendMessage={sendMessage}
             userId={userId}
             encryptionLoaded={encryptionLoaded}
+            loading={loading}
           />
         )}
       </div>

@@ -1,25 +1,52 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useLayoutEffect } from 'react';
 import TimeAgo from './TimeAgo';
 import { Message } from '../types';
 
 interface MessageListProps {
   messages: Message[];
   userId?: string;
+  loading?: boolean;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, userId }) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+const MessageList: React.FC<MessageListProps> = ({ messages, userId, loading }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInitialLoad = useRef(true);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = containerRef.current;
+    if (container) {
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight - container.clientHeight;
+      });
+    }
   };
 
-  useEffect(() => {
-    scrollToBottom();
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      if (isInitialLoad.current) {
+        // Always scroll to bottom on initial load
+        scrollToBottom();
+        isInitialLoad.current = false;
+      } else {
+        // For subsequent messages, only scroll if near bottom
+        const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+        if (isNearBottom) {
+          scrollToBottom();
+        }
+      }
+    }
   }, [messages]);
 
+  // Scroll to bottom when loading completes
+  useEffect(() => {
+    if (!loading && messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [loading, messages.length]);
+
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-2">
+    <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-2">
       {messages.map((message) => {
         const isMine = message.sender_id.toString() === userId;
         return (
@@ -40,7 +67,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages, userId }) => {
           </div>
         );
       })}
-      <div ref={messagesEndRef} />
     </div>
   );
 };
