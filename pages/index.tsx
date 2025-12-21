@@ -96,7 +96,7 @@ export default function Home() {
           </>
         ) : (
           <div className="space-y-4">
-            <h2 className="text-lg font-medium mb-2">{t('news')}</h2>
+            <h2 className="text-lg font-medium mb-2">{t('posts')}</h2>
             <ul className="space-y-4">
               {posts.map(p => (
                 <PostItem key={p.public_id} post={p} onDelete={(deletedId) => setPosts(prev => prev.filter(p => p.public_id !== deletedId))} />
