@@ -19,9 +19,10 @@ interface PostDetailProps {
     initialReplies?: Record<string, Comment[]>
     initialShowReplies?: Record<string, boolean>
     initialRepliesPageable?: Record<string, any>
+    fullUrl: string
 }
+export default function PostDetail({ post, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl }: PostDetailProps) {
 
-export default function PostDetail({ post, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable }: PostDetailProps) {
   const { user } = useAuth()
   const { t } = useLocale()
   const [comments, setComments] = useState<Comment[]>(initialComments)
@@ -96,6 +97,10 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={fullUrl} />
+        <meta property="og:site_name" content="Koreksi" />
+        <meta property="article:published_time" content={post.created_at} />
+        {post.user && <meta property="article:author" content={post.user.name} />}
         {post.medias && post.medias.length > 0 && (
           <meta property="og:image" content={post.medias[0].url} />
         )}
@@ -105,6 +110,7 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
         {post.medias && post.medias.length > 0 && (
           <meta name="twitter:image" content={post.medias[0].url} />
         )}
+        <meta name="twitter:url" content={fullUrl} />
       </Head>
       <div className="container py-8">
         <article className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
@@ -178,6 +184,9 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
 export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (context) => {
   const { public_id } = context.params as { public_id: string }
   const { commentId } = context.query
+  const protocol = (context.req.headers['x-forwarded-proto'] as string) || 'http'
+  const host = context.req.headers.host
+  const fullUrl = `${protocol}://${host}${context.req.url}`
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
   try {
@@ -190,7 +199,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
           post: null,
           comments: [],
           pageable: null,
-          error: 'Post not found'
+          error: 'Post not found',
+          fullUrl
         }
       }
     }
@@ -203,7 +213,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
           post: null,
           comments: [],
           pageable: null,
-          error: postData.message || 'Failed to load post'
+          error: postData.message || 'Failed to load post',
+          fullUrl
         }
       }
     }
@@ -248,7 +259,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
         specificCommentId,
         initialReplies,
         initialShowReplies,
-        initialRepliesPageable
+        initialRepliesPageable,
+        fullUrl
       }
     }
   } catch (error) {
@@ -257,7 +269,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
         post: null,
         comments: [],
         pageable: null,
-        error: 'Failed to load post'
+        error: 'Failed to load post',
+        fullUrl
       }
     }
   }

@@ -18,9 +18,10 @@ interface NewsDetailProps {
     initialReplies?: Record<string, Comment[]>
     initialShowReplies?: Record<string, boolean>
     initialRepliesPageable?: Record<string, any>
+    fullUrl: string
 }
 
-export default function NewsDetail({ news, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable }: NewsDetailProps) {
+export default function NewsDetail({ news, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl }: NewsDetailProps) {
   const { user } = useAuth()
   const { t } = useLocale()
   const [comments, setComments] = useState<Comment[]>(initialComments)
@@ -95,6 +96,11 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={fullUrl} />
+        <meta property="og:site_name" content="Koreksi" />
+        <meta property="article:published_time" content={news.published_at || news.created_at} />
+        {news.user && <meta property="article:author" content={news.user.name} />}
+        {(news.organization || news.space) && <meta property="article:section" content={news.organization?.title || news.space?.name} />}
         {news.image && (
           <meta property="og:image" content={news.image} />
         )}
@@ -104,6 +110,7 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
         {news.image && (
           <meta name="twitter:image" content={news.image} />
         )}
+        <meta name="twitter:url" content={fullUrl} />
       </Head>
       <div className="container py-8">
         <article className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
@@ -181,6 +188,9 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
 export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (context) => {
   const { public_id } = context.params as { public_id: string }
   const { commentId } = context.query
+  const protocol = (context.req.headers['x-forwarded-proto'] as string) || 'http'
+  const host = context.req.headers.host
+  const fullUrl = `${protocol}://${host}${context.req.url}`
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
   try {
@@ -193,7 +203,8 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
           news: null,
           comments: [],
           pageable: null,
-          error: 'News not found'
+          error: 'News not found',
+          fullUrl
         }
       }
     }
@@ -206,7 +217,8 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
           news: null,
           comments: [],
           pageable: null,
-          error: newsData.message || 'Failed to load news'
+          error: newsData.message || 'Failed to load news',
+          fullUrl
         }
       }
     }
@@ -251,7 +263,8 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
         specificCommentId,
         initialReplies,
         initialShowReplies,
-        initialRepliesPageable
+        initialRepliesPageable,
+        fullUrl
       }
     }
   } catch (error) {
@@ -260,7 +273,8 @@ export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (co
         news: null,
         comments: [],
         pageable: null,
-        error: 'Failed to load news'
+        error: 'Failed to load news',
+        fullUrl
       }
     }
   }
