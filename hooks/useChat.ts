@@ -122,13 +122,15 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
           total_unread: prev.total_unread - (prev.unread_by_friend[friendId] || 0),
           unread_by_friend: { ...prev.unread_by_friend, [friendId]: 0 },
         }));
+        // Update global unread counts
+        await refreshUnreadCounts();
       } else {
         throw new Error(data.message || 'Failed to mark as read');
       }
     } catch (error) {
       console.error('Error marking as read:', error);
     }
-  }, [apiUrl, token]);
+  }, [apiUrl, token, refreshUnreadCounts]);
 
   const fetchMessages = useCallback(async (friendId: string) => {
     try {
@@ -226,12 +228,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
         }
       });
       socket.on('message.read', (data: any) => {
-        const { friend_id } = data;
-        setUnreadCounts(prev => ({
-          ...prev,
-          total_unread: prev.total_unread - (prev.unread_by_friend[friend_id] || 0),
-          unread_by_friend: { ...prev.unread_by_friend, [friend_id]: 0 },
-        }));
+        // Notification that messages were read by the receiver, no action needed for unread counts
       });
     }
   }, [userId]);

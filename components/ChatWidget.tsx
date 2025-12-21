@@ -22,12 +22,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, token, userId, openWith
     }
   }, [openWithFriend]);
 
-  // Close widget when there are no unread messages
+  // Close widget when there are no unread messages and widget is not expanded
   useEffect(() => {
-    if (unreadCounts.total_unread === 0 && !openWithFriend) {
+    if (unreadCounts.total_unread === 0 && !openWithFriend && !isExpanded) {
       setIsExpanded(false);
     }
-  }, [unreadCounts.total_unread, openWithFriend]);
+  }, [unreadCounts.total_unread, openWithFriend, isExpanded]);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
