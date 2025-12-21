@@ -88,19 +88,36 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
         </div>
       )}
       <div className="p-6">
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-sm text-gray-500">
-            {t('by')} {news.user?.name || t('unknown')}
-            {!hideOrganization && (
-              <> in{' '}
-                <Link href={`/organizations/${news.organization_id}`} className="text-blue-500 hover:text-blue-700 font-medium">
-                  {news.organization?.title || 'Organization'}
-                </Link>
-              </>
-            )}
+        <div className="mb-3">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              {t('by')} {news.user?.name || t('unknown')}
+              {!hideOrganization && (
+                <> in{' '}
+                  <Link href={`/organizations/${news.organization_id}`} className="text-blue-500 hover:text-blue-700 font-medium">
+                    {news.organization?.title || 'Organization'}
+                  </Link>
+                </>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              <TimeAgo date={news.published_at || news.created_at} className="text-xs text-gray-400" />
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigator.clipboard.writeText(window.location.origin + '/news/' + news.public_id)
+                  alert('URL copied to clipboard!')
+                }}
+                className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+                <span>{t('share')}</span>
+              </button>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <TimeAgo date={news.published_at || news.created_at} className="text-xs text-gray-400" />
+          <div className="mt-1">
             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
               {news.space?.name || 'Space'}
             </span>
@@ -144,19 +161,6 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
               className="text-sm text-blue-600 hover:text-blue-800"
             >
               {showComments ? t('hide') : `${t('load_comments')}${news.comments_count && news.comments_count > 0 ? ` (${news.comments_count})` : ''}`}
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault()
-                navigator.clipboard.writeText(window.location.origin + '/news/' + news.public_id)
-                alert('URL copied to clipboard!')
-              }}
-              className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-              </svg>
-              <span>{t('share')}</span>
             </button>
           </div>
         </div>
