@@ -78,6 +78,8 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
         <ImageUpload
           onFileSelected={handleFileSelected}
           currentImage={organization?.image}
+          requiredWidth={688}
+          requiredHeight={192}
         />
         <div className="flex gap-2">
           <button

@@ -5,12 +5,16 @@ interface ImageUploadProps {
   onFileSelected: (file: File | null) => void
   currentImage?: string
   disabled?: boolean
+  requiredWidth?: number
+  requiredHeight?: number
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
   onFileSelected,
   currentImage,
-  disabled = false
+  disabled = false,
+  requiredWidth,
+  requiredHeight
 }) => {
   const [error, setError] = useState<string | null>(null)
   const [showUpload, setShowUpload] = useState(!currentImage)
@@ -20,7 +24,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setShowUpload(!currentImage && !selectedFile)
   }, [currentImage, selectedFile])
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     // Validate file size (2MB)
     if (file.size > 2 * 1024 * 1024) {
       setError('File size must be less than 2MB')
@@ -31,6 +35,22 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     if (!file.type.startsWith('image/')) {
       setError('Only image files are allowed')
       return
+    }
+
+    // Validate dimensions if required
+    if (requiredWidth && requiredHeight) {
+      const img = new Image()
+      img.src = URL.createObjectURL(file)
+      await new Promise((resolve, reject) => {
+        img.onload = resolve
+        img.onerror = reject
+      })
+      if (img.naturalWidth !== requiredWidth || img.naturalHeight !== requiredHeight) {
+        setError(`Image must be exactly ${requiredWidth} × ${requiredHeight} pixels`)
+        URL.revokeObjectURL(img.src)
+        return
+      }
+      URL.revokeObjectURL(img.src)
     }
 
     setSelectedFile(file)
@@ -76,7 +96,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
               <p className="text-lg font-medium">Drop image here or click to browse</p>
-              <p className="text-sm">PNG or JPG files only, max 2MB</p>
+              <p className="text-sm">
+                PNG or JPG files only, max 2MB
+                {requiredWidth && requiredHeight && `, must be ${requiredWidth} × ${requiredHeight} pixels`}
+              </p>
             </div>
           </div>
         )}
@@ -86,7 +109,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             <h4 className="text-sm font-medium mb-2">Selected Image</h4>
             <div className="grid grid-cols-1 gap-4">
               <div className="relative group border rounded-lg overflow-hidden shadow-sm">
-                <img src={URL.createObjectURL(selectedFile)} alt={selectedFile.name} className="w-full h-32 object-cover" />
+                <img
+                  src={URL.createObjectURL(selectedFile)}
+                  alt={selectedFile.name}
+                  className="w-full object-contain"
+                  style={{ height: requiredHeight || 128 }}
+                />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
                   <button
                     type="button"
@@ -110,8 +138,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         {currentImage && !selectedFile && !showUpload && (
           <div className="border rounded-lg p-4">
             <h4 className="text-sm font-medium mb-2">Current Image</h4>
-            <div className="relative inline-block">
-              <img src={currentImage} alt="Current" className="w-32 h-32 object-cover rounded border" />
+            <div className="relative">
+              <img
+                src={currentImage}
+                alt="Current"
+                className="w-full object-contain rounded border"
+                style={{ height: requiredHeight || 128 }}
+              />
               <button
                 onClick={() => setShowUpload(true)}
                 className="absolute top-1 right-1 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
