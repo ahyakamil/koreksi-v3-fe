@@ -51,6 +51,7 @@ type TranslationKeys = {
   show_post_form: string
   hide_post_form: string
   now: string
+  s: string
   m: string
   h: string
   d: string
@@ -129,6 +130,7 @@ const translations: Translations = {
     show_post_form: 'Bikin postingan',
     hide_post_form: 'Batalkan postingan',
     now: 'sekarang',
+    s: 'd',
     m: 'm',
     h: 'j',
     d: 'h',
@@ -200,6 +202,7 @@ const translations: Translations = {
     show_post_form: 'Create Post',
     hide_post_form: 'Cancel Post',
     now: 'now',
+    s: 's',
     m: 'm',
     h: 'h',
     d: 'd',

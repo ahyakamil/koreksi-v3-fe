@@ -1,3 +1,4 @@
+import { useState, useEffect, memo, useCallback } from 'react'
 import { useLocale } from '../context/LocaleContext'
 
 interface TimeAgoProps {
@@ -5,28 +6,52 @@ interface TimeAgoProps {
   className?: string
 }
 
-export default function TimeAgo({ date, className = '' }: TimeAgoProps) {
+function TimeAgo({ date, className = '' }: TimeAgoProps) {
   const { t } = useLocale()
+  const [now, setNow] = useState<Date | null>(null)
 
-  const formatDate = (ts: string) => {
-    if (!ts) return ''
-    try {
+  useEffect(() => {
+    setNow(new Date())
+
+    const interval = setInterval(() => {
+      setNow(new Date())
+    }, 60000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const formatDate = useCallback(
+    (ts: string) => {
+      if (!ts || !now) return ''
+
       const d = new Date(ts)
-      const now = new Date()
-      const diffMs = now.getTime() - d.getTime()
-      const diffMins = Math.floor(diffMs / (1000 * 60))
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+      if (isNaN(d.getTime())) return ts
 
-      if (diffMins < 1) return t('now') || 'now'
-      if (diffMins < 60) return `${diffMins}${t('m') || 'm'}`
-      if (diffHours < 24) return `${diffHours}${t('h') || 'h'}`
-      if (diffDays < 7) return `${diffDays}${t('d') || 'd'}`
+      let diffMs = now.getTime() - d.getTime()
+
+      if (diffMs < 0) diffMs = 0
+
+      const diffMins = Math.floor(diffMs / 60000)
+      const diffHours = Math.floor(diffMs / 3600000)
+      const diffDays = Math.floor(diffMs / 86400000)
+
+      if (diffMins < 1) return t('now') ?? 'now'
+      if (diffMins < 60) return `${diffMins}${t('m') ?? 'm'}`
+      if (diffHours < 24) return `${diffHours}${t('h') ?? 'h'}`
+
+      if (diffDays < 7) {
+        const hours = diffHours % 24
+        return hours === 0
+          ? `${diffDays}${t('d') ?? 'd'}`
+          : `${diffDays}${t('d') ?? 'd'} ${hours}${t('h') ?? 'h'}`
+      }
+
       return d.toLocaleDateString()
-    } catch (e) {
-      return String(ts)
-    }
-  }
+    },
+    [now, t]
+  )
+
+  if (!now) return null
 
   return (
     <span className={className} title={new Date(date).toLocaleString()}>
@@ -34,3 +59,5 @@ export default function TimeAgo({ date, className = '' }: TimeAgoProps) {
     </span>
   )
 }
+
+export default memo(TimeAgo)

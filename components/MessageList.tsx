@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import TimeAgo from './TimeAgo';
 import { Message } from '../types';
 
 interface MessageListProps {
@@ -34,9 +35,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, userId }) => {
               }`}
             >
               <p>{message.decryptedContent || '[Encrypted]'}</p>
-              <span className="text-xs opacity-75">
-                {new Date(message.sent_at).toLocaleTimeString()}
-              </span>
+              <TimeAgo date={message.created_at} className="text-xs opacity-75" />
             </div>
           </div>
         );

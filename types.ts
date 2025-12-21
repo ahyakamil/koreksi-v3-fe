@@ -122,6 +122,7 @@ export interface Message {
   iv: string
   sent_at: string
   read_at: string | null
+  created_at: string
   content?: string
   decryptedContent?: string
 }
