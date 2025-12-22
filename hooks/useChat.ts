@@ -63,7 +63,8 @@ const playNotificationSound = async () => {
 };
 
 export const useChat = (apiUrl: string, token: string, userId?: string, isWidgetExpanded?: boolean) => {
-  const { friends, refreshFriends, unreadCounts: globalUnreadCounts, refreshUnreadCounts } = useAuth();
+  const { unreadCounts: globalUnreadCounts, refreshUnreadCounts } = useAuth();
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [unreadCounts, setUnreadCounts] = useState<UnreadCounts>(globalUnreadCounts);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -74,6 +75,41 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
   useEffect(() => {
     setUnreadCounts(globalUnreadCounts);
   }, [globalUnreadCounts]);
+
+  // Load friends on initialization
+  useEffect(() => {
+    if (userId && token) {
+      const loadFriends = async () => {
+        try {
+          // Load all friends for chat
+          const allFriends: Friend[] = []
+          let page = 0
+          const size = 100
+
+          while (true) {
+            const response = await fetch(`${apiUrl}/friends?page=${page}&size=${size}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            const data = await response.json()
+            if (data.statusCode === 2000 && data.data.content) {
+              allFriends.push(...data.data.content)
+              const pageable = data.data.pageable
+              if (pageable.pageNumber + 1 >= pageable.totalPages) break
+              page++
+            } else {
+              break
+            }
+          }
+
+          setFriends(allFriends)
+        } catch (error) {
+          console.error('Failed to load friends for chat:', error)
+        }
+      }
+
+      loadFriends()
+    }
+  }, [userId, token, apiUrl])
 
 
 
@@ -185,13 +221,24 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
 
         socket.on('connect', () => {
           console.log('Connected to WebSocket server');
+          // Broadcast online status when connected
+          socket.emit('user.presence', { status: 'online' });
         });
 
         socket.on('disconnect', () => {
           console.log('Disconnected from WebSocket server');
+          // Don't broadcast offline on disconnect - let server handle timeouts
         });
 
+        // Heartbeat mechanism to maintain presence
+        const heartbeatInterval = setInterval(() => {
+          if (socket.connected) {
+            socket.emit('user.heartbeat');
+          }
+        }, 30000); // Send heartbeat every 30 seconds
+
         return () => {
+          clearInterval(heartbeatInterval);
           socket.disconnect();
         };
       } catch (error) {
@@ -229,6 +276,25 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
       });
       socket.on('message.read', (data: any) => {
         // Notification that messages were read by the receiver, no action needed for unread counts
+      });
+      socket.on('user.presence', (data: any) => {
+        // Update friend's online/offline status in real-time
+        const { user_id, status, online_at } = data;
+        setFriends(prev => prev.map(friend =>
+          friend.user.id === user_id
+            ? { ...friend, user: { ...friend.user, online_at: status === 'online' ? (online_at || new Date().toISOString()) : null } }
+            : friend
+        ));
+      });
+
+      socket.on('user.offline', (data: any) => {
+        // Handle offline status from server (after timeout)
+        const { user_id } = data;
+        setFriends(prev => prev.map(friend =>
+          friend.user.id === user_id
+            ? { ...friend, user: { ...friend.user, online_at: null } }
+            : friend
+        ));
       });
     }
   }, [userId]);

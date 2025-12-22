@@ -16,8 +16,25 @@ export default function Friends(){
   const [msg, setMsg] = useState<string | null>(null)
 
   async function load(){
-    const f = await apiFetch('/friends')
-    if (f.body && f.body.statusCode===2000) setFriends(f.body.data.friends || [])
+    // Load all friends
+    const allFriends: any[] = []
+    let page = 0
+    const size = 100
+
+    while (true) {
+      const f = await apiFetch(`/friends?page=${page}&size=${size}`)
+      if (f.body && f.body.statusCode===2000 && f.body.data.content) {
+        allFriends.push(...f.body.data.content)
+        const pageable = f.body.data.pageable
+        if (pageable.pageNumber + 1 >= pageable.totalPages) break
+        page++
+      } else {
+        break
+      }
+    }
+
+    setFriends(allFriends)
+
     const r = await apiFetch('/friends/requests')
     if (r.body && r.body.statusCode===2000) setRequests(r.body.data.requests || [])
     const b = await apiFetch('/friends/blocked')

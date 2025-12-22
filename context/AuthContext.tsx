@@ -17,8 +17,6 @@ type AuthContextType = {
   refreshPendingCount: () => Promise<void>
   notificationsCount: number
   refreshNotificationsCount: () => Promise<void>
-  friends: any[]
-  refreshFriends: () => Promise<void>
   unreadCounts: { total_unread: number; unread_by_friend: { [key: string]: number } }
   refreshUnreadCounts: () => Promise<void>
 }
@@ -52,7 +50,6 @@ export function AuthProvider({ children }: { children: ReactNode }){
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
   const [notificationsCount, setNotificationsCount] = useState(0)
   const [previousNotificationsCount, setPreviousNotificationsCount] = useState(0)
-  const [friends, setFriends] = useState<any[]>([])
   const [unreadCounts, setUnreadCounts] = useState<{ total_unread: number; unread_by_friend: { [key: string]: number } }>({ total_unread: 0, unread_by_friend: {} })
   const initDoneRef = useRef(false)
 
@@ -73,14 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }){
           }
         } catch (error) {
           console.error('Failed to fetch pending requests count:', error)
-        }
-        try {
-          const friendsRes = await apiFetch('/friends')
-          if (friendsRes.body && friendsRes.body.statusCode === 2000) {
-            setFriends(friendsRes.body.data.friends)
-          }
-        } catch (error) {
-          console.error('Failed to fetch friends:', error)
         }
         try {
           const unreadRes = await apiFetch('/chat/unread-count')
@@ -143,20 +132,6 @@ export function AuthProvider({ children }: { children: ReactNode }){
     }
   }, [user, previousNotificationsCount])
 
-  const refreshFriends = useCallback(async () => {
-    if (user) {
-      try {
-        const res = await apiFetch('/friends')
-        if (res.body && res.body.statusCode === 2000) {
-          setFriends(res.body.data.friends)
-        }
-      } catch (error) {
-        console.error('Failed to fetch friends:', error)
-      }
-    } else {
-      setFriends([])
-    }
-  }, [user])
 
   const refreshUnreadCounts = useCallback(async () => {
     if (user) {
@@ -175,29 +150,18 @@ export function AuthProvider({ children }: { children: ReactNode }){
 
   useEffect(() => {
     if (user) {
-      const updateOnlineStatus = async () => {
-        try {
-          await apiFetch('/auth/update-online-status', { method: 'POST' });
-        } catch (error) {
-          console.error('Error updating online status:', error);
-        }
-      };
-
       const refreshAll = async () => {
         await Promise.all([
           refreshPendingCount(),
           refreshNotificationsCount(),
-          refreshFriends(),
         ]);
       };
 
-      // Update immediately
-      updateOnlineStatus();
+      // Update immediately (but no online status)
       refreshAll();
 
-      // Set up interval to update every 60 seconds
+      // Keep periodic refresh for notifications and pending counts
       const interval = setInterval(() => {
-        updateOnlineStatus();
         refreshAll();
       }, 60000);
 
@@ -205,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }){
     }
   }, [user]);
 
-  const value = { user, setUser, loading, refresh, pendingRequestsCount, refreshPendingCount, notificationsCount, refreshNotificationsCount, friends, refreshFriends, unreadCounts, refreshUnreadCounts }
+  const value = { user, setUser, loading, refresh, pendingRequestsCount, refreshPendingCount, notificationsCount, refreshNotificationsCount, unreadCounts, refreshUnreadCounts }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
