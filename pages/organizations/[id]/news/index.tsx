@@ -191,6 +191,9 @@ const NewsManagementPage: React.FC = () => {
                     <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                     <div className="text-sm text-gray-600 mb-2">
                       <span>{t('by')} {item.user?.name}</span>
+                      {item.editor && item.editor.id !== item.user?.id && (
+                        <span> • {t('edited_by')} {item.editor.name}</span>
+                      )}
                       <span className="mx-2">•</span>
                       <span>{t('in')} {item.space?.name}</span>
                       <span className="mx-2">•</span>

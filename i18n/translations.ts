@@ -62,6 +62,7 @@ type TranslationKeys = {
   load_more_replies: string
   no_comments: string
   by: string
+  edited_by: string
   published: string
   news_not_found: string
   post_not_found: string
@@ -228,6 +229,7 @@ const translations: Translations = {
     load_more_replies: 'Muat lebih banyak balasan',
     no_comments: 'Belum ada komentar.',
     by: 'oleh',
+    edited_by: 'diedit oleh',
     published: 'Diterbitkan',
     news_not_found: 'Berita tidak ditemukan',
     post_not_found: 'Postingan tidak ditemukan',
@@ -387,6 +389,7 @@ const translations: Translations = {
     load_more_replies: 'Load more replies',
     no_comments: 'No comments yet.',
     by: 'by',
+    edited_by: 'edited by',
     published: 'Published',
     news_not_found: 'News not found',
     post_not_found: 'Post not found',

@@ -92,6 +92,9 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-500">
               {t('by')} {news.user?.name || t('unknown')}
+              {news.editor && news.editor.id !== news.user?.id && (
+                <span> • {t('edited_by')} {news.editor.name}</span>
+              )}
               {!hideOrganization && (
                 <> in{' '}
                   <Link href={`/organizations/${news.organization_id}`} className="text-blue-500 hover:text-blue-700 font-medium">

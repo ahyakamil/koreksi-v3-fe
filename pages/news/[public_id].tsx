@@ -119,6 +119,18 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
               <div className="text-sm text-gray-500">{t('published')} {formatDate(news.published_at || news.created_at)}</div>
             </div>
             <h1 className="text-2xl font-bold mt-2">{news.title}</h1>
+            <div className="text-sm text-gray-600 mt-2">
+              <span>{t('by')} {news.user?.name}</span>
+              {news.editor && news.editor.id !== news.user?.id && (
+                <span> • {t('edited_by')} {news.editor.name}</span>
+              )}
+              {news.organization && (
+                <>
+                  <span className="mx-2">•</span>
+                  <span>{t('in')} {news.organization.title}</span>
+                </>
+              )}
+            </div>
           </header>
           <div className="prose max-w-none">
             {news.image && (
