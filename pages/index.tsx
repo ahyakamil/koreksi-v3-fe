@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import Head from 'next/head'
 import { apiFetch } from '../utils/api'
 import PostForm from '../components/PostForm'
 import { useAuth } from '../context/AuthContext'
@@ -67,7 +68,17 @@ export default function Home() {
   }, [pageable])
 
   return (
-    <div className="container py-8">
+    <>
+      <Head>
+        <title>Koreksi.org - Cara Baru Bersuara</title>
+        <meta name="description" content="Social media karya anak bangsa. Ayo bergabung di koreksi.org! Di sini kamu bisa membuat organisasi sendiri, mengelola dan mempublikasikan beritamu dengan mudah. Terhubunglah dengan teman-teman, bangun komunitas, dan lakukan lebih banyak hal menarik lainnya. Gabung sekarang, dan koreksi apa yang perlu dikoreksi." />
+        <meta property="og:title" content="Koreksi.org - Platform untuk Koreksi dan Komunitas" />
+        <meta property="og:description" content="Social media karya anak bangsa. Ayo bergabung di koreksi.org! Di sini kamu bisa membuat organisasi sendiri, mengelola dan mempublikasikan beritamu dengan mudah. Terhubunglah dengan teman-teman, bangun komunitas, dan lakukan lebih banyak hal menarik lainnya. Gabung sekarang, dan koreksi apa yang perlu dikoreksi." />
+        <meta property="og:url" content="https://koreksi.org" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Koreksi.org" />
+      </Head>
+      <div className="container py-8">
       <main>
         {loading ? (
           <div>{t('loading')}</div>
@@ -108,6 +119,7 @@ export default function Home() {
         
       </main>
     </div>
+    </>
   )
 }
 
