@@ -12,6 +12,9 @@ export default function Friends(){
   const [blocked, setBlocked] = useState<Friendship[]>([])
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState<User[]>([])
+  const [searchPage, setSearchPage] = useState(0)
+  const [hasMoreSearch, setHasMoreSearch] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
 
@@ -45,16 +48,40 @@ export default function Friends(){
 
   async function search(){
     setMsg(null)
-    const res = await apiFetch(`/users/search?q=${encodeURIComponent(query)}`)
-    if (res.body && res.body.statusCode===2000) setSearchResults(res.body.data.users || [])
-    else setMsg('Search failed')
+    setSearchResults([])
+    setSearchPage(0)
+    setHasMoreSearch(false)
+    setSearchLoading(true)
+    const res = await apiFetch(`/users/search?q=${encodeURIComponent(query)}&page=0&size=10`)
+    setSearchLoading(false)
+    if (res.body && res.body.statusCode===2000) {
+      const content = res.body.data.content || []
+      const pageable = res.body.data.pageable
+      setSearchResults(content)
+      setHasMoreSearch(pageable.pageNumber + 1 < pageable.totalPages)
+    } else setMsg('Search failed')
+  }
+
+  async function loadMoreSearch(){
+    if (!hasMoreSearch || searchLoading) return
+    setSearchLoading(true)
+    const nextPage = searchPage + 1
+    const res = await apiFetch(`/users/search?q=${encodeURIComponent(query)}&page=${nextPage}&size=10`)
+    setSearchLoading(false)
+    if (res.body && res.body.statusCode===2000) {
+      const content = res.body.data.content || []
+      const pageable = res.body.data.pageable
+      setSearchResults(prev => [...prev, ...content])
+      setSearchPage(nextPage)
+      setHasMoreSearch(pageable.pageNumber + 1 < pageable.totalPages)
+    } else setMsg('Load more failed')
   }
 
   async function send(){
     if (!selectedUser) return
     setMsg(null)
     const res = await apiFetch('/friends/request', { method: 'POST', body: JSON.stringify({ friend_id: selectedUser.id }) })
-    if (res.body && res.body.statusCode===2000) { setMsg(t('request_sent')); setSelectedUser(null); setQuery(''); setSearchResults([]); load() }
+    if (res.body && res.body.statusCode===2000) { setMsg(t('request_sent')); setSelectedUser(null); setQuery(''); setSearchResults([]); setSearchPage(0); setHasMoreSearch(false); load() }
     else setMsg(res.body?.message || 'Error')
   }
 
@@ -99,25 +126,36 @@ export default function Friends(){
           </button>
         </div>
         {searchResults.length > 0 && (
-          <ul className="mt-3 space-y-1 max-w-md">
-            {searchResults.map(u => (
-              <li
-                key={u.id}
-                className="p-3 bg-gray-100 rounded cursor-pointer hover:bg-gray-200 transition-colors"
-                onClick={() => { setSelectedUser(u); setSearchResults([]); setQuery(u.name) }}
+          <div className="mt-3 max-w-md">
+            <ul className="space-y-1">
+              {searchResults.map(u => (
+                <li
+                  key={u.id}
+                  className="p-3 bg-gray-100 rounded cursor-pointer hover:bg-gray-200 transition-colors"
+                  onClick={() => { setSelectedUser(u); setSearchResults([]); setQuery(u.name); setSearchPage(0); setHasMoreSearch(false) }}
+                >
+                  <div className="font-medium">{u.name}</div>
+                  <div className="text-sm text-gray-600">{u.email}</div>
+                </li>
+              ))}
+            </ul>
+            {hasMoreSearch && (
+              <button
+                className="mt-3 px-4 py-2 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition-colors"
+                onClick={loadMoreSearch}
+                disabled={searchLoading}
               >
-                <div className="font-medium">{u.name}</div>
-                <div className="text-sm text-gray-600">{u.email}</div>
-              </li>
-            ))}
-          </ul>
+                {searchLoading ? 'Loading...' : 'Load More'}
+              </button>
+            )}
+          </div>
         )}
         {selectedUser && (
           <div className="mt-3 p-3 bg-blue-50 rounded flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
             <span className="text-sm">Send request to: <strong>{selectedUser.name}</strong></span>
             <div className="flex space-x-2">
               <button className="px-3 py-1 bg-green-600 text-white rounded text-sm" onClick={send}>{t('send')}</button>
-              <button className="px-3 py-1 bg-gray-300 rounded text-sm" onClick={() => { setSelectedUser(null); setQuery('') }}>Cancel</button>
+              <button className="px-3 py-1 bg-gray-300 rounded text-sm" onClick={() => { setSelectedUser(null); setQuery(''); setSearchResults([]); setSearchPage(0); setHasMoreSearch(false) }}>Cancel</button>
             </div>
           </div>
         )}
