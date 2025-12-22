@@ -71,9 +71,9 @@ export default function Home() {
     <>
       <Head>
         <title>Koreksi.org - Cara Baru Bersuara</title>
-        <meta name="description" content="Social media karya anak bangsa. Ayo bergabung di koreksi.org! Di sini kamu bisa membuat organisasi sendiri, mengelola dan mempublikasikan beritamu dengan mudah. Terhubunglah dengan teman-teman, bangun komunitas, dan lakukan lebih banyak hal menarik lainnya. Gabung sekarang, dan koreksi apa yang perlu dikoreksi." />
+        <meta name="description" content="Sosial media karya anak bangsa. Ayo bergabung di koreksi.org! Di sini kamu bisa membuat organisasi sendiri, mengelola dan mempublikasikan beritamu dengan mudah. Terhubunglah dengan teman-teman, bangun komunitas, dan lakukan lebih banyak hal menarik lainnya. Gabung sekarang, dan koreksi apa yang perlu dikoreksi." />
         <meta property="og:title" content="Koreksi.org - Cara Baru Bersuara" />
-        <meta property="og:description" content="Social media karya anak bangsa. Ayo bergabung di koreksi.org! Di sini kamu bisa membuat organisasi sendiri, mengelola dan mempublikasikan beritamu dengan mudah. Terhubunglah dengan teman-teman, bangun komunitas, dan lakukan lebih banyak hal menarik lainnya. Gabung sekarang, dan koreksi apa yang perlu dikoreksi." />
+        <meta property="og:description" content="Sosial media karya anak bangsa. Ayo bergabung di koreksi.org! Di sini kamu bisa membuat organisasi sendiri, mengelola dan mempublikasikan beritamu dengan mudah. Terhubunglah dengan teman-teman, bangun komunitas, dan lakukan lebih banyak hal menarik lainnya. Gabung sekarang, dan koreksi apa yang perlu dikoreksi." />
         <meta property="og:url" content="https://koreksi.org" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Koreksi.org" />

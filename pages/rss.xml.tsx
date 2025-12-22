@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next';
 
 interface NewsItem {
-  id: number;
+  public_id: string;
   title: string;
   content: string;
   published_at: string;
@@ -19,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
     const response = await fetch(`${apiUrl}/news?page=0&size=50`);
     const data = await response.json();
-    const news: NewsItem[] = data.data.news || [];
+    const news: NewsItem[] = data.data.content || [];
 
     const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
@@ -32,8 +32,8 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 ${news.map(item => `
 <item>
 <title>${escapeXml(item.title)}</title>
-<link>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${item.id}</link>
-<guid>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${item.id}</guid>
+<link>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${item.public_id}</link>
+<guid>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${item.public_id}</guid>
 <description>${escapeXml(stripHtml(item.content))}</description>
 <pubDate>${new Date(item.published_at).toUTCString()}</pubDate>
 ${item.user ? `<author>${escapeXml(item.user.name)}</author>` : ''}
