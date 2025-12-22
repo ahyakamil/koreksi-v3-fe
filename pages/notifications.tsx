@@ -10,14 +10,38 @@ export default function Notifications(){
   const { user, refreshNotificationsCount } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   async function load(){
     setLoading(true)
-    const res = await apiFetch('/notifications')
+    setNotifications([])
+    setPage(0)
+    setHasMore(false)
+    const res = await apiFetch('/notifications?page=0&size=10')
     if (res.body && res.body.statusCode === 2000) {
-      setNotifications(res.body.data.notifications || [])
+      const content = res.body.data.content || []
+      const pageable = res.body.data.pageable
+      setNotifications(content)
+      setHasMore(pageable.pageNumber + 1 < pageable.totalPages)
     }
     setLoading(false)
+  }
+
+  async function loadMore(){
+    if (!hasMore || loadingMore) return
+    setLoadingMore(true)
+    const nextPage = page + 1
+    const res = await apiFetch(`/notifications?page=${nextPage}&size=10`)
+    if (res.body && res.body.statusCode === 2000) {
+      const content = res.body.data.content || []
+      const pageable = res.body.data.pageable
+      setNotifications(prev => [...prev, ...content])
+      setPage(nextPage)
+      setHasMore(pageable.pageNumber + 1 < pageable.totalPages)
+    }
+    setLoadingMore(false)
   }
 
   useEffect(()=>{ if (user) load() }, [user])
@@ -65,6 +89,18 @@ export default function Notifications(){
           </li>
         ))}
       </ul>
+
+      {hasMore && (
+        <div className="mt-6 text-center">
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            onClick={loadMore}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading...' : 'Load More'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
