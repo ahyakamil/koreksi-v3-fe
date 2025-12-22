@@ -33,7 +33,7 @@ export default function PostItem({ post, onDelete }: PostItemProps) {
   const loadComments = async (page: number = 0, size: number = 10) => {
     const res = await getComments('posts', post.public_id, page, size)
     if (res.ok) {
-      setComments(prev => page === 0 ? res.body.data.comments || [] : [...prev, ...res.body.data.comments])
+      setComments(prev => page === 0 ? res.body.data.content || [] : [...prev, ...res.body.data.content])
       setCommentsPageable(res.body.data.pageable)
       setCommentsLoaded(true)
     }

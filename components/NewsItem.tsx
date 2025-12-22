@@ -30,7 +30,7 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
   const loadComments = async () => {
     const res = await getComments('news', news.public_id, 0, 100)
     if (res.ok) {
-      setComments(res.body.data.comments || [])
+      setComments(res.body.data.content || [])
       setCommentsLoaded(true)
     }
   }

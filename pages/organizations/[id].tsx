@@ -56,10 +56,24 @@ const OrganizationDetailsPage: React.FC = () => {
 
   const fetchNews = async () => {
     if (!id) return
-    const res = await getNews(id as string)
-    if (res.ok) {
-      setNews(res.body.data.news)
+    // Load all published news pages
+    const allNews: any[] = []
+    let page = 0
+    const size = 50
+
+    while (true) {
+      const res = await getNews(id as string, page, size)
+      if (res.ok && res.body.data.content) {
+        allNews.push(...res.body.data.content)
+        const pageable = res.body.data.pageable
+        if (pageable.pageNumber + 1 >= pageable.totalPages) break
+        page++
+      } else {
+        break
+      }
     }
+
+    setNews(allNews)
   }
 
 

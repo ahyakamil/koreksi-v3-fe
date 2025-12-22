@@ -81,7 +81,7 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
     setLoadingMore(true)
     const res = await getComments('news', news.public_id, nextPage, 10)
     if (res.ok) {
-      setComments(prev => [...prev, ...res.body.data.comments])
+      setComments(prev => [...prev, ...res.body.data.content])
       setPageable(res.body.data.pageable)
     }
     setLoadingMore(false)

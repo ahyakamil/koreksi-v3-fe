@@ -94,7 +94,7 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
     setLoadingMore(true)
     const res = await getComments('posts', post.public_id, nextPage, 10)
     if (res.ok) {
-      setComments(prev => [...prev, ...res.body.data.comments])
+      setComments(prev => [...prev, ...res.body.data.content])
       setPageable(res.body.data.pageable)
     }
     setLoadingMore(false)

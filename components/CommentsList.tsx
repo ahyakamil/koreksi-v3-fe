@@ -32,7 +32,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
     if (res.ok) {
       setReplies(prev => ({
         ...prev,
-        [commentId]: page === 0 ? res.body.data.comments : [...(prev[commentId] || []), ...res.body.data.comments]
+        [commentId]: page === 0 ? res.body.data.content : [...(prev[commentId] || []), ...res.body.data.content]
       }))
       setRepliesPageable(prev => ({ ...prev, [commentId]: res.body.data.pageable }))
     }

@@ -139,13 +139,13 @@ export async function deleteSpace(organizationId: string, spaceId: string) {
 }
 
 // News API functions
-export async function getPublishedNews() {
-  const res = await apiFetch('/news')
+export async function getPublishedNews(page: number = 0, size: number = 10) {
+  const res = await apiFetch(`/news?page=${page}&size=${size}`)
   return res
 }
 
-export async function getNews(organizationId: string) {
-  const res = await apiFetch(`/organizations/${organizationId}/news`)
+export async function getNews(organizationId: string, page: number = 0, size: number = 10) {
+  const res = await apiFetch(`/organizations/${organizationId}/news?page=${page}&size=${size}`)
   return res
 }
 

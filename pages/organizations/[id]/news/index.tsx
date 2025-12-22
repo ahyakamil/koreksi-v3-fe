@@ -25,15 +25,32 @@ const NewsManagementPage: React.FC = () => {
   const fetchData = async () => {
     if (!id) return
     try {
-      const [orgRes, spacesRes, newsRes] = await Promise.all([
+      const [orgRes, spacesRes] = await Promise.all([
         getOrganization(id as string),
-        getSpaces(id as string),
-        getNews(id as string)
+        getSpaces(id as string)
       ])
 
       if (orgRes.ok) setOrganization(orgRes.body.data.organization)
       if (spacesRes.ok) setSpaces(spacesRes.body.data.spaces)
-      if (newsRes.ok) setNews(newsRes.body.data.news)
+
+      // Load all news pages for management
+      const allNews: any[] = []
+      let page = 0
+      const size = 50 // Load more per page for management
+
+      while (true) {
+        const newsRes = await getNews(id as string, page, size)
+        if (newsRes.ok && newsRes.body.data.content) {
+          allNews.push(...newsRes.body.data.content)
+          const pageable = newsRes.body.data.pageable
+          if (pageable.pageNumber + 1 >= pageable.totalPages) break
+          page++
+        } else {
+          break
+        }
+      }
+
+      setNews(allNews)
     } catch (error) {
       console.error('Failed to fetch data:', error)
     }
