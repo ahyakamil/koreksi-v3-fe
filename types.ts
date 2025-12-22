@@ -70,6 +70,8 @@ export interface Organization {
   verified: boolean
   created_at: string
   users?: OrganizationUser[]
+  users_count?: number
+  spaces_count?: number
 }
 
 export interface OrganizationUser {

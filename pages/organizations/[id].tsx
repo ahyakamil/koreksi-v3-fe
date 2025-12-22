@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/router'
-import { Organization, User, Space, News } from '../../types'
-import { getOrganization, getPublicOrganization, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization } from '../../utils/api'
+import { Organization, User, Space, News, OrganizationUser } from '../../types'
+import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization } from '../../utils/api'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import SpaceForm from '../../components/SpaceForm'
@@ -10,12 +10,18 @@ import NewsItem from '../../components/NewsItem'
 const OrganizationDetailsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isMember, setIsMember] = useState<boolean | null>(null)
+  const [memberRole, setMemberRole] = useState<string | null>(null)
   const [inviteSearch, setInviteSearch] = useState('')
   const [searchResults, setSearchResults] = useState<User[]>([])
   const [showInvite, setShowInvite] = useState(false)
   const [activeTab, setActiveTab] = useState('news')
   const [spaces, setSpaces] = useState<Space[]>([])
   const [news, setNews] = useState<News[]>([])
+  const [members, setMembers] = useState<OrganizationUser[]>([])
+  const [membersPage, setMembersPage] = useState(0)
+  const [hasMoreMembers, setHasMoreMembers] = useState(false)
+  const [loadingMembers, setLoadingMembers] = useState(false)
   const [showCreateSpace, setShowCreateSpace] = useState(false)
   const [editingSpace, setEditingSpace] = useState<Space | null>(null)
   const [joining, setJoining] = useState(false)
@@ -39,6 +45,14 @@ const OrganizationDetailsPage: React.FC = () => {
     }
     if (res.ok) {
       setOrganization(res.body.data.organization)
+      // Check membership if authenticated
+      if (user) {
+        const membershipRes = await checkOrganizationMembership(id as string)
+        if (membershipRes.ok) {
+          setIsMember(membershipRes.body.data.is_member)
+          setMemberRole(membershipRes.body.data.role)
+        }
+      }
     } else {
       alert(res.body.message || t('failed_to_load_organization'))
       router.push('/organizations')
@@ -74,6 +88,35 @@ const OrganizationDetailsPage: React.FC = () => {
     }
 
     setNews(allNews)
+  }
+
+  const fetchMembers = async () => {
+    if (!id) return
+    setLoadingMembers(true)
+    setMembers([])
+    setMembersPage(0)
+    setHasMoreMembers(false)
+    const res = await getOrganizationMembers(id as string, 0, 10)
+    if (res.ok && res.body.data.content) {
+      setMembers(res.body.data.content)
+      const pageable = res.body.data.pageable
+      setHasMoreMembers(pageable.pageNumber + 1 < pageable.totalPages)
+    }
+    setLoadingMembers(false)
+  }
+
+  const loadMoreMembers = async () => {
+    if (!hasMoreMembers || loadingMembers) return
+    setLoadingMembers(true)
+    const nextPage = membersPage + 1
+    const res = await getOrganizationMembers(id as string, nextPage, 10)
+    if (res.ok && res.body.data.content) {
+      setMembers(prev => [...prev, ...res.body.data.content])
+      setMembersPage(nextPage)
+      const pageable = res.body.data.pageable
+      setHasMoreMembers(pageable.pageNumber + 1 < pageable.totalPages)
+    }
+    setLoadingMembers(false)
   }
 
 
@@ -177,7 +220,8 @@ const OrganizationDetailsPage: React.FC = () => {
     setJoining(true)
     const res = await joinOrganization(organization.id)
     if (res.ok) {
-      await fetchOrganization() // Reload organization data
+      setIsMember(true)
+      setMemberRole('user') // Default role for new members
     } else {
       alert(res.body.message || t('failed_to_join_organization'))
     }
@@ -185,8 +229,8 @@ const OrganizationDetailsPage: React.FC = () => {
   }
 
   const currentUserRole = useMemo(() => {
-    return organization?.users?.find(u => u.id === user?.id)?.pivot?.role
-  }, [organization, user])
+    return memberRole
+  }, [memberRole])
 
   const canManage = currentUserRole && ['admin', 'editor', 'author'].includes(currentUserRole)
 
@@ -195,6 +239,8 @@ const OrganizationDetailsPage: React.FC = () => {
       fetchSpaces()
     } else if (organization && activeTab === 'news' && currentUserRole) {
       fetchNews()
+    } else if (organization && activeTab === 'members' && currentUserRole) {
+      fetchMembers()
     }
   }, [organization, activeTab, currentUserRole])
 
@@ -241,7 +287,7 @@ const OrganizationDetailsPage: React.FC = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {t('members')} ({organization.users?.length})
+                {t('members')} ({organization.users_count || 0})
               </button>
               <button
                 onClick={() => setActiveTab('spaces')}
@@ -251,7 +297,7 @@ const OrganizationDetailsPage: React.FC = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {t('spaces')}
+                {t('spaces')} ({organization.spaces_count || 0})
               </button>
               <button
                 onClick={() => router.push(`/organizations/${id}/news`)}
@@ -307,7 +353,7 @@ const OrganizationDetailsPage: React.FC = () => {
               )}
 
               <div>
-                {organization.users?.map((member) => (
+                {members.map((member) => (
                   <div key={member.id} className="flex justify-between items-center bg-white p-4 rounded-lg shadow mb-2">
                     <div>
                       <span className="font-semibold">{member.name}</span> ({member.email})
@@ -337,6 +383,17 @@ const OrganizationDetailsPage: React.FC = () => {
                     )}
                   </div>
                 ))}
+                {hasMoreMembers && (
+                  <div className="text-center mt-4">
+                    <button
+                      onClick={loadMoreMembers}
+                      disabled={loadingMembers}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                    >
+                      {loadingMembers ? t('loading') : t('load_more')}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -452,7 +509,7 @@ const OrganizationDetailsPage: React.FC = () => {
         </div>
       )}
 
-      {!currentUserRole && (
+      {isMember === false && (
         <div className="mb-8">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
             <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('join_to_see_published_news')}</h3>

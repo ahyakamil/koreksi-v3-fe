@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../types'
 import { getOrganization, getSpaces, getNews, reviewNews, deleteNews } from '../../../../utils/api'
@@ -10,7 +10,21 @@ const NewsManagementPage: React.FC = () => {
   const [spaces, setSpaces] = useState<Space[]>([])
   const [news, setNews] = useState<News[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
   const [activeTab, setActiveTab] = useState<'all' | 'draft' | 'need_review' | 'published' | 'rejected'>('all')
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const lastNewsElementRef = useCallback((node: HTMLDivElement | null) => {
+    if (loadingMore) return
+    if (observerRef.current) observerRef.current.disconnect()
+    observerRef.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMoreNews()
+      }
+    })
+    if (node) observerRef.current.observe(node)
+  }, [loadingMore, hasMore])
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -33,28 +47,34 @@ const NewsManagementPage: React.FC = () => {
       if (orgRes.ok) setOrganization(orgRes.body.data.organization)
       if (spacesRes.ok) setSpaces(spacesRes.body.data.spaces)
 
-      // Load all news pages for management
-      const allNews: any[] = []
-      let page = 0
-      const size = 50 // Load more per page for management
-
-      while (true) {
-        const newsRes = await getNews(id as string, page, size)
-        if (newsRes.ok && newsRes.body.data.content) {
-          allNews.push(...newsRes.body.data.content)
-          const pageable = newsRes.body.data.pageable
-          if (pageable.pageNumber + 1 >= pageable.totalPages) break
-          page++
-        } else {
-          break
-        }
+      // Load first page of news
+      setNews([])
+      setPage(0)
+      setHasMore(false)
+      const newsRes = await getNews(id as string, 0, 10)
+      if (newsRes.ok && newsRes.body.data.content) {
+        setNews(newsRes.body.data.content)
+        const pageable = newsRes.body.data.pageable
+        setHasMore(pageable.pageNumber + 1 < pageable.totalPages)
       }
-
-      setNews(allNews)
     } catch (error) {
       console.error('Failed to fetch data:', error)
     }
     setLoading(false)
+  }
+
+  const loadMoreNews = async () => {
+    if (!hasMore || loadingMore) return
+    setLoadingMore(true)
+    const nextPage = page + 1
+    const newsRes = await getNews(id as string, nextPage, 10)
+    if (newsRes.ok && newsRes.body.data.content) {
+      setNews(prev => [...prev, ...newsRes.body.data.content])
+      setPage(nextPage)
+      const pageable = newsRes.body.data.pageable
+      setHasMore(pageable.pageNumber + 1 < pageable.totalPages)
+    }
+    setLoadingMore(false)
   }
 
   const handleReview = async (newsId: string, action: 'publish' | 'reject') => {
@@ -152,81 +172,92 @@ const NewsManagementPage: React.FC = () => {
         {filteredNews.length === 0 ? (
           <p className="text-gray-500">{t('no_news_found_in_this_category')}</p>
         ) : (
-          filteredNews.map(item => (
-            <div key={item.public_id} className="bg-white p-6 rounded-lg shadow">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                  <div className="text-sm text-gray-600 mb-2">
-                    <span>{t('by')} {item.user?.name}</span>
-                    <span className="mx-2">•</span>
-                    <span>{t('in')} {item.space?.name}</span>
-                    <span className="mx-2">•</span>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      item.status === 'published' ? 'bg-green-100 text-green-800' :
-                      item.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                      item.status === 'need_review' ? 'bg-yellow-100 text-yellow-800' :
-                      item.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {item.status.replace('_', ' ').toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-gray-700 line-clamp-3" dangerouslySetInnerHTML={{ __html: item.content.substring(0, 300) + '...' }} />
-                  {item.review_notes && (
-                    <div className="mt-2 p-2 bg-red-50 border-l-4 border-red-400">
-                      <p className="text-sm text-red-700">
-                        <strong>{t('review_notes')}:</strong> {item.review_notes}
-                      </p>
+          <>
+            {filteredNews.map((item, index) => (
+              <div
+                key={item.public_id}
+                ref={index === filteredNews.length - 1 ? lastNewsElementRef : null}
+                className="bg-white p-6 rounded-lg shadow"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                    <div className="text-sm text-gray-600 mb-2">
+                      <span>{t('by')} {item.user?.name}</span>
+                      <span className="mx-2">•</span>
+                      <span>{t('in')} {item.space?.name}</span>
+                      <span className="mx-2">•</span>
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        item.status === 'published' ? 'bg-green-100 text-green-800' :
+                        item.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                        item.status === 'need_review' ? 'bg-yellow-100 text-yellow-800' :
+                        item.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {item.status.replace('_', ' ').toUpperCase()}
+                      </span>
                     </div>
-                  )}
-                  <div className="flex gap-2 mt-3 flex-wrap">
-                    {((item.user_id === user?.id && item.status !== 'published') || currentUserRole === 'admin' || currentUserRole === 'editor') && (
-                      <button
-                        onClick={() => router.push(`/organizations/${id}/news/${item.public_id}/edit`)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                      >
-                        {t('edit')}
-                      </button>
+                    <p className="text-gray-700 line-clamp-3" dangerouslySetInnerHTML={{ __html: item.content.substring(0, 300) + '...' }} />
+                    {item.review_notes && (
+                      <div className="mt-2 p-2 bg-red-50 border-l-4 border-red-400">
+                        <p className="text-sm text-red-700">
+                          <strong>{t('review_notes')}:</strong> {item.review_notes}
+                        </p>
+                      </div>
                     )}
-                    {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status === 'need_review' && (
-                      <>
+                    <div className="flex gap-2 mt-3 flex-wrap">
+                      {((item.user_id === user?.id && item.status !== 'published') || currentUserRole === 'admin' || currentUserRole === 'editor') && (
                         <button
-                          onClick={() => handleReview(item.public_id, 'publish')}
-                          className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                          onClick={() => router.push(`/organizations/${id}/news/${item.public_id}/edit`)}
+                          className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
                         >
-                          {t('publish')}
+                          {t('edit')}
                         </button>
+                      )}
+                      {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status === 'need_review' && (
+                        <>
+                          <button
+                            onClick={() => handleReview(item.public_id, 'publish')}
+                            className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                          >
+                            {t('publish')}
+                          </button>
+                          <button
+                            onClick={() => handleReview(item.public_id, 'reject')}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                          >
+                            {t('reject')}
+                          </button>
+                        </>
+                      )}
+                      {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status !== 'need_review' && (
                         <button
                           onClick={() => handleReview(item.public_id, 'reject')}
-                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                          className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600"
+                          title="Reject this news"
                         >
-                          {t('reject')}
+                          Reject
                         </button>
-                      </>
-                    )}
-                    {(currentUserRole === 'admin' || currentUserRole === 'editor') && item.status !== 'need_review' && (
-                      <button
-                        onClick={() => handleReview(item.public_id, 'reject')}
-                        className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600"
-                        title="Reject this news"
-                      >
-                        Reject
-                      </button>
-                    )}
-                    {((item.user_id === user?.id && item.status !== 'published') || currentUserRole === 'admin' || currentUserRole === 'editor') && (
-                      <button
-                        onClick={() => handleDelete(item.public_id)}
-                        className="bg-red-700 text-white px-3 py-1 rounded text-sm hover:bg-red-800"
-                      >
-                        {t('delete')}
-                      </button>
-                    )}
+                      )}
+                      {((item.user_id === user?.id && item.status !== 'published') || currentUserRole === 'admin' || currentUserRole === 'editor') && (
+                        <button
+                          onClick={() => handleDelete(item.public_id)}
+                          className="bg-red-700 text-white px-3 py-1 rounded text-sm hover:bg-red-800"
+                        >
+                          {t('delete')}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+            {loadingMore && (
+              <div className="text-center mt-6">
+                <div className="text-gray-500">{t('loading')}</div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

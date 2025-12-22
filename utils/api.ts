@@ -52,6 +52,16 @@ export async function getOrganization(id: string) {
   return res
 }
 
+export async function getOrganizationMembers(id: string, page: number = 0, size: number = 10) {
+  const res = await apiFetch(`/organizations/${id}/members?page=${page}&size=${size}`)
+  return res
+}
+
+export async function checkOrganizationMembership(id: string) {
+  const res = await apiFetch(`/organizations/${id}/is-member`)
+  return res
+}
+
 export async function updateOrganization(id: string, data: { title?: string; description?: string; image?: string }) {
   const res = await apiFetch(`/organizations/${id}`, {
     method: 'PUT',
