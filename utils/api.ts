@@ -24,13 +24,13 @@ export async function apiFetch(path: string, options: ApiOptions = {}): Promise<
 export default apiFetch
 
 // Organization API functions
-export async function getOrganizations() {
-  const res = await apiFetch('/organizations')
+export async function getOrganizations(page: number = 0, size: number = 10) {
+  const res = await apiFetch(`/organizations?page=${page}&size=${size}`)
   return res
 }
 
-export async function getPublicOrganizations() {
-  const res = await apiFetch('/organizations/public')
+export async function getPublicOrganizations(page: number = 0, size: number = 10) {
+  const res = await apiFetch(`/organizations/public?page=${page}&size=${size}`)
   return res
 }
 

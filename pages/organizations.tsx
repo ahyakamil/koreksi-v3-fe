@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { Organization } from '../types'
+import { Organization, Pageable } from '../types'
 import { getOrganizations, getPublicOrganizations, createOrganization, updateOrganization, deleteOrganization, joinOrganization, leaveOrganization } from '../utils/api'
 import OrganizationItem from '../components/OrganizationItem'
 import OrganizationForm from '../components/OrganizationForm'
@@ -14,6 +14,8 @@ const OrganizationsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'my' | 'world'>('my')
   const [showForm, setShowForm] = useState(false)
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null)
+  const [pageable, setPageable] = useState<Pageable | null>(null)
+  const [loadingMore, setLoadingMore] = useState(false)
   const { user, loading: authLoading } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -24,23 +26,56 @@ const OrganizationsPage: React.FC = () => {
       router.push('/login')
       return
     }
-    fetchOrganizations()
-    fetchPublicOrganizations()
+    fetchOrganizations(0)
+    fetchPublicOrganizations(0)
   }, [user, authLoading, router])
 
-  const fetchOrganizations = async () => {
-    const res = await getOrganizations()
-    if (res.ok) {
-      setOrganizations(res.body.data.organizations)
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loadingMore || !pageable) return
+      const hasMore = (pageable.pageNumber + 1) < pageable.totalPages
+      if (!hasMore) return
+      if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)) {
+        if (activeTab === 'my') {
+          fetchOrganizations(pageable.pageNumber + 1)
+        } else {
+          fetchPublicOrganizations(pageable.pageNumber + 1)
+        }
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [pageable, loadingMore, activeTab])
+
+  const fetchOrganizations = async (pageToLoad = 0) => {
+    if (pageToLoad > 0) { setLoadingMore(true) }
+    const res = await getOrganizations(pageToLoad, 10)
+    if (res.ok && res.body.data.content) {
+      if (pageToLoad === 0) {
+        setOrganizations(res.body.data.content)
+      } else {
+        setOrganizations(prev => [...prev, ...res.body.data.content])
+      }
+      setPageable(res.body.data.pageable)
     }
     setLoading(false)
+    setLoadingMore(false)
   }
 
-  const fetchPublicOrganizations = async () => {
-    const res = await getPublicOrganizations()
-    if (res.ok) {
-      setPublicOrganizations(res.body.data.organizations)
+  const fetchPublicOrganizations = async (pageToLoad = 0) => {
+    if (pageToLoad > 0) { setLoadingMore(true) }
+    const res = await getPublicOrganizations(pageToLoad, 10)
+    if (res.ok && res.body.data.content) {
+      if (pageToLoad === 0) {
+        setPublicOrganizations(res.body.data.content)
+      } else {
+        setPublicOrganizations(prev => [...prev, ...res.body.data.content])
+      }
+      setPageable(res.body.data.pageable)
     }
+    setLoadingMore(false)
   }
 
   const handleCreate = async (data: { title: string; description?: string; image?: string }) => {
@@ -183,6 +218,9 @@ const OrganizationsPage: React.FC = () => {
             />
           ))
         )}
+        <div className="mt-4 text-center text-sm text-gray-600">
+          {loadingMore ? t('loading') : (pageable && pageable.pageNumber + 1 >= pageable.totalPages ? t('no_more') || 'No more organizations' : '')}
+        </div>
       </div>
     </div>
   )
