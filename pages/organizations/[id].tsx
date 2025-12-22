@@ -261,17 +261,17 @@ const OrganizationDetailsPage: React.FC = () => {
           <p className="text-gray-600 mt-2">{organization.description}</p>
         )}
         {organization.image && (
-          <img src={organization.image} alt={organization.title} className="w-full h-48 object-cover rounded-lg mt-4" />
+          <img src={organization.image} alt={organization.title} className="w-full h-48 object-contain rounded-lg mt-4" />
         )}
       </div>
 
       {canManage && (
         <div className="mb-8">
           <div className="border-b border-gray-200 mb-6">
-            <nav className="flex space-x-8">
+            <nav className="flex overflow-x-auto space-x-8 pb-2">
               <button
                 onClick={() => setActiveTab('news')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === 'news'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -281,7 +281,7 @@ const OrganizationDetailsPage: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('members')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === 'members'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -291,7 +291,7 @@ const OrganizationDetailsPage: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('spaces')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === 'spaces'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -301,7 +301,7 @@ const OrganizationDetailsPage: React.FC = () => {
               </button>
               <button
                 onClick={() => router.push(`/organizations/${id}/news`)}
-                className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
               >
                 {t('manage_news')}
               </button>
@@ -337,11 +337,11 @@ const OrganizationDetailsPage: React.FC = () => {
                   {searchResults.length > 0 && (
                     <div className="max-h-40 overflow-y-auto">
                       {searchResults.map((u) => (
-                        <div key={u.id} className="flex justify-between items-center p-2 bg-white rounded mb-1">
-                          <span>{u.name} ({u.email})</span>
+                        <div key={u.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 bg-white rounded mb-1">
+                          <span className="mb-1 sm:mb-0">{u.name} ({u.email})</span>
                           <button
                             onClick={() => handleInvite(u.id)}
-                            className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                            className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 self-start sm:self-auto"
                           >
                             {t('invite')}
                           </button>
@@ -354,19 +354,19 @@ const OrganizationDetailsPage: React.FC = () => {
 
               <div>
                 {members.map((member) => (
-                  <div key={member.id} className="flex justify-between items-center bg-white p-4 rounded-lg shadow mb-2">
-                    <div>
+                  <div key={member.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-4 rounded-lg shadow mb-2">
+                    <div className="mb-2 sm:mb-0">
                       <span className="font-semibold">{member.name}</span> ({member.email})
                       <span className="ml-2 bg-gray-200 px-2 py-1 rounded text-sm">
                         {member.pivot?.role}
                       </span>
                     </div>
                     {currentUserRole === 'admin' && member.id !== user?.id && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <select
                           value={member.pivot?.role}
                           onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                          className="p-1 border rounded"
+                          className="p-1 border rounded text-sm"
                         >
                           <option value="user">{t('user_role_user')}</option>
                           <option value="author">{t('user_role_author')}</option>
@@ -375,7 +375,7 @@ const OrganizationDetailsPage: React.FC = () => {
                         </select>
                         <button
                           onClick={() => handleRemoveMember(member.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                         >
                           {t('remove')}
                         </button>

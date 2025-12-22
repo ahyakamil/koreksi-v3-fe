@@ -40,21 +40,22 @@ export default function Carousel({ medias }: CarouselProps) {
 
       {zoomed && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onClick={() => setZoomed(false)}>
+          <img src={medias[currentIndex].url} alt="" className="max-w-full max-h-full" />
           {medias.length > 1 && (
             <>
               <button
                 onClick={(e) => { e.stopPropagation(); prev(); }}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-5xl hover:text-gray-300"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-300 text-5xl z-20"
               >
                 ‹
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); next(); }}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-5xl hover:text-gray-300"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-300 text-5xl z-20"
               >
                 ›
               </button>
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
                 {medias.map((_, index) => (
                   <button
                     key={index}
@@ -65,7 +66,6 @@ export default function Carousel({ medias }: CarouselProps) {
               </div>
             </>
           )}
-          <img src={medias[currentIndex].url} alt="" className="max-w-full max-h-full" />
         </div>
       )}
     </div>

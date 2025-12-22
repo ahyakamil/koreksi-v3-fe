@@ -43,7 +43,7 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
           )}
           <div className="mb-4">
             {organization.image ? (
-              <img src={organization.image} alt={organization.title} className="w-full h-48 object-cover rounded-lg" />
+              <img src={organization.image} alt={organization.title} className="w-full h-48 object-contain rounded-lg" />
             ) : (
               <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
                 <span className="text-gray-500">No image</span>
