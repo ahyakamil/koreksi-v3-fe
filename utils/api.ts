@@ -154,8 +154,10 @@ export async function getPublishedNews(page: number = 0, size: number = 10) {
   return res
 }
 
-export async function getNews(organizationId: string, page: number = 0, size: number = 10) {
-  const res = await apiFetch(`/organizations/${organizationId}/news?page=${page}&size=${size}`)
+export async function getNews(organizationId: string, page: number = 0, size: number = 10, status?: string) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  if (status && status !== 'all') params.append('status', status)
+  const res = await apiFetch(`/organizations/${organizationId}/news?${params}`)
   return res
 }
 

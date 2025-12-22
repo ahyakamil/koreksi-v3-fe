@@ -36,6 +36,12 @@ const NewsManagementPage: React.FC = () => {
     }
   }, [id, user])
 
+  useEffect(() => {
+    if (organization && activeTab) {
+      loadNewsForTab(activeTab)
+    }
+  }, [activeTab])
+
   const fetchData = async () => {
     if (!id) return
     try {
@@ -48,26 +54,30 @@ const NewsManagementPage: React.FC = () => {
       if (spacesRes.ok) setSpaces(spacesRes.body.data.spaces)
 
       // Load first page of news
-      setNews([])
-      setPage(0)
-      setHasMore(false)
-      const newsRes = await getNews(id as string, 0, 10)
-      if (newsRes.ok && newsRes.body.data.content) {
-        setNews(newsRes.body.data.content)
-        const pageable = newsRes.body.data.pageable
-        setHasMore(pageable.pageNumber + 1 < pageable.totalPages)
-      }
+      await loadNewsForTab(activeTab)
     } catch (error) {
       console.error('Failed to fetch data:', error)
     }
     setLoading(false)
   }
 
+  const loadNewsForTab = async (status: string) => {
+    setNews([])
+    setPage(0)
+    setHasMore(false)
+    const newsRes = await getNews(id as string, 0, 10, status)
+    if (newsRes.ok && newsRes.body.data.content) {
+      setNews(newsRes.body.data.content)
+      const pageable = newsRes.body.data.pageable
+      setHasMore(pageable.pageNumber + 1 < pageable.totalPages)
+    }
+  }
+
   const loadMoreNews = async () => {
     if (!hasMore || loadingMore) return
     setLoadingMore(true)
     const nextPage = page + 1
-    const newsRes = await getNews(id as string, nextPage, 10)
+    const newsRes = await getNews(id as string, nextPage, 10, activeTab)
     if (newsRes.ok && newsRes.body.data.content) {
       setNews(prev => [...prev, ...newsRes.body.data.content])
       setPage(nextPage)
@@ -88,7 +98,7 @@ const NewsManagementPage: React.FC = () => {
 
     const res = await reviewNews(organization.id, newsId, { action, review_notes: reviewNotes })
     if (res.ok) {
-      fetchData() // Refresh data
+      loadNewsForTab(activeTab) // Refresh current tab
     } else {
       alert(res.body.message || t('failed_to_review_news'))
     }
@@ -110,10 +120,7 @@ const NewsManagementPage: React.FC = () => {
     return organization?.users?.find(u => u.id === user?.id)?.pivot?.role
   }
 
-  const filteredNews = news.filter(item => {
-    if (activeTab === 'all') return true
-    return item.status === activeTab
-  })
+  const filteredNews = news
 
   if (loading) return <div>{t('loading')}</div>
   if (!organization) return <div>{t('organization_not_found')}</div>
