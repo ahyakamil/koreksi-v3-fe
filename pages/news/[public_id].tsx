@@ -1,9 +1,9 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
+import Link from 'next/link'
 import { News, Comment, Pageable } from '../../types'
 import CommentsList from '../../components/CommentsList'
 import CommentForm from '../../components/CommentForm'
-import { formatDate } from '../../utils/format'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import { useState, useEffect } from 'react'
@@ -23,11 +23,25 @@ interface NewsDetailProps {
 
 export default function NewsDetail({ news, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl }: NewsDetailProps) {
   const { user } = useAuth()
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [pageable, setPageable] = useState<Pageable | null>(initialPageable || null)
   const [loadingMore, setLoadingMore] = useState(false)
   const [totalComments, setTotalComments] = useState(news?.comments_count || initialComments.length)
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const day = date.getDate()
+    const month = date.getMonth()
+    const year = date.getFullYear()
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    const dayName = t('days')[date.getDay()]
+    const monthShort = t('months_short')[month]
+    // For timezone, using JKT as example, but dynamic
+    const timezone = 'JKT' // TODO: make dynamic based on user timezone
+    return `${dayName}, ${day} ${monthShort} ${year} ${hours}:${minutes} ${timezone}`
+  }
 
   useEffect(() => {
     if (specificCommentId) {
@@ -115,31 +129,49 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
       <div className="container py-8">
         <article className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
           <header className="mb-4">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">{t('published')} {formatDate(news.published_at || news.created_at)}</div>
+            <h1 className="text-2xl font-bold mt-2 text-center">{news.title}</h1>
+            <div className="text-sm text-gray-500 mt-2 text-center">
+              {news.user?.name || t('unknown')} - {news.organization && (
+                <Link href={`/organizations/${news.organization.id}`} className="text-blue-500 hover:text-blue-700 font-medium">
+                  {news.organization.title}
+                </Link>
+              )}
             </div>
-            <h1 className="text-2xl font-bold mt-2">{news.title}</h1>
-            <div className="text-sm text-gray-600 mt-2">
-              <span>{t('by')} {news.user?.name}</span>
-              {news.editor && news.editor.id !== news.user?.id && (
-                <span> • {t('edited_by')} {news.editor.name}</span>
-              )}
-              {news.organization && (
-                <>
-                  <span className="mx-2">•</span>
-                  <span>{t('in')} {news.organization.title}</span>
-                </>
-              )}
+            <div className="text-sm text-gray-400 mt-2 text-center">
+              {formatDate(news.published_at || news.created_at)}
             </div>
           </header>
           <div className="prose max-w-none">
             {news.image && (
-              <figure className="mb-4">
+              <div className="mb-4">
                 <img src={news.image} alt={news.title} className="w-full" />
-                {news.caption && <figcaption className="text-sm text-gray-600 mt-2 text-center italic">{news.caption}</figcaption>}
-              </figure>
+              </div>
             )}
+            {news.caption && (
+              <div className="mb-4 text-xs text-gray-500 text-left">
+                {news.caption}
+              </div>
+            )}
+            <div className="mb-4 flex justify-end">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href)
+                  alert('URL copied to clipboard!')
+                }}
+                className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+                <span>{t('share')}</span>
+              </button>
+            </div>
             <div dangerouslySetInnerHTML={{ __html: news.content }} />
+            {news.editor && (
+              <div className="mb-4">
+                <span className="font-bold">({news.editor.name})</span>
+              </div>
+            )}
           </div>
           <footer className="mt-6">
             <div className="mb-4">
