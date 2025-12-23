@@ -33,20 +33,36 @@ const SpaceDetailPage: React.FC = () => {
       setOrganization(orgRes.body.data.organization)
     }
 
-    // Fetch spaces and find the specific space
-    const spacesRes = await getSpaces(id as string)
-    if (spacesRes.ok) {
-      const foundSpace = spacesRes.body.data.spaces.find((s: Space) => s.id === spaceId)
-      if (foundSpace) {
-        setSpace(foundSpace)
+    // Fetch all spaces and find the specific space
+    const allSpaces: any[] = []
+    let page = 0
+    const size = 50
+
+    while (true) {
+      const spacesRes = await getSpaces(id as string, page, size)
+      if (spacesRes.ok && spacesRes.body.data.content) {
+        allSpaces.push(...spacesRes.body.data.content)
+        const pageable = spacesRes.body.data.pageable
+        if (pageable.pageNumber + 1 >= pageable.totalPages) break
+        page++
+      } else {
+        break
       }
+    }
+
+    const foundSpace = allSpaces.find((s: Space) => s.id === spaceId)
+    if (foundSpace) {
+      setSpace(foundSpace)
     }
 
     // Fetch news for space
     const newsRes = await getSpaceNews(id as string, spaceId as string)
-    if (newsRes.ok) {
-      setNews(newsRes.body.data.content)
+    if (newsRes.ok && newsRes.body && newsRes.body.data) {
+      setNews(newsRes.body.data.content || [])
       setPageable(newsRes.body.data.pageable)
+    } else {
+      setNews([])
+      setPageable(null)
     }
 
     setLoading(false)

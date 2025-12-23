@@ -103,6 +103,12 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
           {formatDate(news.published_at || news.created_at)}
         </div>
 
+        <div className="mb-3 flex justify-center">
+          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+            {news.space?.name || 'Space'}
+          </span>
+        </div>
+
         {news.image && (
           <div className="w-full overflow-hidden mb-3" style={{ maxHeight: '550px' }}>
             <img
