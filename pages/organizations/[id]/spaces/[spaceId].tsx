@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../types'
-import { getOrganization, getSpaces, getSpaceNews } from '../../../../utils/api'
+import { getOrganization, getSpace, getSpaceNews } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 import NewsItem from '../../../../components/NewsItem'
@@ -33,26 +34,10 @@ const SpaceDetailPage: React.FC = () => {
       setOrganization(orgRes.body.data.organization)
     }
 
-    // Fetch all spaces and find the specific space
-    const allSpaces: any[] = []
-    let page = 0
-    const size = 50
-
-    while (true) {
-      const spacesRes = await getSpaces(id as string, page, size)
-      if (spacesRes.ok && spacesRes.body.data.content) {
-        allSpaces.push(...spacesRes.body.data.content)
-        const pageable = spacesRes.body.data.pageable
-        if (pageable.pageNumber + 1 >= pageable.totalPages) break
-        page++
-      } else {
-        break
-      }
-    }
-
-    const foundSpace = allSpaces.find((s: Space) => s.id === spaceId)
-    if (foundSpace) {
-      setSpace(foundSpace)
+    // Fetch the specific space
+    const spaceRes = await getSpace(id as string, spaceId as string)
+    if (spaceRes.ok && spaceRes.body.data) {
+      setSpace(spaceRes.body.data.space)
     }
 
     // Fetch news for space
@@ -86,15 +71,12 @@ const SpaceDetailPage: React.FC = () => {
   if (!organization || !space) return <div>{t('not_found')}</div>
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4">
       <div className="mb-8">
-        <button
-          onClick={() => router.push(`/organizations/${id}`)}
-          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-        >
-          {t('back_to_organizations')}
-        </button>
-        <h1 className="text-3xl font-bold">{space.name}</h1>
+        <Link href={`/organizations/${id}`}>
+          <h1 className="text-3xl font-bold text-blue-600 hover:text-blue-800 cursor-pointer">{organization?.title}</h1>
+        </Link>
+        <h2 className="text-2xl font-semibold mt-2">{space.name}</h2>
         {space.description && (
           <p className="text-gray-600 mt-2">{space.description}</p>
         )}
@@ -111,7 +93,7 @@ const SpaceDetailPage: React.FC = () => {
           <>
             <ul className="space-y-4">
               {news.map(item => (
-                <NewsItem key={item.public_id} news={item} hideOrganization={true} />
+                <NewsItem key={item.public_id} news={item} hideOrganization={false} />
               ))}
             </ul>
             {pageable && pageable.pageNumber + 1 < pageable.totalPages && (

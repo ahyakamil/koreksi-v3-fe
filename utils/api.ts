@@ -126,6 +126,11 @@ export async function getSpaces(organizationId: string, page: number = 0, size: 
   return res
 }
 
+export async function getSpace(organizationId: string, spaceId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/spaces/${spaceId}`)
+  return res
+}
+
 export async function createSpace(organizationId: string, data: { name: string; description?: string; image?: string }) {
   const res = await apiFetch(`/organizations/${organizationId}/spaces`, {
     method: 'POST',
