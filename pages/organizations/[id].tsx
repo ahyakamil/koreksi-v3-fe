@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Organization, User, Space, News, OrganizationUser } from '../../types'
 import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization } from '../../utils/api'
@@ -31,7 +32,7 @@ const OrganizationDetailsPage: React.FC = () => {
   const { id } = router.query
 
   useEffect(() => {
-    if (id && user) {
+    if (id) {
       fetchOrganization()
     }
   }, [id, user])
@@ -284,6 +285,20 @@ const OrganizationDetailsPage: React.FC = () => {
           <img src={organization.image} alt={organization.title} className="w-full h-48 object-contain rounded-lg mt-4" />
         )}
       </div>
+
+      {!user && (
+        <div className="mb-8">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('login_required')}</h3>
+            <p className="text-blue-700 mb-4">
+              {t('login_to_access_full_features')}
+            </p>
+            <Link href="/login" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              {t('login')}
+            </Link>
+          </div>
+        </div>
+      )}
 
       {currentUserRole && (
         <div className="mb-8">

@@ -164,6 +164,10 @@ type TranslationKeys = {
   days: string[]
   months: string[]
   months_short: string[]
+  // Login
+  login_required: string
+  login_to_access_full_features: string
+  please_login_to_view_this_page: string
 }
 
 type Translations = {
@@ -337,6 +341,9 @@ const translations: Translations = {
     days: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
     months: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
     months_short: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'],
+    login_required: 'Login Diperlukan',
+    login_to_access_full_features: 'Silakan login untuk mengakses fitur lengkap organisasi ini.',
+    please_login_to_view_this_page: 'Silakan login untuk melihat halaman ini.',
   },
   en: {
     comments: 'Comments',
@@ -503,6 +510,9 @@ const translations: Translations = {
     days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     months_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    login_required: 'Login Required',
+    login_to_access_full_features: 'Please login to access full features of this organization.',
+    please_login_to_view_this_page: 'Please login to view this page.',
   }
 }
 

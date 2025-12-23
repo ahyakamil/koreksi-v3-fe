@@ -67,6 +67,19 @@ const SpaceDetailPage: React.FC = () => {
     setLoadingMore(false)
   }
 
+  if (!user) return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('login_required')}</h3>
+        <p className="text-blue-700 mb-4">
+          {t('please_login_to_view_this_page')}
+        </p>
+        <Link href="/login" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          {t('login')}
+        </Link>
+      </div>
+    </div>
+  )
   if (loading) return <div>{t('loading')}</div>
   if (!organization || !space) return <div>{t('not_found')}</div>
 
