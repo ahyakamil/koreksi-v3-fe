@@ -160,6 +160,10 @@ type TranslationKeys = {
   search_term_required: string
   search_term_too_short: string
   search_hint: string
+  // Date formatting
+  days: string[]
+  months: string[]
+  months_short: string[]
 }
 
 type Translations = {
@@ -330,6 +334,9 @@ const translations: Translations = {
     search_term_required: 'Masukkan kata pencarian',
     search_term_too_short: 'Kata pencarian harus minimal 2 karakter',
     search_hint: 'Masukkan minimal 2 karakter untuk mencari teman.',
+    days: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+    months: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+    months_short: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'],
   },
   en: {
     comments: 'Comments',
@@ -493,6 +500,9 @@ const translations: Translations = {
     search_term_required: 'Please enter a search term',
     search_term_too_short: 'Search term must be at least 2 characters',
     search_hint: 'Enter at least 2 characters to search for friends.',
+    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    months_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   }
 }
 
