@@ -38,8 +38,20 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
     const minutes = date.getMinutes().toString().padStart(2, '0')
     const dayName = t('days')[date.getDay()]
     const monthShort = t('months_short')[month]
-    // For timezone, using JKT as example, but dynamic
-    const timezone = 'JKT' // TODO: make dynamic based on user timezone
+    // Dynamic timezone based on user timezone
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const timeZoneAbbr: { [key: string]: string } = {
+      'Asia/Jakarta': 'JKT',
+      'Asia/Bangkok': 'JKT',
+      'Asia/Makassar': 'WITA',
+      'Asia/Jayapura': 'WIT',
+      // Add more as needed
+    }
+    const timezone = timeZoneAbbr[userTimeZone] || (() => {
+      const offset = -new Date().getTimezoneOffset() / 60
+      const sign = offset >= 0 ? '+' : ''
+      return `UTC${sign}${offset}`
+    })()
     return `${dayName}, ${day} ${monthShort} ${year} ${hours}:${minutes} ${timezone}`
   }
 
