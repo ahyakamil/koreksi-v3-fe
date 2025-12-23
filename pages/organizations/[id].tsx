@@ -87,7 +87,9 @@ const OrganizationDetailsPage: React.FC = () => {
       }
     }
 
-    setNews(allNews)
+    // Add organization to each news item
+    const newsWithOrg = allNews.map(item => ({ ...item, organization }))
+    setNews(newsWithOrg)
   }
 
   const fetchMembers = async () => {
@@ -497,7 +499,7 @@ const OrganizationDetailsPage: React.FC = () => {
               ) : (
                 <ul className="space-y-4">
                   {news.map(item => (
-                    <NewsItem key={item.public_id} news={item} hideOrganization={true} />
+                    <NewsItem key={item.public_id} news={item} hideOrganization={false} />
                   ))}
                 </ul>
               )}
