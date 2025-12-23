@@ -153,9 +153,11 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
               {formatDate(news.published_at || news.created_at)}
             </div>
             <div className="flex justify-center mb-3">
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                {news.space?.name || 'Space'}
-              </span>
+              <Link href={`/organizations/${news.organization_id}/spaces/${news.space_id}`}>
+                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full cursor-pointer hover:bg-green-200">
+                  {news.space?.name || 'Space'}
+                </span>
+              </Link>
             </div>
           </header>
           <div className="prose max-w-none">

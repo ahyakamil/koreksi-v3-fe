@@ -116,9 +116,11 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
         </div>
 
         <div className="mb-3 flex justify-center">
-          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-            {news.space?.name || 'Space'}
-          </span>
+          <Link href={`/organizations/${news.organization_id}/spaces/${news.space_id}`}>
+            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full cursor-pointer hover:bg-green-200">
+              {news.space?.name || 'Space'}
+            </span>
+          </Link>
         </div>
 
         {news.image && (
