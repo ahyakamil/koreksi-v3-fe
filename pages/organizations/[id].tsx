@@ -241,8 +241,12 @@ const OrganizationDetailsPage: React.FC = () => {
       fetchNews()
     } else if (organization && activeTab === 'members' && currentUserRole) {
       fetchMembers()
+    } else if (organization && currentUserRole && !canManage) {
+      // Fetch news and spaces for members who can't manage
+      fetchNews()
+      fetchSpaces()
     }
-  }, [organization, activeTab, currentUserRole])
+  }, [organization, activeTab, currentUserRole, canManage])
 
   if (loading) return <div>{t('loading')}</div>
   if (!organization) return <div>{t('organization_not_found')}</div>
@@ -265,7 +269,7 @@ const OrganizationDetailsPage: React.FC = () => {
         )}
       </div>
 
-      {canManage && (
+      {currentUserRole && (
         <div className="mb-8">
           <div className="border-b border-gray-200 mb-6">
             <nav className="flex overflow-x-auto space-x-8 pb-2">
@@ -279,16 +283,18 @@ const OrganizationDetailsPage: React.FC = () => {
               >
                 {t('news')}
               </button>
-              <button
-                onClick={() => setActiveTab('members')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  activeTab === 'members'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t('members')} ({organization.users_count || 0})
-              </button>
+              {canManage && (
+                <button
+                  onClick={() => setActiveTab('members')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    activeTab === 'members'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {t('members')} ({organization.users_count || 0})
+                </button>
+              )}
               <button
                 onClick={() => setActiveTab('spaces')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
@@ -299,16 +305,22 @@ const OrganizationDetailsPage: React.FC = () => {
               >
                 {t('spaces')} ({organization.spaces_count || 0})
               </button>
-              <button
-                onClick={() => router.push(`/organizations/${id}/news`)}
-                className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
-              >
-                {t('manage_news')}
-              </button>
+              {canManage && (
+                <button
+                  onClick={() => router.push(`/organizations/${id}/news`)}
+                  className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+                >
+                  {t('manage_news')}
+                </button>
+              )}
             </nav>
           </div>
+        </div>
+      )}
 
-          {activeTab === 'members' && (
+      {currentUserRole && (
+        <div className="mb-8">
+          {activeTab === 'members' && canManage && (
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">{t('members')}</h2>
@@ -490,21 +502,6 @@ const OrganizationDetailsPage: React.FC = () => {
                 </ul>
               )}
             </div>
-          )}
-        </div>
-      )}
-
-      {currentUserRole && !canManage && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">{t('published_news')}</h2>
-          {news.length === 0 ? (
-            <p>{t('no_news_available')}</p>
-          ) : (
-            <ul className="space-y-4">
-              {news.map(item => (
-                <NewsItem key={item.public_id} news={item} hideOrganization={true} />
-              ))}
-            </ul>
           )}
         </div>
       )}
