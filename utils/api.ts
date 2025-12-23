@@ -120,8 +120,9 @@ export async function searchUsers(query: string) {
 }
 
 // Space API functions
-export async function getSpaces(organizationId: string) {
-  const res = await apiFetch(`/organizations/${organizationId}/spaces`)
+export async function getSpaces(organizationId: string, page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/organizations/${organizationId}/spaces?${params}`)
   return res
 }
 
@@ -159,6 +160,11 @@ export async function getNews(organizationId: string, page: number = 0, size: nu
   if (status && status !== 'all') params.append('status', status)
   const res = await apiFetch(`/organizations/${organizationId}/news?${params}`)
   return res
+}
+
+export async function getSpaceNews(organizationId: string, spaceId: string, page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  return apiFetch(`/organizations/${organizationId}/spaces/${spaceId}/news?${params}`)
 }
 
 export async function getSingleNews(organizationId: string, newsId: string) {

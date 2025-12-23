@@ -62,10 +62,24 @@ const OrganizationDetailsPage: React.FC = () => {
 
   const fetchSpaces = async () => {
     if (!id) return
-    const res = await getSpaces(id as string)
-    if (res.ok) {
-      setSpaces(res.body.data.spaces)
+    // Load all spaces pages
+    const allSpaces: any[] = []
+    let page = 0
+    const size = 10
+
+    while (true) {
+      const res = await getSpaces(id as string, page, size)
+      if (res.ok && res.body.data.content) {
+        allSpaces.push(...res.body.data.content)
+        const pageable = res.body.data.pageable
+        if (pageable.pageNumber + 1 >= pageable.totalPages) break
+        page++
+      } else {
+        break
+      }
     }
+
+    setSpaces(allSpaces)
   }
 
   const fetchNews = async () => {
@@ -73,7 +87,7 @@ const OrganizationDetailsPage: React.FC = () => {
     // Load all published news pages
     const allNews: any[] = []
     let page = 0
-    const size = 50
+    const size = 10
 
     while (true) {
       const res = await getNews(id as string, page, size)
@@ -450,7 +464,7 @@ const OrganizationDetailsPage: React.FC = () => {
                   </div>
                 ) : (
                   spaces.map(space => (
-                    <div key={space.id} className="bg-white p-4 rounded-lg shadow mb-2">
+                    <div key={space.id} className="bg-white p-4 rounded-lg shadow mb-2 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/organizations/${id}/spaces/${space.id}`)}>
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0">
                           {space.image ? (
@@ -468,7 +482,7 @@ const OrganizationDetailsPage: React.FC = () => {
                           )}
                         </div>
                         {currentUserRole === 'admin' && (
-                          <div className="flex gap-2">
+                          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                             <button
                               onClick={() => setEditingSpace(space)}
                               className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
