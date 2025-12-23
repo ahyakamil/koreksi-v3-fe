@@ -154,9 +154,23 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
             )}
             <div className="mb-4 flex justify-end">
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href)
-                  alert('URL copied to clipboard!')
+                onClick={(e) => {
+                  e.preventDefault()
+                  const url = window.location.href
+                  const title = news.title
+                  if (navigator.share) {
+                    navigator.share({
+                      title,
+                      url
+                    }).catch(() => {
+                      // Fallback to clipboard
+                      navigator.clipboard.writeText(url)
+                      alert('URL copied to clipboard!')
+                    })
+                  } else {
+                    navigator.clipboard.writeText(url)
+                    alert('URL copied to clipboard!')
+                  }
                 }}
                 className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
               >

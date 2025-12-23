@@ -123,8 +123,21 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
           <button
             onClick={(e) => {
               e.preventDefault()
-              navigator.clipboard.writeText(window.location.origin + '/news/' + news.public_id)
-              alert('URL copied to clipboard!')
+              const url = window.location.origin + '/news/' + news.public_id
+              const title = news.title
+              if (navigator.share) {
+                navigator.share({
+                  title,
+                  url
+                }).catch(() => {
+                  // Fallback to clipboard
+                  navigator.clipboard.writeText(url)
+                  alert('URL copied to clipboard!')
+                })
+              } else {
+                navigator.clipboard.writeText(url)
+                alert('URL copied to clipboard!')
+              }
             }}
             className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
           >
