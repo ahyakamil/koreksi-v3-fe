@@ -157,6 +157,9 @@ type TranslationKeys = {
   reject: string
   failed_to_delete_news: string
   are_you_sure_delete_news: string
+  search_term_required: string
+  search_term_too_short: string
+  search_hint: string
 }
 
 type Translations = {
@@ -324,6 +327,9 @@ const translations: Translations = {
     reject: 'Tolak',
     failed_to_delete_news: 'Gagal menghapus berita',
     are_you_sure_delete_news: 'Apakah Anda yakin ingin menghapus berita ini?',
+    search_term_required: 'Masukkan kata pencarian',
+    search_term_too_short: 'Kata pencarian harus minimal 2 karakter',
+    search_hint: 'Masukkan minimal 2 karakter untuk mencari teman.',
   },
   en: {
     comments: 'Comments',
@@ -484,6 +490,9 @@ const translations: Translations = {
     reject: 'Reject',
     failed_to_delete_news: 'Failed to delete news',
     are_you_sure_delete_news: 'Are you sure you want to delete this news?',
+    search_term_required: 'Please enter a search term',
+    search_term_too_short: 'Search term must be at least 2 characters',
+    search_hint: 'Enter at least 2 characters to search for friends.',
   }
 }
 

@@ -47,6 +47,14 @@ export default function Friends(){
   useEffect(()=>{ load() }, [])
 
   async function search(){
+    if (!query.trim()) {
+      setMsg(t('search_term_required'))
+      return
+    }
+    if (query.trim().length < 2) {
+      setMsg(t('search_term_too_short'))
+      return
+    }
     setMsg(null)
     setSearchResults([])
     setSearchPage(0)
@@ -125,6 +133,7 @@ export default function Friends(){
             {t('search')}
           </button>
         </div>
+        <div className="text-xs text-gray-500 mt-1">{t('search_hint')}</div>
         {searchResults.length > 0 && (
           <div className="mt-3 max-w-md">
             <ul className="space-y-1">
