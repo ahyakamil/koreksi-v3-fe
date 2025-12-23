@@ -141,16 +141,21 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
       <div className="container py-8">
         <article className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
           <header className="mb-4">
-            <h1 className="text-2xl font-bold mt-2 text-center">{news.title}</h1>
-            <div className="text-sm text-gray-500 mt-2 text-center">
+            <h1 className="text-2xl font-bold text-center mb-3">{news.title}</h1>
+            <div className="text-sm text-gray-500 text-center mb-3">
               {news.user?.name || t('unknown')} - {news.organization && (
                 <Link href={`/organizations/${news.organization.id}`} className="text-blue-500 hover:text-blue-700 font-medium">
                   {news.organization.title}
                 </Link>
               )}
             </div>
-            <div className="text-sm text-gray-400 mt-2 text-center">
+            <div className="text-sm text-gray-400 text-center mb-3">
               {formatDate(news.published_at || news.created_at)}
+            </div>
+            <div className="flex justify-center mb-3">
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                {news.space?.name || 'Space'}
+              </span>
             </div>
           </header>
           <div className="prose max-w-none">
