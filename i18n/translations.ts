@@ -447,7 +447,7 @@ const translations: Translations = {
     sending: 'Sending...',
     spaces: 'Spaces',
     update: 'Update',
-    world_organizations: 'World Organizations',
+    world_organizations: 'All Organizations',
     are_you_sure_delete_organization: 'Are you sure you want to delete this organization?',
     are_you_sure_delete_space: 'Are you sure you want to delete this space?',
     are_you_sure_remove_member: 'Are you sure you want to remove this member?',

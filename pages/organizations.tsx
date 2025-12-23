@@ -157,10 +157,13 @@ const OrganizationsPage: React.FC = () => {
         <h1 className="text-3xl font-bold">{t('organizations')}</h1>
         {activeTab === 'my' && (
           <button
-            onClick={() => setShowForm(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            onClick={() => { setShowForm(true); setEditingOrg(null); }}
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 sm:px-4 sm:py-2"
+            aria-label={t('create_organization')}
           >
-            {t('create_organization')}
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
           </button>
         )}
       </div>
@@ -174,7 +177,7 @@ const OrganizationsPage: React.FC = () => {
             {t('my_organizations')}
           </button>
           <button
-            onClick={() => setActiveTab('world')}
+            onClick={() => { setActiveTab('world'); setShowForm(false); setEditingOrg(null); }}
             className={`px-4 py-2 ${activeTab === 'world' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
           >
             {t('world_organizations')}
@@ -209,7 +212,7 @@ const OrganizationsPage: React.FC = () => {
             <OrganizationItem
               key={org.id}
               organization={org}
-              onEdit={setEditingOrg}
+              onEdit={(org) => { setEditingOrg(org); setShowForm(false); }}
               onDelete={handleDelete}
               onJoin={handleJoin}
               onLeave={handleLeave}
