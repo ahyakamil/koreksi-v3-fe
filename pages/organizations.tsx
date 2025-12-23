@@ -14,7 +14,8 @@ const OrganizationsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'my' | 'world'>('my')
   const [showForm, setShowForm] = useState(false)
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null)
-  const [pageable, setPageable] = useState<Pageable | null>(null)
+  const [myPageable, setMyPageable] = useState<Pageable | null>(null)
+  const [worldPageable, setWorldPageable] = useState<Pageable | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
   const { user, loading: authLoading } = useAuth()
   const { t } = useLocale()
@@ -32,22 +33,23 @@ const OrganizationsPage: React.FC = () => {
 
   // Infinite scroll effect
   useEffect(() => {
+    const currentPageable = activeTab === 'my' ? myPageable : worldPageable
     const handleScroll = () => {
-      if (loadingMore || !pageable) return
-      const hasMore = (pageable.pageNumber + 1) < pageable.totalPages
+      if (loadingMore || !currentPageable) return
+      const hasMore = (currentPageable.pageNumber + 1) < currentPageable.totalPages
       if (!hasMore) return
       if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)) {
         if (activeTab === 'my') {
-          fetchOrganizations(pageable.pageNumber + 1)
+          fetchOrganizations(currentPageable.pageNumber + 1)
         } else {
-          fetchPublicOrganizations(pageable.pageNumber + 1)
+          fetchPublicOrganizations(currentPageable.pageNumber + 1)
         }
       }
     }
 
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [pageable, loadingMore, activeTab])
+  }, [myPageable, worldPageable, loadingMore, activeTab])
 
   const fetchOrganizations = async (pageToLoad = 0) => {
     if (pageToLoad > 0) { setLoadingMore(true) }
@@ -58,7 +60,7 @@ const OrganizationsPage: React.FC = () => {
       } else {
         setOrganizations(prev => [...prev, ...res.body.data.content])
       }
-      setPageable(res.body.data.pageable)
+      setMyPageable(res.body.data.pageable)
     }
     setLoading(false)
     setLoadingMore(false)
@@ -73,7 +75,7 @@ const OrganizationsPage: React.FC = () => {
       } else {
         setPublicOrganizations(prev => [...prev, ...res.body.data.content])
       }
-      setPageable(res.body.data.pageable)
+      setWorldPageable(res.body.data.pageable)
     }
     setLoadingMore(false)
   }
@@ -150,6 +152,7 @@ const OrganizationsPage: React.FC = () => {
   if (loading) return <div>{t('loading')}</div>
 
   const currentOrganizations = activeTab === 'my' ? organizations : publicOrganizations
+  const currentPageable = activeTab === 'my' ? myPageable : worldPageable
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -222,7 +225,7 @@ const OrganizationsPage: React.FC = () => {
           ))
         )}
         <div className="mt-4 text-center text-sm text-gray-600">
-          {loadingMore ? t('loading') : (pageable && pageable.pageNumber + 1 >= pageable.totalPages ? t('no_more') || 'No more organizations' : '')}
+          {loadingMore ? t('loading') : (currentPageable && currentPageable.pageNumber + 1 >= currentPageable.totalPages ? t('no_more') || 'No more organizations' : '')}
         </div>
       </div>
     </div>
