@@ -26,7 +26,9 @@ export function LocaleProvider({ children }: { children: ReactNode }){
 
   function t(key: string){
     const group = translations[locale] || translations['id']
-    return group[key as keyof typeof group] || translations['en'][key as keyof typeof group] || key
+    const result = group[key as keyof typeof group]
+    if (Array.isArray(result)) return key
+    return (result as string) || translations['en'][key as keyof typeof group] as string || key
   }
 
   // support simple interpolation: t('key', {name: 'Alice'}) replaces {name}
