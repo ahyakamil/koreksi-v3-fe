@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../types'
-import { getOrganization, getSpace, getSpaceNews } from '../../../../utils/api'
+import { getOrganization, getSpace, getSpaceNews, checkOrganizationMembership, joinOrganization } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 import NewsItem from '../../../../components/NewsItem'
@@ -14,6 +14,8 @@ const SpaceDetailPage: React.FC = () => {
   const [pageable, setPageable] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [isMember, setIsMember] = useState<boolean | null>(null)
+  const [joining, setJoining] = useState(false)
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -38,6 +40,14 @@ const SpaceDetailPage: React.FC = () => {
     const spaceRes = await getSpace(id as string, spaceId as string)
     if (spaceRes.ok && spaceRes.body.data) {
       setSpace(spaceRes.body.data.space)
+    }
+
+    // Check membership if authenticated
+    if (user) {
+      const membershipRes = await checkOrganizationMembership(id as string)
+      if (membershipRes.ok) {
+        setIsMember(membershipRes.body.data.is_member)
+      }
     }
 
     // Fetch news for space
@@ -65,6 +75,20 @@ const SpaceDetailPage: React.FC = () => {
       setPageable(newsRes.body.data.pageable)
     }
     setLoadingMore(false)
+  }
+
+  const handleJoin = async () => {
+    if (!organization || joining) return
+    setJoining(true)
+    const res = await joinOrganization(organization.id)
+    if (res.ok) {
+      setIsMember(true)
+      // Refresh data to show news
+      fetchData()
+    } else {
+      alert(res.body.message || t('failed_to_join_organization'))
+    }
+    setJoining(false)
   }
 
   if (!user) return (
@@ -98,31 +122,49 @@ const SpaceDetailPage: React.FC = () => {
         )}
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">{t('news')}</h2>
-        {news.length === 0 ? (
-          <p>{t('no_news_available')}</p>
-        ) : (
-          <>
-            <ul className="space-y-4">
-              {news.map(item => (
-                <NewsItem key={item.public_id} news={item} hideOrganization={false} />
-              ))}
-            </ul>
-            {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
-              <div className="text-center mt-4">
-                <button
-                  onClick={loadMoreNews}
-                  disabled={loadingMore}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {loadingMore ? t('loading') : t('load_more')}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      {isMember === false ? (
+        <div className="mb-8">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('join_to_see_published_news')}</h3>
+            <p className="text-blue-700 mb-4">
+              {t('become_member_to_access_news')}
+            </p>
+            <button
+              onClick={handleJoin}
+              disabled={joining}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+            >
+              {joining ? t('joining') : t('join_organization')}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">{t('news')}</h2>
+          {news.length === 0 ? (
+            <p>{t('no_news_available')}</p>
+          ) : (
+            <>
+              <ul className="space-y-4">
+                {news.map(item => (
+                  <NewsItem key={item.public_id} news={item} hideOrganization={false} />
+                ))}
+              </ul>
+              {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
+                <div className="text-center mt-4">
+                  <button
+                    onClick={loadMoreNews}
+                    disabled={loadingMore}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {loadingMore ? t('loading') : t('load_more')}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }
