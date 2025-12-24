@@ -91,6 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }){
     const res = await refreshToken(refreshTokenValue)
     if (res.ok && res.body && res.body.accessToken) {
       localStorage.setItem('accessToken', res.body.accessToken)
+      if (res.body.refreshToken) {
+        localStorage.setItem('refreshToken', res.body.refreshToken)
+      }
       return true
     }
     return false

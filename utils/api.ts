@@ -10,7 +10,7 @@ type ApiResponse = {
   body: any
 }
 
-export async function apiFetch(path: string, options: ApiOptions = {}): Promise<ApiResponse> {
+export async function apiFetch(path: string, options: ApiOptions = {}, _retry = false): Promise<ApiResponse> {
   const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
   const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {})
   if (token) headers['Authorization'] = `Bearer ${token}`
@@ -18,6 +18,29 @@ export async function apiFetch(path: string, options: ApiOptions = {}): Promise<
   const res = await fetch(`${API_BASE}${path}`, Object.assign({}, options, { headers }))
   let json = null
   try { json = await res.json() } catch (e) { /* ignore */ }
+
+  // Handle automatic token refresh on 401
+  if (path !== '/auth/refresh' && res.status === 401 && !_retry) {
+    const refreshTokenValue = (typeof window !== 'undefined') ? localStorage.getItem('refreshToken') : null
+    if (refreshTokenValue) {
+      const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: refreshTokenValue })
+      })
+      let refreshJson = null
+      try { refreshJson = await refreshRes.json() } catch (e) { /* ignore */ }
+      if (refreshRes.ok && refreshJson && refreshJson.accessToken) {
+        localStorage.setItem('accessToken', refreshJson.accessToken)
+        if (refreshJson.refreshToken) {
+          localStorage.setItem('refreshToken', refreshJson.refreshToken)
+        }
+        // Retry the original request
+        return apiFetch(path, options, true)
+      }
+    }
+  }
+
   return { ok: res.ok, status: res.status, body: json }
 }
 
