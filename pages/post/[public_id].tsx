@@ -294,8 +294,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
     } else {
       // Fetch all comments
       const commentsRes = await fetch(`${API_BASE}/posts/${public_id}/comments?page=0&size=10`)
-      const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { comments: [] } }
-      comments = commentsData.data?.comments || []
+      const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { content: [] } }
+      comments = commentsData.data?.content || []
       pageable = commentsData.data?.pageable || null
     }
 
