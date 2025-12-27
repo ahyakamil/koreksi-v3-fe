@@ -51,7 +51,7 @@ const NewsManagementPage: React.FC = () => {
       ])
 
       if (orgRes.ok) setOrganization(orgRes.body.data.organization)
-      if (spacesRes.ok) setSpaces(spacesRes.body.data.spaces)
+      if (spacesRes.ok) setSpaces(spacesRes.body.data.content)
 
       // Load first page of news
       await loadNewsForTab(activeTab)
@@ -138,7 +138,7 @@ const NewsManagementPage: React.FC = () => {
         </button>
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">{t('manage_news')} - {organization.title}</h1>
-          {currentUserRole && (
+          {currentUserRole && ['admin', 'editor', 'author'].includes(currentUserRole) && (
             <button
               onClick={() => router.push(`/organizations/${id}/news/create`)}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

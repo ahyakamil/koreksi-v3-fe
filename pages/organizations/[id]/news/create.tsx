@@ -43,7 +43,7 @@ const CreateNewsPage: React.FC = () => {
       ])
 
       if (orgRes.ok) setOrganization(orgRes.body.data.organization)
-      if (spacesRes.ok) setSpaces(spacesRes.body.data.spaces)
+      if (spacesRes.ok) setSpaces(spacesRes.body.data.content)
     } catch (error) {
       console.error('Failed to fetch data:', error)
     }
@@ -113,8 +113,8 @@ const CreateNewsPage: React.FC = () => {
 
   const currentUserRole = getCurrentUserRole()
 
-  if (!currentUserRole) {
-    return <div>{t('you_are_not_a_member')}</div>
+  if (!currentUserRole || !['admin', 'editor', 'author'].includes(currentUserRole)) {
+    return <div>{t('you_do_not_have_permission')}</div>
   }
 
   return (
@@ -129,7 +129,7 @@ const CreateNewsPage: React.FC = () => {
         <h1 className="text-3xl font-bold">{t('create_news')} - {organization.title}</h1>
       </div>
 
-      {spaces.length === 0 && (
+      {(!spaces || spaces.length === 0) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
             <h2 className="text-xl font-semibold mb-4">{t('create_space')}</h2>
@@ -142,7 +142,7 @@ const CreateNewsPage: React.FC = () => {
         </div>
       )}
 
-      {spaces.length > 0 && (
+      {spaces && spaces.length > 0 && (
         <div className="max-w-4xl">
           <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -171,7 +171,7 @@ const CreateNewsPage: React.FC = () => {
               required
             >
               <option value="">{t('select_a_space')}</option>
-              {spaces.map(space => (
+              {spaces?.map(space => (
                 <option key={space.id} value={space.id}>
                   {space.name}
                 </option>
