@@ -41,7 +41,7 @@ const EditNewsPage: React.FC = () => {
       ])
 
       if (orgRes.ok) setOrganization(orgRes.body.data.organization)
-      if (spacesRes.ok) setSpaces(spacesRes.body.data.spaces)
+      setSpaces(spacesRes.ok ? spacesRes.body.data.content : [])
       if (newsRes.ok) {
         const newsData = newsRes.body.data.news
         setNews(newsData)
@@ -165,7 +165,7 @@ const EditNewsPage: React.FC = () => {
               required
             >
               <option value="">Select a space</option>
-              {spaces.map(space => (
+              {spaces?.map(space => (
                 <option key={space.id} value={space.id}>
                   {space.name}
                 </option>
