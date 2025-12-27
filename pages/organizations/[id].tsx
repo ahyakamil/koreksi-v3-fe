@@ -215,7 +215,7 @@ const OrganizationDetailsPage: React.FC = () => {
     }
     const res = await searchUsers(query)
     if (res.ok) {
-      setSearchResults(res.body.data.users.filter((u: User) => !organization?.users?.some(ou => ou.id === u.id)))
+      setSearchResults(res.body.data.content.filter((u: User) => !organization?.users?.some(ou => ou.id === u.id)))
     }
   }
 
@@ -367,18 +367,23 @@ const OrganizationDetailsPage: React.FC = () => {
 
               {showInvite && (
                 <div className="mb-4 p-4 bg-gray-100 rounded">
-                  <input
-                    type="text"
-                    placeholder={t('search_users_by_name_or_email')}
-                    value={inviteSearch}
-                    onChange={(e) => {
-                      setInviteSearch(e.target.value)
-                      handleSearchUsers(e.target.value)
-                    }}
-                    className="w-full p-2 border rounded mb-2"
-                  />
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 max-w-md">
+                    <input
+                      type="text"
+                      placeholder={t('search_users_by_name_or_email')}
+                      value={inviteSearch}
+                      onChange={(e) => setInviteSearch(e.target.value)}
+                      className="flex-1 p-2 border rounded"
+                    />
+                    <button
+                      onClick={() => handleSearchUsers(inviteSearch)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded whitespace-nowrap"
+                    >
+                      {t('search')}
+                    </button>
+                  </div>
                   {searchResults.length > 0 && (
-                    <div className="max-h-40 overflow-y-auto">
+                    <div className="mt-3 max-h-40 overflow-y-auto">
                       {searchResults.map((u) => (
                         <div key={u.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 bg-white rounded mb-1">
                           <span className="mb-1 sm:mb-0">{u.name} ({u.email})</span>
