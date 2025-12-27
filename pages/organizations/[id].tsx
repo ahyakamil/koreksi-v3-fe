@@ -416,7 +416,6 @@ const OrganizationDetailsPage: React.FC = () => {
                           onChange={(e) => handleRoleChange(member.id, e.target.value)}
                           className="p-1 border rounded text-sm"
                         >
-                          <option value="user">{t('user_role_user')}</option>
                           <option value="author">{t('user_role_author')}</option>
                           <option value="editor">{t('user_role_editor')}</option>
                           <option value="admin">{t('user_role_admin')}</option>
