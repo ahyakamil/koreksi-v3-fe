@@ -43,7 +43,7 @@ const CreateNewsPage: React.FC = () => {
       ])
 
       if (orgRes.ok) setOrganization(orgRes.body.data.organization)
-      if (spacesRes.ok) setSpaces(spacesRes.body.data.content)
+      setSpaces(spacesRes.ok ? spacesRes.body.data.content : [])
     } catch (error) {
       console.error('Failed to fetch data:', error)
     }
