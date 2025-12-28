@@ -125,7 +125,7 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
         <meta name="twitter:url" content={fullUrl} />
       </Head>
       <div className="container py-8">
-        <article className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
+        <article className="p-4 bg-white rounded shadow">
           <header className="mb-4">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-500">{t('by')} {post.user?.name || t('unknown')}</div>
@@ -171,7 +171,7 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
           </header>
           <div className="prose max-w-none">
             <p>{post.content}</p>
-            {post.medias && <Carousel medias={post.medias} />}
+            {(post.medias || post.youtube_video) && <Carousel medias={post.medias || []} youtubeVideo={post.youtube_video} />}
           </div>
           <footer className="mt-6">
             <div className="mb-4">
