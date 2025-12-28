@@ -8,6 +8,7 @@ import MultiImageUpload from './MultiImageUpload'
 export default function PostForm({ onCreated }: { onCreated?: (post: any) => void }){
   const [content,setContent] = useState('')
   const [title,setTitle] = useState('')
+  const [youtubeVideo,setYoutubeVideo] = useState('')
   const [imageFiles,setImageFiles] = useState<File[]>([])
   const [error,setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -44,10 +45,11 @@ export default function PostForm({ onCreated }: { onCreated?: (post: any) => voi
       })
     }
 
-    const { body } = await apiFetch('/posts', { method: 'POST', body: JSON.stringify({ title, content, medias }) })
+    const { body } = await apiFetch('/posts', { method: 'POST', body: JSON.stringify({ title, content, youtube_video: youtubeVideo, medias }) })
     if (body && body.statusCode === 2000) {
       setTitle('')
       setContent('')
+      setYoutubeVideo('')
       setImageFiles([])
       if (onCreated) onCreated(body.data.post)
     } else {
@@ -63,6 +65,19 @@ export default function PostForm({ onCreated }: { onCreated?: (post: any) => voi
       <div className="text-sm text-gray-600">{t('posting_as')} {user.name || user.email}</div>
       <input disabled={submitting} className="w-full border rounded p-2 mt-2" placeholder={t('title')} value={title} onChange={e=>setTitle(e.target.value)} />
       <textarea disabled={submitting} rows={4} className="w-full border rounded p-2 mt-2" value={content} onChange={e=>setContent(e.target.value)} placeholder={t('content_placeholder')} />
+      <input disabled={submitting} className="w-full border rounded p-2 mt-2" placeholder="YouTube Video ID" value={youtubeVideo} onChange={e=>setYoutubeVideo(e.target.value)} />
+      {youtubeVideo && (
+        <div className="mt-2">
+          <iframe
+            width="560"
+            height="315"
+            src={`https://www.youtube.com/embed/${youtubeVideo}`}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      )}
       <MultiImageUpload
         onFilesSelected={handleFilesSelected}
         selectedFiles={imageFiles}

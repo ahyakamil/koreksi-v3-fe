@@ -19,6 +19,7 @@ export interface Post {
   content: string
   medias?: Media[]
   comments_count?: number
+  youtube_video?: string
 }
 
 export interface Comment {
@@ -113,6 +114,7 @@ export interface News {
   editor?: User
   publisher?: User
   comments_count?: number
+  youtube_video?: string
 }
 
 export interface Message {

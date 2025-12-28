@@ -19,6 +19,7 @@ const CreateNewsPage: React.FC = () => {
     content: '',
     image: '',
     caption: '',
+    youtube_video: '',
     space_id: '',
     status: 'draft' as 'draft' | 'need_review'
   })
@@ -196,6 +197,32 @@ const CreateNewsPage: React.FC = () => {
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               placeholder={t('optional_caption_for_the_image')}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              YouTube Video ID
+            </label>
+            <input
+              type="text"
+              name="youtube_video"
+              value={formData.youtube_video}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g. dQw4w9WgXcQ"
+            />
+            {formData.youtube_video && (
+              <div className="mt-2">
+                <iframe
+                  width="560"
+                  height="315"
+                  src={`https://www.youtube.com/embed/${formData.youtube_video}`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            )}
           </div>
 
           <div>

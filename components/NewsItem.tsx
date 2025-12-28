@@ -186,6 +186,19 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
           )}
         </div>
 
+        {news.youtube_video && (
+          <div className="mb-3">
+            <iframe
+              width="560"
+              height="315"
+              src={`https://www.youtube.com/embed/${news.youtube_video}`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        )}
+
         {news.editor && (
           <div className="mb-3">
             <span className="font-bold">({news.editor.name})</span>

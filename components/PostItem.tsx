@@ -130,6 +130,18 @@ export default function PostItem({ post, onDelete }: PostItemProps) {
       <div>
         {post.title && <h3 className="font-semibold">{post.title}</h3>}
         <div className="mt-1">{post.content}</div>
+        {post.youtube_video && (
+          <div className="mt-2">
+            <iframe
+              width="560"
+              height="315"
+              src={`https://www.youtube.com/embed/${post.youtube_video}`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        )}
         {post.medias && <Carousel medias={post.medias} />}
       </div>
       <div className="mt-3">
