@@ -10,9 +10,10 @@ import { useLocale } from '../context/LocaleContext'
 interface NewsItemProps {
   news: News
   hideOrganization?: boolean
+  isDetail?: boolean
 }
 
-export default function NewsItem({ news, hideOrganization = false }: NewsItemProps) {
+export default function NewsItem({ news, hideOrganization = false, isDetail = false }: NewsItemProps) {
   const { user } = useAuth()
   const { t, locale } = useLocale()
   const [isExpanded, setIsExpanded] = useState(false)
@@ -98,12 +99,14 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
   }
 
   const cleanedContent = cleanHTML(news.content)
-  const plainContent = getPlainText(cleanedContent)
-  const shouldTruncate = plainContent.length > 300
-  const displayContent = isExpanded ? cleanedContent : (shouldTruncate ? truncateText(plainContent, 300) : cleanedContent)
+  const plainContent = isDetail ? '' : getPlainText(cleanedContent)
+  const shouldTruncate = !isDetail && plainContent.length > 300
+  const displayContent = isDetail || isExpanded ? cleanedContent : (shouldTruncate ? truncateText(plainContent, 300) : cleanedContent)
+
+  const Container = isDetail ? 'div' : 'li'
 
   return (
-    <li className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <Container className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="p-6">
         <h3 className="font-bold text-xl text-gray-900 mb-3 leading-tight text-center">
           {news.title}
@@ -175,7 +178,7 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
         </div>
 
         <div className="text-gray-700 leading-relaxed mb-3">
-          {isExpanded ? (
+          {isDetail || isExpanded ? (
             <div
               className="prose max-w-none"
               dangerouslySetInnerHTML={{ __html: displayContent }}
@@ -213,7 +216,7 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
 
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            {shouldTruncate && (
+            {!isDetail && shouldTruncate && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="text-blue-600 hover:text-blue-800 font-medium text-sm"
@@ -249,6 +252,6 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
           </div>
         )}
       </div>
-    </li>
+    </Container>
   )
 }

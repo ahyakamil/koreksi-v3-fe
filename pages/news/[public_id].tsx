@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { News, Comment, Pageable } from '../../types'
-import NewsDetail from '../../components/NewsDetail'
+import NewsItem from '../../components/NewsItem'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import { useState, useEffect } from 'react'
@@ -138,28 +138,10 @@ export default function NewsDetailPage({ news, comments: initialComments, pageab
         <meta name="twitter:url" content={fullUrl} />
       </Head>
       <div className="container py-8">
-        <NewsDetail
+        <NewsItem
           news={news}
-          comments={comments}
-          pageable={pageable}
-          onCommentSubmit={handleCommentSubmit}
-          onLoadMoreComments={loadMoreComments}
-          showCommentsInitially={!!specificCommentId}
-          highlightedCommentId={specificCommentId}
-          initialReplies={initialReplies}
-          initialShowReplies={initialShowReplies}
-          initialRepliesPageable={initialRepliesPageable}
+          isDetail={true}
         />
-        {specificCommentId && (
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => window.location.href = `/news/${news.public_id}`}
-              className="text-sm text-blue-600 hover:text-blue-800"
-            >
-              {t('show_all_comments')}
-            </button>
-          </div>
-        )}
       </div>
     </>
   )
