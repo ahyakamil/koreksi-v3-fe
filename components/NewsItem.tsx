@@ -86,15 +86,21 @@ export default function NewsItem({ news, hideOrganization = false }: NewsItemPro
     return tempDiv.textContent || tempDiv.innerText || ''
   }
 
+  // Function to clean HTML by removing empty paragraphs
+  const cleanHTML = (html: string) => {
+    return html.replace(/<p>\s*<br\s*\/?>\s*<\/p>/gi, '').replace(/<p>&nbsp;<\/p>/gi, '').replace(/<p><\/p>/gi, '')
+  }
+
   // Function to truncate text
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text
     return text.substring(0, maxLength).trim() + '...'
   }
 
-  const plainContent = getPlainText(news.content)
+  const cleanedContent = cleanHTML(news.content)
+  const plainContent = getPlainText(cleanedContent)
   const shouldTruncate = plainContent.length > 300
-  const displayContent = isExpanded ? news.content : (shouldTruncate ? truncateText(plainContent, 300) : news.content)
+  const displayContent = isExpanded ? cleanedContent : (shouldTruncate ? truncateText(plainContent, 300) : cleanedContent)
 
   return (
     <li className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
