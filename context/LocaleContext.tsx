@@ -15,8 +15,17 @@ export function LocaleProvider({ children }: { children: ReactNode }){
   const [locale, setLocale] = useState<Locale>('id') // default Indonesian
 
   useEffect(()=>{
-    const stored = typeof window !== 'undefined' && localStorage.getItem('locale')
-    if(stored && (stored === 'id' || stored === 'en')) setLocale(stored as Locale)
+    if(typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const langParam = urlParams.get('lang')
+      if(langParam && (langParam === 'id' || langParam === 'en')) {
+        setLocale(langParam as Locale)
+        localStorage.setItem('locale', langParam)
+      } else {
+        const stored = localStorage.getItem('locale')
+        if(stored && (stored === 'id' || stored === 'en')) setLocale(stored as Locale)
+      }
+    }
   },[])
 
   function changeLocale(l: Locale){
