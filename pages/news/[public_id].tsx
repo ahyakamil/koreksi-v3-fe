@@ -1,15 +1,13 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
-import Link from 'next/link'
 import { News, Comment, Pageable } from '../../types'
-import CommentsList from '../../components/CommentsList'
-import CommentForm from '../../components/CommentForm'
+import NewsDetail from '../../components/NewsDetail'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import { useState, useEffect } from 'react'
 import { createComment, getComments } from '../../utils/api'
 
-interface NewsDetailProps {
+interface NewsDetailPageProps {
     news: News | null
     comments: Comment[]
     pageable?: Pageable | null
@@ -21,7 +19,7 @@ interface NewsDetailProps {
     fullUrl: string
 }
 
-export default function NewsDetail({ news, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl }: NewsDetailProps) {
+export default function NewsDetailPage({ news, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl }: NewsDetailPageProps) {
   const { user } = useAuth()
   const { t, locale } = useLocale()
   const [comments, setComments] = useState<Comment[]>(initialComments)
@@ -114,6 +112,7 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
   }
 
 
+
   return (
     <>
       <Head>
@@ -139,130 +138,34 @@ export default function NewsDetail({ news, comments: initialComments, pageable: 
         <meta name="twitter:url" content={fullUrl} />
       </Head>
       <div className="container py-8">
-        <article className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
-          <header className="mb-4">
-            <h1 className="text-2xl font-bold text-center mb-3">{news.title}</h1>
-            <div className="text-sm text-gray-500 text-center mb-3">
-              {news.user?.name || t('unknown')} - {news.organization && (
-                <Link href={`/organizations/${news.organization.id}`} className="text-blue-500 hover:text-blue-700 font-medium">
-                  {news.organization.title}
-                </Link>
-              )}
-            </div>
-            <div className="text-sm text-gray-400 text-center mb-3">
-              {formatDate(news.published_at || news.created_at)}
-            </div>
-            <div className="flex justify-center mb-3">
-              <Link href={`/organizations/${news.organization_id}/spaces/${news.space_id}`}>
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full cursor-pointer hover:bg-green-200">
-                  {news.space?.name || 'Space'}
-                </span>
-              </Link>
-            </div>
-          </header>
-          <div className="prose max-w-none">
-            {news.image && (
-              <div className="mb-4">
-                <img src={news.image} alt={news.title} className="w-full" />
-              </div>
-            )}
-            {news.caption && (
-              <div className="mb-4 text-xs text-gray-500 text-left">
-                {news.caption}
-              </div>
-            )}
-            <div className="mb-4 flex justify-end">
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  const url = window.location.href
-                  const title = news.title
-                  if (navigator.share) {
-                    navigator.share({
-                      title,
-                      url
-                    }).catch(() => {
-                      // Fallback to clipboard
-                      navigator.clipboard.writeText(url)
-                      alert('URL copied to clipboard!')
-                    })
-                  } else {
-                    navigator.clipboard.writeText(url)
-                    alert('URL copied to clipboard!')
-                  }
-                }}
-                className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                </svg>
-                <span>{t('share')}</span>
-              </button>
-            </div>
-            <div dangerouslySetInnerHTML={{ __html: news.content }} />
-            {news.editor && (
-              <div className="mb-4">
-                <span className="font-bold">({news.editor.name})</span>
-              </div>
-            )}
+        <NewsDetail
+          news={news}
+          comments={comments}
+          pageable={pageable}
+          onCommentSubmit={handleCommentSubmit}
+          onLoadMoreComments={loadMoreComments}
+          showCommentsInitially={!!specificCommentId}
+          highlightedCommentId={specificCommentId}
+          initialReplies={initialReplies}
+          initialShowReplies={initialShowReplies}
+          initialRepliesPageable={initialRepliesPageable}
+        />
+        {specificCommentId && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => window.location.href = `/news/${news.public_id}`}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              {t('show_all_comments')}
+            </button>
           </div>
-          <footer className="mt-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold">{t('comments')} ({totalComments})</h3>
-              {specificCommentId && (
-                <div className="mt-2">
-                  <button
-                    onClick={() => window.location.href = `/news/${news.public_id}`}
-                    className="text-sm text-blue-600 hover:text-blue-800"
-                  >
-                    {t('show_all_comments')}
-                  </button>
-                </div>
-              )}
-
-              {user && !specificCommentId && (
-                <div className="mt-4">
-                  <CommentForm
-                    commentableType="news"
-                    commentableId={news.public_id}
-                    onSubmit={handleCommentSubmit}
-                  />
-                </div>
-              )}
-
-              <CommentsList
-                comments={comments}
-                onReply={handleCommentSubmit}
-                currentUser={user}
-                commentableType="news"
-                commentableId={news.public_id}
-                highlightedCommentId={specificCommentId}
-                initialReplies={initialReplies}
-                initialShowReplies={initialShowReplies}
-                initialRepliesPageable={initialRepliesPageable}
-              />
-
-              {pageable && pageable.pageNumber + 1 < pageable.totalPages && !specificCommentId && (
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={loadMoreComments}
-                    disabled={loadingMore}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {loadingMore ? t('loading') : t('load_more') + ' ' + t('comments')}
-                  </button>
-                </div>
-              )}
-
-            </div>
-          </footer>
-        </article>
+        )}
       </div>
     </>
   )
 }
 
-export const getServerSideProps: GetServerSideProps<NewsDetailProps> = async (context) => {
+export const getServerSideProps: GetServerSideProps<NewsDetailPageProps> = async (context) => {
   const { public_id } = context.params as { public_id: string }
   const { commentId } = context.query
   const protocol = (context.req.headers['x-forwarded-proto'] as string) || 'http'

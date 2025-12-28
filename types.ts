@@ -130,3 +130,9 @@ export interface Message {
   content?: string
   decryptedContent?: string
 }
+
+export interface ApiResponse {
+  ok: boolean
+  status: number
+  body: any
+}
