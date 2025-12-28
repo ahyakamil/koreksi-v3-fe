@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Media } from '../types'
 import { useLocale } from '../context/LocaleContext'
 
@@ -10,6 +10,17 @@ export default function Carousel({ medias }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [zoomed, setZoomed] = useState(false)
   const { t } = useLocale()
+
+  useEffect(() => {
+    if (zoomed) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [zoomed])
 
   if (medias.length === 0) return null
 
@@ -39,7 +50,7 @@ export default function Carousel({ medias }: CarouselProps) {
       </div>
 
       {zoomed && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onClick={() => setZoomed(false)}>
+        <div className="fixed top-12 inset-x-0 bottom-0 bg-black bg-opacity-75 flex items-center justify-center z-40" onClick={() => setZoomed(false)}>
           <img src={medias[currentIndex].url} alt="" className="max-w-full max-h-full" />
           {medias.length > 1 && (
             <>
