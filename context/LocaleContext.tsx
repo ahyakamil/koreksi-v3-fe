@@ -6,7 +6,7 @@ type Locale = 'id' | 'en'
 type LocaleContextType = {
   locale: Locale
   changeLocale: (l: Locale) => void
-  t: (key: string, params?: Record<string, any>) => string
+  t: (key: string, params?: Record<string, any>) => any
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
@@ -27,17 +27,21 @@ export function LocaleProvider({ children }: { children: ReactNode }){
   function t(key: string){
     const group = translations[locale] || translations['id']
     const result = group[key as keyof typeof group]
-    if (Array.isArray(result)) return key
+    if (Array.isArray(result)) return result
     return (result as string) || translations['en'][key as keyof typeof group] as string || key
   }
 
   // support simple interpolation: t('key', {name: 'Alice'}) replaces {name}
   function tInterp(key: string, params: Record<string, any> = {}){
     let str = t(key)
-    Object.keys(params).forEach(k=>{
-      const re = new RegExp(`\\{${k}\\}`,'g')
-      str = str.replace(re, String(params[k]))
-    })
+    if (typeof str === 'string') {
+      let s = str as string
+      Object.keys(params).forEach(k=>{
+        const re = new RegExp(`\\{${k}\\}`,'g')
+        s = s.replace(re, String(params[k]))
+      })
+      return s
+    }
     return str
   }
 
