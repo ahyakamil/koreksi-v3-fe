@@ -447,7 +447,17 @@ const OrganizationDetailsPage: React.FC = () => {
 
           {activeTab === 'spaces' && (
             <div>
-              <h2 className="text-2xl font-semibold mb-4">{t('spaces')}</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-semibold">{t('spaces')}</h2>
+                {currentUserRole === 'admin' && (
+                  <button
+                    onClick={() => setShowCreateSpace(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    {t('create_space')}
+                  </button>
+                )}
+              </div>
 
               {showCreateSpace && currentUserRole === 'admin' && (
                 <div className="mb-8 p-4 bg-gray-50 rounded">
@@ -471,15 +481,7 @@ const OrganizationDetailsPage: React.FC = () => {
               <div>
                 {spaces.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">{t('no_spaces_found_create_first')}</p>
-                    {currentUserRole === 'admin' && (
-                      <button
-                        onClick={() => setShowCreateSpace(true)}
-                        className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 text-lg"
-                      >
-                        {t('create_space')}
-                      </button>
-                    )}
+                    <p className="text-gray-500">{t('no_spaces_found')}</p>
                   </div>
                 ) : (
                   spaces.map(space => (
