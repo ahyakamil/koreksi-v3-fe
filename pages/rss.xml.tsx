@@ -31,10 +31,10 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
 ${news.map(item => `
 <item>
-<title>${escapeXml(item.title)}</title>
-<link>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${item.public_id}</link>
-<guid>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${item.public_id}</guid>
-<description>${escapeXml(stripHtml(item.content))}</description>
+<title>${escapeXml(decodeHtmlEntities(item.title))}</title>
+<link>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${encodeURIComponent(item.public_id)}</link>
+<guid>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${encodeURIComponent(item.public_id)}</guid>
+<description>${escapeXml(stripHtml(decodeHtmlEntities(item.content)))}</description>
 <pubDate>${new Date(item.published_at).toUTCString()}</pubDate>
 ${item.user ? `<author>${escapeXml(item.user.name)}</author>` : ''}
 </item>
@@ -70,4 +70,19 @@ function escapeXml(unsafe: string): string {
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '');
+}
+
+function decodeHtmlEntities(text: string): string {
+  const entities: { [key: string]: string } = {
+    '&': '&',
+    '<': '<',
+    '>': '>',
+    '"': '"',
+    "'": "'",
+    '&#x27;': "'",
+    '&#x2F;': '/',
+    '&#x60;': '`',
+    '&#x3D;': '='
+  };
+  return text.replace(/&[a-zA-Z0-9#]+;/g, (entity) => entities[entity] || entity);
 }
