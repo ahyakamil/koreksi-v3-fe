@@ -18,13 +18,17 @@ function AppContent({ Component, pageProps }: AppProps) {
         <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/icon-512x512.png" />
         <link rel="shortcut icon" href="/icon-512x512.png" />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-PFWN3XNMHP"></script>
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-PFWN3XNMHP');
-        ` }} />
+        {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}></script>
+            <script dangerouslySetInnerHTML={{ __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
+            ` }} />
+          </>
+        )}
       </Head>
       <Header />
       <Component {...pageProps} />
