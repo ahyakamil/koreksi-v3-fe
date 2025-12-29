@@ -31,12 +31,12 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
 ${news.map(item => `
 <item>
-<title>${escapeXml(decodeHtmlEntities(item.title))}</title>
+<title><![CDATA[${decodeHtmlEntities(item.title)}]]></title>
 <link>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${encodeURIComponent(item.public_id)}</link>
 <guid>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${encodeURIComponent(item.public_id)}</guid>
-<description>${escapeXml(stripHtml(decodeHtmlEntities(item.content)))}</description>
+<description><![CDATA[${stripHtml(decodeHtmlEntities(item.content))}]]></description>
 <pubDate>${new Date(item.published_at).toUTCString()}</pubDate>
-${item.user ? `<author>${escapeXml(item.user.name)}</author>` : ''}
+${item.user ? `<author><![CDATA[${item.user.name}]]></author>` : ''}
 </item>
 `).join('')}
 </channel>
