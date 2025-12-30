@@ -3,6 +3,8 @@ import { apiFetch } from '../utils/api'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
 import { User, Friendship, FriendRequest } from '../types'
+import { Avatar } from '../components/Avatar'
+import { Search, UserPlus, Users, UserCheck, UserX, Shield } from 'lucide-react'
 
 export default function Friends(){
   const { t } = useLocale()
@@ -114,158 +116,247 @@ export default function Friends(){
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h2 className="text-xl font-semibold mb-6">{t('friends')}</h2>
-
-      <section className="mb-8">
-        <h3 className="font-medium mb-3">{t('find_friend')}</h3>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 max-w-md">
-          <input
-            className="flex-1 border rounded p-2 text-sm"
-            placeholder={t('search_by_name')}
-            value={query}
-            onChange={e=>setQuery(e.target.value)}
-          />
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded text-sm whitespace-nowrap"
-            onClick={search}
-          >
-            {t('search')}
-          </button>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('friends')}</h1>
+          <p className="text-gray-600">Manage your friendships and connect with others</p>
         </div>
-        <div className="text-xs text-gray-500 mt-1">{t('search_hint')}</div>
-        {searchResults.length > 0 && (
-          <div className="mt-3 max-w-md">
-            <ul className="space-y-1">
-              {searchResults.map(u => (
-                <li
-                  key={u.id}
-                  className="p-3 bg-gray-100 rounded cursor-pointer hover:bg-gray-200 transition-colors"
-                  onClick={() => { setSelectedUser(u); setSearchResults([]); setQuery(u.name); setSearchPage(0); setHasMoreSearch(false) }}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Search Section */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Search className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">{t('find_friend')}</h3>
+              </div>
+
+              <div className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder={t('search_by_name')}
+                    value={query}
+                    onChange={e=>setQuery(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
+                  onClick={search}
                 >
-                  <div className="font-medium">{u.name}</div>
-                  <div className="text-sm text-gray-600">{u.email}</div>
-                </li>
-              ))}
-            </ul>
-            {hasMoreSearch && (
-              <button
-                className="mt-3 px-4 py-2 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition-colors"
-                onClick={loadMoreSearch}
-                disabled={searchLoading}
-              >
-                {searchLoading ? 'Loading...' : 'Load More'}
-              </button>
-            )}
-          </div>
-        )}
-        {selectedUser && (
-          <div className="mt-3 p-3 bg-blue-50 rounded flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-            <span className="text-sm">Send request to: <strong>{selectedUser.name}</strong></span>
-            <div className="flex space-x-2">
-              <button className="px-3 py-1 bg-green-600 text-white rounded text-sm" onClick={send}>{t('send')}</button>
-              <button className="px-3 py-1 bg-gray-300 rounded text-sm" onClick={() => { setSelectedUser(null); setQuery(''); setSearchResults([]); setSearchPage(0); setHasMoreSearch(false) }}>Cancel</button>
+                  <Search className="w-4 h-4" />
+                  {t('search')}
+                </button>
+
+                <p className="text-xs text-gray-500">{t('search_hint')}</p>
+              </div>
+              {searchResults.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Search Results</h4>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {searchResults.map(u => (
+                      <div
+                        key={u.id}
+                        className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors border border-gray-200"
+                        onClick={() => { setSelectedUser(u); setSearchResults([]); setQuery(u.name); setSearchPage(0); setHasMoreSearch(false) }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar name={u.name} size={32} />
+                          <div>
+                            <div className="font-medium text-gray-900">{u.name}</div>
+                            <div className="text-sm text-gray-600">{u.email}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {hasMoreSearch && (
+                    <button
+                      className="w-full mt-3 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                      onClick={loadMoreSearch}
+                      disabled={searchLoading}
+                    >
+                      {searchLoading ? 'Loading...' : 'Load More'}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {selectedUser && (
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Avatar name={selectedUser.name} size={32} />
+                    <span className="text-sm font-medium">Send request to: <strong>{selectedUser.name}</strong></span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
+                      onClick={send}
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      {t('send')}
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                      onClick={() => { setSelectedUser(null); setQuery(''); setSearchResults([]); setSearchPage(0); setHasMoreSearch(false) }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {msg && (
+                <div className="mt-4 p-3 text-sm text-gray-600 bg-gray-50 rounded-lg border">
+                  {msg}
+                </div>
+              )}
             </div>
           </div>
-        )}
-        {msg && <div className="mt-3 text-sm text-gray-600 bg-gray-50 p-2 rounded">{msg}</div>}
-      </section>
 
-      <section className="mb-8">
-        <h3 className="font-medium mb-3">{t('incoming_requests')}</h3>
-        {requests.length===0 && <div className="text-sm text-gray-600 p-4 bg-gray-50 rounded">{t('no_requests')}</div>}
-        <ul className="space-y-3">
-          {requests.map(r=> (
-            <li key={r.id} className="p-4 bg-white rounded-lg shadow border flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-medium text-sm">
-                    {r.user.name.charAt(0).toUpperCase()}
-                  </span>
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Incoming Requests */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <UserCheck className="w-5 h-5 text-orange-600" />
                 </div>
-                <div>
-                  <div className="font-medium">{r.user.name}</div>
-                  <div className="text-sm text-gray-600">{t('friend_request')}</div>
-                </div>
+                <h3 className="text-lg font-semibold text-gray-900">{t('incoming_requests')}</h3>
               </div>
-              <div className="flex space-x-2 sm:ml-4">
-                <button
-                  onClick={()=>accept(r.id)}
-                  className="px-3 py-1.5 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors"
-                >
-                  {t('accept')}
-                </button>
-                <button
-                  onClick={()=>decline(r.id)}
-                  className="px-3 py-1.5 bg-gray-300 rounded text-sm hover:bg-gray-400 transition-colors"
-                >
-                  {t('decline')}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
 
-      <section className="mb-8">
-        <h3 className="font-medium mb-3">{t('friends')}</h3>
-        {friends.length===0 && <div className="text-sm text-gray-600 p-4 bg-gray-50 rounded">{t('no_friends')}</div>}
-        <ul className="space-y-3">
-          {friends.map(f=> (
-            <li key={f.friendship_id} className="p-4 bg-white rounded-lg shadow border flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 font-medium text-sm">
-                    {f.user.name.charAt(0).toUpperCase()}
-                  </span>
+              {requests.length === 0 ? (
+                <div className="text-center py-8">
+                  <UserCheck className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500">{t('no_requests')}</p>
                 </div>
-                <div>
-                  <div className="font-medium">{f.user.name}</div>
-                  <div className="text-sm text-gray-600">{f.user.email}</div>
+              ) : (
+                <div className="space-y-3">
+                  {requests.map(r => (
+                    <div key={r.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar name={r.user.name} size={40} />
+                          <div>
+                            <div className="font-medium text-gray-900">{r.user.name}</div>
+                            <div className="text-sm text-gray-600">{t('friend_request')}</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => accept(r.id)}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+                          >
+                            <UserCheck className="w-4 h-4" />
+                            {t('accept')}
+                          </button>
+                          <button
+                            onClick={() => decline(r.id)}
+                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                          >
+                            {t('decline')}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-              <div className="sm:ml-4 flex space-x-2">
-                <button
-                  onClick={()=>removeFriend(f.friendship_id)}
-                  className="px-3 py-1.5 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors"
-                >
-                  {t('remove')}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+              )}
+            </div>
 
-      <section>
-        <h3 className="font-medium mb-3">{t('blocked_users')}</h3>
-        {blocked.length===0 && <div className="text-sm text-gray-600 p-4 bg-gray-50 rounded">{t('no_blocked_users')}</div>}
-        <ul className="space-y-3">
-          {blocked.map(b=> (
-            <li key={b.friendship_id} className="p-4 bg-white rounded-lg shadow border flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <span className="text-red-600 font-medium text-sm">
-                    {b.user.name.charAt(0).toUpperCase()}
-                  </span>
+            {/* Friends List */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Users className="w-5 h-5 text-green-600" />
                 </div>
-                <div>
-                  <div className="font-medium">{b.user.name}</div>
-                  <div className="text-sm text-gray-600">{b.user.email}</div>
+                <h3 className="text-lg font-semibold text-gray-900">{t('friends')}</h3>
+                <span className="ml-auto text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  {friends.length}
+                </span>
+              </div>
+
+              {friends.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500">{t('no_friends')}</p>
                 </div>
+              ) : (
+                <div className="space-y-3">
+                  {friends.map(f => (
+                    <div key={f.friendship_id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar name={f.user.name} size={40} />
+                          <div>
+                            <div className="font-medium text-gray-900">{f.user.name}</div>
+                            <div className="text-sm text-gray-600">{f.user.email}</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeFriend(f.friendship_id)}
+                          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium flex items-center gap-2"
+                        >
+                          <UserX className="w-4 h-4" />
+                          {t('remove')}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Blocked Users */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <Shield className="w-5 h-5 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">{t('blocked_users')}</h3>
+                <span className="ml-auto text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  {blocked.length}
+                </span>
               </div>
-              <div className="sm:ml-4">
-                <button
-                  onClick={()=>unblockUser(b.friendship_id)}
-                  className="px-3 py-1.5 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
-                >
-                  {t('unblock')}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+
+              {blocked.length === 0 ? (
+                <div className="text-center py-8">
+                  <Shield className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500">{t('no_blocked_users')}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {blocked.map(b => (
+                    <div key={b.friendship_id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar name={b.user.name} size={40} />
+                          <div>
+                            <div className="font-medium text-gray-900">{b.user.name}</div>
+                            <div className="text-sm text-gray-600">{b.user.email}</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => unblockUser(b.friendship_id)}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                        >
+                          <Shield className="w-4 h-4" />
+                          {t('unblock')}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
