@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link';
-import { Search, Home, Users, Video, Bell, Menu, MessageCircle, ChevronDown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, Home, Users, Video, Bell, MessageCircle, ChevronDown, LogOut } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,9 +10,18 @@ import { Avatar } from './Avatar';
 
 export function Header() {
   const { locale, changeLocale } = useLocale();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const router = useRouter();
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
+  const avatarDropdownRef = useRef<HTMLDivElement>(null);
+
+  const logout = () => {
+    document.cookie = 's_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    setUser(null);
+    router.push('/login');
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -95,9 +105,6 @@ export function Header() {
             </div>
             {user ? (
               <>
-                <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center">
-                  <Menu className="w-6 h-6" />
-                </button>
                 <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center relative">
                   <Bell className="w-6 h-6" />
                   <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>

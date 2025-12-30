@@ -3,7 +3,7 @@ import Router from 'next/router'
 import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
-import { login } from '../utils/api'
+import { login, setCookie } from '../utils/api'
 
 
 export default function Login(){
@@ -22,8 +22,7 @@ export default function Login(){
     const res = await login(email, password)
     if(res.ok && res.body && res.body.accessToken){
       const j = res.body
-      localStorage.setItem('accessToken', j.accessToken)
-      if(j.refreshToken) localStorage.setItem('refreshToken', j.refreshToken)
+      setCookie('s_user', j.accessToken)
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {

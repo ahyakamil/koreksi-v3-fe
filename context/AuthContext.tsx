@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }){
     if (initDoneRef.current) return
     initDoneRef.current = true
     async function init(){
-      const token = getCookie(ACCESS_COOKIE_NAME) || (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null)
+      const token = getCookie(ACCESS_COOKIE_NAME)
       if (!token) { setLoading(false); return }
       const res = await apiFetch('/auth/me')
       if (res.body && res.body.user) {

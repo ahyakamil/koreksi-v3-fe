@@ -10,7 +10,7 @@ type ApiResponse = {
   body: any
 }
 
-const ACCESS_COOKIE_NAME = 'access_token_xyz123'
+const ACCESS_COOKIE_NAME = 's_user'
 
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null
@@ -20,8 +20,20 @@ function getCookie(name: string): string | null {
   return null
 }
 
+function setCookie(name: string, value: string, days: number = 7) {
+  if (typeof document === 'undefined') return
+  const expires = new Date()
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000)
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`
+}
+
+function clearCookie(name: string) {
+  if (typeof document === 'undefined') return
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
+}
+
 export async function apiFetch(path: string, options: ApiOptions = {}, _retry = false): Promise<ApiResponse> {
-  const token = getCookie(ACCESS_COOKIE_NAME) || (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null)
+  const token = getCookie(ACCESS_COOKIE_NAME)
   const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {})
   if (token) headers['Authorization'] = `Bearer ${token}`
 
@@ -33,6 +45,8 @@ export async function apiFetch(path: string, options: ApiOptions = {}, _retry = 
 
   return { ok: res.ok, status: res.status, body: json }
 }
+
+export { setCookie, clearCookie }
 
 export default apiFetch
 
@@ -246,7 +260,7 @@ export async function createComment(commentableType: string, commentableId: stri
 }
 
 export async function uploadImage(formData: FormData) {
-  const token = getCookie(ACCESS_COOKIE_NAME) || (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null)
+  const token = getCookie(ACCESS_COOKIE_NAME)
   const headers: Record<string, string> = {}
   if (token) headers['Authorization'] = `Bearer ${token}`
 
@@ -289,10 +303,6 @@ export async function login(email: string, password: string) {
   })
   let json = null
   try { json = await res.json() } catch (e) { /* ignore */ }
-  if (res.ok && json && json.accessToken) {
-    // Since cookies are set, but to be safe, also set localStorage
-    localStorage.setItem('accessToken', json.accessToken)
-  }
   return { ok: res.ok, status: res.status, body: json }
 }
 

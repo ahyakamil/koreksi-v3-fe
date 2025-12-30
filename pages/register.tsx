@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Router from 'next/router'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
-import { register } from '../utils/api'
+import { register, setCookie } from '../utils/api'
 
 
 export default function Register(){
@@ -22,8 +22,7 @@ export default function Register(){
     const res = await register(name, email, password)
     if(res.ok && res.body && res.body.accessToken){
       const j = res.body
-      localStorage.setItem('accessToken', j.accessToken)
-      if(j.refreshToken) localStorage.setItem('refreshToken', j.refreshToken)
+      setCookie('s_user', j.accessToken)
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {
