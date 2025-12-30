@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Search, Home, Users, Video, Bell, MessageCircle, ChevronDown, LogOut } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useLocale } from '../context/LocaleContext';
@@ -12,16 +12,28 @@ export function Header() {
   const { locale, changeLocale } = useLocale();
   const { user, setUser } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
   const avatarDropdownRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState('home');
 
   const logout = () => {
     document.cookie = 's_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     setUser(null);
     router.push('/login');
   };
+
+  useEffect(() => {
+    if (pathname === '/') {
+      setActiveTab('home');
+    } else if (pathname === '/friends') {
+      setActiveTab('friends');
+    } else {
+      setActiveTab('');
+    }
+  }, [pathname]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -62,13 +74,21 @@ export function Header() {
           <div className="hidden md:flex items-center gap-2">
             <button
               onClick={() => router.push('/')}
-              className="px-8 py-2 rounded-lg hover:bg-gray-100 text-blue-600 border-b-4 border-blue-600"
+              className={`px-8 py-2 rounded-lg hover:bg-gray-100 ${
+                activeTab === 'home'
+                  ? 'text-blue-600 border-b-4 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               <Home className="w-6 h-6" />
             </button>
             <button
               onClick={() => router.push('/friends')}
-              className="px-8 py-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+              className={`px-8 py-2 rounded-lg hover:bg-gray-100 ${
+                activeTab === 'friends'
+                  ? 'text-blue-600 border-b-4 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               <Users className="w-6 h-6" />
             </button>
@@ -174,14 +194,18 @@ export function Header() {
       <div className="flex items-center justify-around h-16">
         <button
           onClick={() => router.push('/')}
-          className="flex flex-col items-center justify-center flex-1 py-2 text-blue-600"
+          className={`flex flex-col items-center justify-center flex-1 py-2 ${
+            activeTab === 'home' ? 'text-blue-600' : 'text-gray-500'
+          }`}
         >
           <Home className="w-6 h-6" />
           <span className="text-xs mt-1">Home</span>
         </button>
         <button
           onClick={() => router.push('/friends')}
-          className="flex flex-col items-center justify-center flex-1 py-2 text-gray-500"
+          className={`flex flex-col items-center justify-center flex-1 py-2 ${
+            activeTab === 'friends' ? 'text-blue-600' : 'text-gray-500'
+          }`}
         >
           <Users className="w-6 h-6" />
           <span className="text-xs mt-1">Friends</span>
