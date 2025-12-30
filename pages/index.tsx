@@ -95,20 +95,7 @@ export default function Home() {
                   {posts.map(p => (
                     <PostComponent
                       key={p.public_id}
-                      author={{
-                        name: p.user?.name || 'Unknown',
-                        avatar: 'https://via.placeholder.com/40',
-                        verified: false,
-                        title: '',
-                      }}
-                      timestamp={p.created_at}
-                      content={p.content}
-                      image={p.medias?.[0]?.url}
-                      category=""
-                      likes={0}
-                      comments={p.comments_count || 0}
-                      shares={0}
-                      trending={false}
+                      post={p}
                     />
                   ))}
                   <div className="text-center py-8">
@@ -126,20 +113,7 @@ export default function Home() {
                   {posts.map(p => (
                     <PostComponent
                       key={p.public_id}
-                      author={{
-                        name: p.user?.name || 'Unknown',
-                        avatar: 'https://via.placeholder.com/40',
-                        verified: false,
-                        title: '',
-                      }}
-                      timestamp={p.created_at}
-                      content={p.content}
-                      image={p.medias?.[0]?.url}
-                      category=""
-                      likes={0}
-                      comments={p.comments_count || 0}
-                      shares={0}
-                      trending={false}
+                      post={p}
                     />
                   ))}
                   <div className="text-center py-8">

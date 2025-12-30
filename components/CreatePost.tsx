@@ -6,6 +6,7 @@ import { apiFetch, uploadImage } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import MultiImageUpload from './MultiImageUpload';
+import { Avatar } from './Avatar';
 
 interface CreatePostProps {
   onCreated?: (post: any) => void;
@@ -69,10 +70,9 @@ export function CreatePost({ onCreated }: CreatePostProps) {
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
       <div className="flex items-center gap-3 mb-3">
-        <img
-          src="https://images.unsplash.com/photo-1649589244330-09ca58e4fa64?w=100&h=100&fit=crop"
-          alt="Your avatar"
-          className="w-10 h-10 rounded-full object-cover"
+        <Avatar
+          name={user?.name || 'You'}
+          size={40}
         />
         {!expanded && (
           <input

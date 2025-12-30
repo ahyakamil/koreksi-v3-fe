@@ -2,9 +2,12 @@
 
 import { Search, Home, Users, Video, Bell, Menu, MessageCircle } from 'lucide-react';
 import { useLocale } from '../context/LocaleContext';
+import { useAuth } from '../context/AuthContext';
+import { Avatar } from './Avatar';
 
 export function Header() {
   const { locale, changeLocale } = useLocale();
+  const { user } = useAuth();
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-[1920px] mx-auto px-4">
@@ -61,13 +64,10 @@ export function Header() {
               <Bell className="w-6 h-6" />
               <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
             </button>
-            <button className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1649589244330-09ca58e4fa64?w=100&h=100&fit=crop" 
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </button>
+            <Avatar
+              name={user?.name || 'User'}
+              size={40}
+            />
           </div>
         </div>
       </div>
