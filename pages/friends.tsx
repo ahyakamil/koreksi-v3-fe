@@ -4,9 +4,9 @@ import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
 import { User, Friendship, FriendRequest } from '../types'
 import { Avatar } from '../components/Avatar'
-import { Search, UserPlus, Users, UserCheck, UserX, Shield } from 'lucide-react'
+import { Search, UserPlus, Users, UserCheck, UserX, Shield, Bell } from 'lucide-react'
 
-export default function Friends(){
+export default function Friends() {
   const { t } = useLocale()
   const { refreshPendingCount, user } = useAuth()
   const [friends, setFriends] = useState<Friendship[]>([])
@@ -19,8 +19,9 @@ export default function Friends(){
   const [searchLoading, setSearchLoading] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<string>('friends')
 
-  async function load(){
+  async function load() {
     // Load all friends
     const allFriends: any[] = []
     let page = 0
@@ -28,7 +29,7 @@ export default function Friends(){
 
     while (true) {
       const f = await apiFetch(`/friends?page=${page}&size=${size}`)
-      if (f.body && f.body.statusCode===2000 && f.body.data.content) {
+      if (f.body && f.body.statusCode === 2000 && f.body.data.content) {
         allFriends.push(...f.body.data.content)
         const pageable = f.body.data.pageable
         if (pageable.pageNumber + 1 >= pageable.totalPages) break
@@ -41,14 +42,14 @@ export default function Friends(){
     setFriends(allFriends)
 
     const r = await apiFetch('/friends/requests')
-    if (r.body && r.body.statusCode===2000) setRequests(r.body.data.requests || [])
+    if (r.body && r.body.statusCode === 2000) setRequests(r.body.data.requests || [])
     const b = await apiFetch('/friends/blocked')
-    if (b.body && b.body.statusCode===2000) setBlocked(b.body.data.blocked || [])
+    if (b.body && b.body.statusCode === 2000) setBlocked(b.body.data.blocked || [])
   }
 
-  useEffect(()=>{ load() }, [])
+  useEffect(() => { load() }, [])
 
-  async function search(){
+  async function search() {
     if (!query.trim()) {
       setMsg(t('search_term_required'))
       return
@@ -64,7 +65,7 @@ export default function Friends(){
     setSearchLoading(true)
     const res = await apiFetch(`/users/search?q=${encodeURIComponent(query)}&page=0&size=10`)
     setSearchLoading(false)
-    if (res.body && res.body.statusCode===2000) {
+    if (res.body && res.body.statusCode === 2000) {
       const content = res.body.data.content || []
       const pageable = res.body.data.pageable
       setSearchResults(content)
@@ -72,13 +73,13 @@ export default function Friends(){
     } else setMsg('Search failed')
   }
 
-  async function loadMoreSearch(){
+  async function loadMoreSearch() {
     if (!hasMoreSearch || searchLoading) return
     setSearchLoading(true)
     const nextPage = searchPage + 1
     const res = await apiFetch(`/users/search?q=${encodeURIComponent(query)}&page=${nextPage}&size=10`)
     setSearchLoading(false)
-    if (res.body && res.body.statusCode===2000) {
+    if (res.body && res.body.statusCode === 2000) {
       const content = res.body.data.content || []
       const pageable = res.body.data.pageable
       setSearchResults(prev => [...prev, ...content])
@@ -87,45 +88,81 @@ export default function Friends(){
     } else setMsg('Load more failed')
   }
 
-  async function send(){
+  async function send() {
     if (!selectedUser) return
     setMsg(null)
     const res = await apiFetch('/friends/request', { method: 'POST', body: JSON.stringify({ friend_id: selectedUser.id }) })
-    if (res.body && res.body.statusCode===2000) { setMsg(t('request_sent')); setSelectedUser(null); setQuery(''); setSearchResults([]); setSearchPage(0); setHasMoreSearch(false); load() }
+    if (res.body && res.body.statusCode === 2000) { setMsg(t('request_sent')); setSelectedUser(null); setQuery(''); setSearchResults([]); setSearchPage(0); setHasMoreSearch(false); load() }
     else setMsg(res.body?.message || 'Error')
   }
 
-  async function accept(id: string){
+  async function accept(id: string) {
     await apiFetch(`/friends/${id}/accept`, { method: 'POST' })
     load()
     refreshPendingCount()
   }
 
-  async function decline(id: string){
+  async function decline(id: string) {
     await apiFetch(`/friends/${id}/decline`, { method: 'POST' })
     load()
     refreshPendingCount()
   }
 
-  async function removeFriend(id: string){
+  async function removeFriend(id: string) {
     await apiFetch(`/friends/${id}`, { method: 'DELETE' }); load()
   }
 
-  async function unblockUser(id: string){
+  async function unblockUser(id: string) {
     await apiFetch(`/friends/${id}/unblock`, { method: 'POST' }); load()
   }
 
+  const tabs = [
+    { id: 'friends', label: 'Friends', icon: Users, count: friends.length },
+    { id: 'requests', label: 'Requests', icon: Bell, count: requests.length },
+    { id: 'search', label: 'Find Friend', icon: Search },
+    { id: 'blocked', label: 'Blocked', icon: Shield, count: blocked.length }
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('friends')}</h1>
           <p className="text-gray-600">Manage your friendships and connect with others</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Search Section */}
-          <div className="lg:col-span-1">
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+          <div className="flex overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-4 flex-1 min-w-0 text-center border-b-2 transition-colors ${activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm font-medium truncate">{t(tab.label)}</span>
+                  {tab.count !== undefined && (
+                    <span className={`text-xs px-2 py-1 rounded-full ${activeTab === tab.id ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="space-y-6">
+          {/* Search Tab */}
+          {activeTab === 'search' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-blue-100 rounded-lg">
@@ -141,7 +178,7 @@ export default function Friends(){
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder={t('search_by_name')}
                     value={query}
-                    onChange={e=>setQuery(e.target.value)}
+                    onChange={e => setQuery(e.target.value)}
                   />
                 </div>
 
@@ -217,15 +254,14 @@ export default function Friends(){
                 </div>
               )}
             </div>
-          </div>
+          )}
 
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Incoming Requests */}
+          {/* Requests Tab */}
+          {activeTab === 'requests' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-orange-100 rounded-lg">
-                  <UserCheck className="w-5 h-5 text-orange-600" />
+                  <Bell className="w-5 h-5 text-orange-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">{t('incoming_requests')}</h3>
               </div>
@@ -268,8 +304,10 @@ export default function Friends(){
                 </div>
               )}
             </div>
+          )}
 
-            {/* Friends List */}
+          {/* Friends Tab */}
+          {activeTab === 'friends' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-green-100 rounded-lg">
@@ -311,8 +349,10 @@ export default function Friends(){
                 </div>
               )}
             </div>
+          )}
 
-            {/* Blocked Users */}
+          {/* Blocked Tab */}
+          {activeTab === 'blocked' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-red-100 rounded-lg">
@@ -354,7 +394,7 @@ export default function Friends(){
                 </div>
               )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
