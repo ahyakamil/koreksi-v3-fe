@@ -1,6 +1,7 @@
 'use client'
 
-import { Search, Home, Users, Video, Bell, Menu, MessageCircle } from 'lucide-react';
+import { Search, Home, Users, Video, Bell, Menu, MessageCircle, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from './Avatar';
@@ -8,6 +9,21 @@ import { Avatar } from './Avatar';
 export function Header() {
   const { locale, changeLocale } = useLocale();
   const { user } = useAuth();
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsLanguageDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-[1920px] mx-auto px-4">
@@ -45,18 +61,37 @@ export function Header() {
 
           {/* Right Section */}
           <div className="flex items-center gap-2 flex-1 justify-end">
-            <button
-              onClick={() => changeLocale('id')}
-              className={`px-2 py-1 text-sm rounded ${locale === 'id' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-            >
-              ID
-            </button>
-            <button
-              onClick={() => changeLocale('en')}
-              className={`px-2 py-1 text-sm rounded ${locale === 'en' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-            >
-              EN
-            </button>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+                className="flex items-center gap-1 px-3 py-1 text-sm rounded hover:bg-gray-100"
+              >
+                <span className="font-medium">{locale.toUpperCase()}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isLanguageDropdownOpen && (
+                <div className="absolute right-0 mt-1 w-20 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  <button
+                    onClick={() => {
+                      changeLocale('id');
+                      setIsLanguageDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${locale === 'id' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  >
+                    ID
+                  </button>
+                  <button
+                    onClick={() => {
+                      changeLocale('en');
+                      setIsLanguageDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${locale === 'en' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                  >
+                    EN
+                  </button>
+                </div>
+              )}
+            </div>
             <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center">
               <Menu className="w-6 h-6" />
             </button>
