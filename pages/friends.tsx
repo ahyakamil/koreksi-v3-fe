@@ -4,7 +4,7 @@ import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
 import { User, Friendship, FriendRequest } from '../types'
 import { Avatar } from '../components/Avatar'
-import { Search, UserPlus, Users, UserCheck, UserX, Shield, Bell } from 'lucide-react'
+import { Search, UserPlus, Users, UserCheck, UserX, Shield, Bell, ChevronDown } from 'lucide-react'
 
 export default function Friends() {
   const { t } = useLocale()
@@ -124,8 +124,8 @@ export default function Friends() {
   ]
 
   return (
-    <div className="bg-gray-50 pb-20 md:pb-8">
-      <div className="mx-auto py-8 max-w-4xl">
+    <div className="pb-20 md:pb-8">
+      <div className="py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('friends')}</h1>
           <p className="text-gray-600">Manage your friendships and connect with others</p>
@@ -140,13 +140,12 @@ export default function Friends() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 py-4 flex-1 min-w-0 text-center border-b-2 transition-colors ${activeTab === tab.id
+                  className={`flex items-center justify-center gap-2 py-4 flex-1 min-w-0 border-b-2 transition-colors ${activeTab === tab.id
                       ? 'border-blue-500 text-blue-600 bg-blue-50'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium truncate">{t(tab.label)}</span>
                   {tab.count !== undefined && (
                     <span className={`text-xs px-2 py-1 rounded-full ${activeTab === tab.id ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
                       }`}>
@@ -183,11 +182,11 @@ export default function Friends() {
                 </div>
 
                 <button
-                  className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
+                  className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center"
                   onClick={search}
+                  title={t('search')}
                 >
                   <Search className="w-4 h-4" />
-                  {t('search')}
                 </button>
 
                 <p className="text-xs text-gray-500">{t('search_hint')}</p>
@@ -205,8 +204,8 @@ export default function Friends() {
                         <div className="flex items-center gap-3">
                           <Avatar name={u.name} size={32} />
                           <div>
-                            <div className="font-medium text-gray-900">{u.name}</div>
-                            <div className="text-sm text-gray-600">{u.email}</div>
+                            <div className="font-medium text-gray-900 break-all">{u.name}</div>
+                            <div className="text-sm text-gray-600 break-all">{u.email}</div>
                           </div>
                         </div>
                       </div>
@@ -214,11 +213,12 @@ export default function Friends() {
                   </div>
                   {hasMoreSearch && (
                     <button
-                      className="w-full mt-3 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                      className="w-full mt-3 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium flex items-center justify-center"
                       onClick={loadMoreSearch}
                       disabled={searchLoading}
+                      title={searchLoading ? 'Loading...' : 'Load More'}
                     >
-                      {searchLoading ? 'Loading...' : 'Load More'}
+                      <ChevronDown className="w-4 h-4" />
                     </button>
                   )}
                 </div>
@@ -232,17 +232,18 @@ export default function Friends() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
-                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
                       onClick={send}
+                      title={t('send')}
                     >
                       <UserPlus className="w-4 h-4" />
-                      {t('send')}
                     </button>
                     <button
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium flex items-center justify-center"
                       onClick={() => { setSelectedUser(null); setQuery(''); setSearchResults([]); setSearchPage(0); setHasMoreSearch(false) }}
+                      title="Cancel"
                     >
-                      Cancel
+                      <UserX className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -279,23 +280,24 @@ export default function Friends() {
                         <div className="flex items-center gap-3">
                           <Avatar name={r.user.name} size={40} />
                           <div>
-                            <div className="font-medium text-gray-900">{r.user.name}</div>
+                            <div className="font-medium text-gray-900 break-all">{r.user.name}</div>
                             <div className="text-sm text-gray-600">{t('friend_request')}</div>
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <button
                             onClick={() => accept(r.id)}
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
+                            title={t('accept')}
                           >
                             <UserCheck className="w-4 h-4" />
-                            {t('accept')}
                           </button>
                           <button
                             onClick={() => decline(r.id)}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium flex items-center justify-center"
+                            title={t('decline')}
                           >
-                            {t('decline')}
+                            <UserX className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -332,16 +334,16 @@ export default function Friends() {
                         <div className="flex items-center gap-3">
                           <Avatar name={f.user.name} size={40} />
                           <div>
-                            <div className="font-medium text-gray-900">{f.user.name}</div>
-                            <div className="text-sm text-gray-600">{f.user.email}</div>
+                            <div className="font-medium text-gray-900 break-all">{f.user.name}</div>
+                            <div className="text-sm text-gray-600 break-all">{f.user.email}</div>
                           </div>
                         </div>
                         <button
                           onClick={() => removeFriend(f.friendship_id)}
-                          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium flex items-center gap-2"
+                          className="px-2 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium flex items-center justify-center"
+                          title={t('remove')}
                         >
                           <UserX className="w-4 h-4" />
-                          {t('remove')}
                         </button>
                       </div>
                     </div>
@@ -377,16 +379,16 @@ export default function Friends() {
                         <div className="flex items-center gap-3">
                           <Avatar name={b.user.name} size={40} />
                           <div>
-                            <div className="font-medium text-gray-900">{b.user.name}</div>
-                            <div className="text-sm text-gray-600">{b.user.email}</div>
+                            <div className="font-medium text-gray-900 break-all">{b.user.name}</div>
+                            <div className="text-sm text-gray-600 break-all">{b.user.email}</div>
                           </div>
                         </div>
                         <button
                           onClick={() => unblockUser(b.friendship_id)}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center"
+                          title={t('unblock')}
                         >
                           <Shield className="w-4 h-4" />
-                          {t('unblock')}
                         </button>
                       </div>
                     </div>
