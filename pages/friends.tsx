@@ -124,8 +124,8 @@ export default function Friends() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="bg-gray-50 pb-20 md:pb-8">
+      <div className="mx-auto py-8 max-w-4xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('friends')}</h1>
           <p className="text-gray-600">Manage your friendships and connect with others</p>
@@ -140,7 +140,7 @@ export default function Friends() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-4 flex-1 min-w-0 text-center border-b-2 transition-colors ${activeTab === tab.id
+                  className={`flex items-center gap-2 py-4 flex-1 min-w-0 text-center border-b-2 transition-colors ${activeTab === tab.id
                       ? 'border-blue-500 text-blue-600 bg-blue-50'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                     }`}
@@ -230,7 +230,7 @@ export default function Friends() {
                     <Avatar name={selectedUser.name} size={32} />
                     <span className="text-sm font-medium">Send request to: <strong>{selectedUser.name}</strong></span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
                       onClick={send}
@@ -283,7 +283,7 @@ export default function Friends() {
                             <div className="text-sm text-gray-600">{t('friend_request')}</div>
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <button
                             onClick={() => accept(r.id)}
                             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"

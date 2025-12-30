@@ -68,7 +68,7 @@ export function CreatePost({ onCreated }: CreatePostProps) {
   if (!user) return null;
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 px-2 py-4 mb-4">
       <div className="flex items-center gap-3 mb-3">
         <Avatar
           name={user?.name || 'You'}

@@ -23,7 +23,7 @@ export function Layout({
       <div className="flex max-w-[1920px] mx-auto">
         {showSidebar && <Sidebar />}
 
-        <main className={`flex-1 ${showSidebar ? 'lg:ml-64' : ''} ${showRightSidebar ? 'xl:mr-80' : ''} px-4 py-4`}>
+        <main className={`flex-1 ${showSidebar ? 'lg:ml-64' : ''} ${showRightSidebar ? 'xl:mr-80' : ''} mx-4 my-4`}>
           <div className="max-w-2xl mx-auto">
             {children}
           </div>
