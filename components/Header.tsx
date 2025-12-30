@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link';
 import { Search, Home, Users, Video, Bell, Menu, MessageCircle, ChevronDown } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useLocale } from '../context/LocaleContext';
@@ -92,17 +93,30 @@ export function Header() {
                 </div>
               )}
             </div>
-            <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center">
-              <Menu className="w-6 h-6" />
-            </button>
-            <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center relative">
-              <Bell className="w-6 h-6" />
-              <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
-            </button>
-            <Avatar
-              name={user?.name || 'User'}
-              size={40}
-            />
+            {user ? (
+              <>
+                <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center">
+                  <Menu className="w-6 h-6" />
+                </button>
+                <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center relative">
+                  <Bell className="w-6 h-6" />
+                  <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
+                </button>
+                <Avatar
+                  name={user.name}
+                  size={40}
+                />
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link href="/login" className="px-4 py-2 text-blue-600 hover:bg-gray-100 rounded-lg">
+                  Login
+                </Link>
+                <Link href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  Register
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

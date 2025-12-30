@@ -1,14 +1,24 @@
 import '../styles/globals.css'
 import Head from 'next/head'
 import ChatWidget from '../components/ChatWidget'
+import { Layout } from '../components/Layout'
 import { AuthProvider, useAuth } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
 import { FullscreenProvider } from '../context/FullscreenContext'
 import { AppProps } from 'next/app'
 
-function AppContent({ Component, pageProps }: AppProps) {
+function AppContent({ Component, pageProps, router }: AppProps & { router: any }) {
   const { user } = useAuth()
   const title = (Component as any).title || pageProps.title || 'Koreksi'
+
+  // Pages that don't show sidebars (but still show header)
+  const minimalLayoutPages = ['/login', '/register']
+  const isMinimalLayout = minimalLayoutPages.includes(router.pathname)
+
+  const layoutProps = (Component as any).layoutProps || {}
+
+  const content = <Component {...pageProps} />
+
   return (
     <>
       <Head>
@@ -30,7 +40,14 @@ function AppContent({ Component, pageProps }: AppProps) {
           </>
         )}
       </Head>
-      <Component {...pageProps} />
+      <Layout
+        showSidebar={!isMinimalLayout}
+        showRightSidebar={!isMinimalLayout}
+        showHeader={true}
+        {...layoutProps}
+      >
+        {content}
+      </Layout>
       {user && (
         <ChatWidget
           apiUrl={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}`}

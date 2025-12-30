@@ -169,6 +169,11 @@ type TranslationKeys = {
   login_required: string
   login_to_access_full_features: string
   please_login_to_view_this_page: string
+  welcome_back: string
+  enter_your_email: string
+  enter_your_password: string
+  dont_have_account: string
+  sign_up: string
 }
 
 type Translations = {
@@ -346,6 +351,11 @@ const translations: Translations = {
     login_required: 'Login Diperlukan',
     login_to_access_full_features: 'Silakan login untuk mengakses fitur lengkap organisasi ini.',
     please_login_to_view_this_page: 'Silakan login untuk melihat halaman ini.',
+    welcome_back: 'Selamat datang',
+    enter_your_email: 'Masukkan email Anda',
+    enter_your_password: 'Masukkan kata sandi Anda',
+    dont_have_account: 'Belum punya akun?',
+    sign_up: 'Daftar',
   },
   en: {
     comments: 'Comments',
@@ -516,6 +526,11 @@ const translations: Translations = {
     login_required: 'Login Required',
     login_to_access_full_features: 'Please login to access full features of this organization.',
     please_login_to_view_this_page: 'Please login to view this page.',
+    welcome_back: 'Welcome back',
+    enter_your_email: 'Enter your email',
+    enter_your_password: 'Enter your password',
+    dont_have_account: "Don't have an account?",
+    sign_up: 'Sign up',
   }
 }
 

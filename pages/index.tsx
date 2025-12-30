@@ -4,9 +4,6 @@ import { apiFetch } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 import { Post, Pageable } from '../types'
-import { Header } from '../components/Header'
-import { Sidebar } from '../components/Sidebar'
-import { RightSidebar } from '../components/RightSidebar'
 import { CreatePost } from '../components/CreatePost'
 import { Post as PostComponent } from '../components/Post'
 
@@ -79,60 +76,46 @@ export default function Home() {
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Koreksi.org" />
       </Head>
-      <div className="min-h-screen bg-gray-100">
-        <Header />
-
-        <div className="flex max-w-[1920px] mx-auto">
-          <Sidebar />
-
-          <main className="flex-1 lg:ml-64 xl:mr-80 px-4 py-4">
-            <div className="max-w-2xl mx-auto">
-              {loading ? (
-                <div>{t('loading')}</div>
-              ) : user ? (
-                <>
-                  <CreatePost onCreated={() => { setPage(0); load(0) }} />
-                  {posts.map(p => (
-                    <PostComponent
-                      key={p.public_id}
-                      post={p}
-                    />
-                  ))}
-                  <div className="text-center py-8">
-                    <button
-                      onClick={() => setPage(p => p + 1)}
-                      disabled={loadingMore || (pageable ? pageable.pageNumber + 1 >= pageable.totalPages : false)}
-                      className="px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      {loadingMore ? t('loading') : 'Load more posts'}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {posts.map(p => (
-                    <PostComponent
-                      key={p.public_id}
-                      post={p}
-                    />
-                  ))}
-                  <div className="text-center py-8">
-                    <button
-                      onClick={() => setPage(p => p + 1)}
-                      disabled={loadingMore || (pageable ? pageable.pageNumber + 1 >= pageable.totalPages : false)}
-                      className="px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      {loadingMore ? t('loading') : 'Load more posts'}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </main>
-
-          <RightSidebar />
-        </div>
-      </div>
+      {loading ? (
+        <div>{t('loading')}</div>
+      ) : user ? (
+        <>
+          <CreatePost onCreated={() => { setPage(0); load(0) }} />
+          {posts.map(p => (
+            <PostComponent
+              key={p.public_id}
+              post={p}
+            />
+          ))}
+          <div className="text-center py-8">
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={loadingMore || (pageable ? pageable.pageNumber + 1 >= pageable.totalPages : false)}
+              className="px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            >
+              {loadingMore ? t('loading') : 'Load more posts'}
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          {posts.map(p => (
+            <PostComponent
+              key={p.public_id}
+              post={p}
+            />
+          ))}
+          <div className="text-center py-8">
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={loadingMore || (pageable ? pageable.pageNumber + 1 >= pageable.totalPages : false)}
+              className="px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            >
+              {loadingMore ? t('loading') : 'Load more posts'}
+            </button>
+          </div>
+        </>
+      )}
     </>
   )
 }
