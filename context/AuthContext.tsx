@@ -2,6 +2,16 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef, Re
 import { apiFetch, refreshToken } from '../utils/api'
 import { User } from '../types'
 
+const ACCESS_COOKIE_NAME = 's_user'
+
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null
+  return null
+}
+
 type Notification = {
   id: string
   read_at: string | null
@@ -57,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }){
     if (initDoneRef.current) return
     initDoneRef.current = true
     async function init(){
-      const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
+      const token = getCookie(ACCESS_COOKIE_NAME) || (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null)
       if (!token) { setLoading(false); return }
       const res = await apiFetch('/auth/me')
       if (res.body && res.body.user) {
@@ -86,16 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }){
   }, [])
 
   const refresh = async () => {
-    const refreshTokenValue = (typeof window !== 'undefined') ? localStorage.getItem('refreshToken') : null
-    if (!refreshTokenValue) return false
-    const res = await refreshToken(refreshTokenValue)
-    if (res.ok && res.body && res.body.accessToken) {
-      localStorage.setItem('accessToken', res.body.accessToken)
-      if (res.body.refreshToken) {
-        localStorage.setItem('refreshToken', res.body.refreshToken)
-      }
-      return true
-    }
+    // No refresh token, so no refresh
     return false
   }
 

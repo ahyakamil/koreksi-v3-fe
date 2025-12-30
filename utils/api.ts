@@ -10,36 +10,26 @@ type ApiResponse = {
   body: any
 }
 
+const ACCESS_COOKIE_NAME = 'access_token_xyz123'
+
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null
+  return null
+}
+
 export async function apiFetch(path: string, options: ApiOptions = {}, _retry = false): Promise<ApiResponse> {
-  const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
+  const token = getCookie(ACCESS_COOKIE_NAME) || (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null)
   const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {})
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${API_BASE}${path}`, Object.assign({}, options, { headers }))
+  const res = await fetch(`${API_BASE}${path}`, Object.assign({}, options, { headers, credentials: 'include' }))
   let json = null
   try { json = await res.json() } catch (e) { /* ignore */ }
 
-  // Handle automatic token refresh on 401
-  if (path !== '/auth/refresh' && res.status === 401 && !_retry) {
-    const refreshTokenValue = (typeof window !== 'undefined') ? localStorage.getItem('refreshToken') : null
-    if (refreshTokenValue) {
-      const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken: refreshTokenValue })
-      })
-      let refreshJson = null
-      try { refreshJson = await refreshRes.json() } catch (e) { /* ignore */ }
-      if (refreshRes.ok && refreshJson && refreshJson.accessToken) {
-        localStorage.setItem('accessToken', refreshJson.accessToken)
-        if (refreshJson.refreshToken) {
-          localStorage.setItem('refreshToken', refreshJson.refreshToken)
-        }
-        // Retry the original request
-        return apiFetch(path, options, true)
-      }
-    }
-  }
+  // Since no refresh token, no auto refresh
 
   return { ok: res.ok, status: res.status, body: json }
 }
@@ -256,13 +246,14 @@ export async function createComment(commentableType: string, commentableId: stri
 }
 
 export async function uploadImage(formData: FormData) {
-  const token = (typeof window !== 'undefined') ? localStorage.getItem('accessToken') : null
+  const token = getCookie(ACCESS_COOKIE_NAME) || (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null)
   const headers: Record<string, string> = {}
   if (token) headers['Authorization'] = `Bearer ${token}`
 
   const res = await fetch(`${API_BASE}/upload/image`, {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData
   })
   let json = null
@@ -270,10 +261,9 @@ export async function uploadImage(formData: FormData) {
   return { ok: res.ok, status: res.status, body: json }
 }
 
-export async function logout(refreshToken: string) {
+export async function logout() {
   const res = await apiFetch('/auth/logout', {
-    method: 'POST',
-    body: JSON.stringify({ refreshToken })
+    method: 'POST'
   })
   return res
 }
@@ -282,6 +272,7 @@ export async function refreshToken(refreshToken: string) {
   const res = await fetch(`${API_BASE}/auth/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ refreshToken })
   })
   let json = null
@@ -290,13 +281,18 @@ export async function refreshToken(refreshToken: string) {
 }
 
 export async function login(email: string, password: string) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await fetch(`${API_BASE}/auth/login-web`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ email, password })
   })
   let json = null
   try { json = await res.json() } catch (e) { /* ignore */ }
+  if (res.ok && json && json.accessToken) {
+    // Since cookies are set, but to be safe, also set localStorage
+    localStorage.setItem('accessToken', json.accessToken)
+  }
   return { ok: res.ok, status: res.status, body: json }
 }
 
