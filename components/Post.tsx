@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { MessageCircle, Share2, MoreHorizontal, TrendingUp } from 'lucide-react';
+import { MessageCircle, Share2, MoreHorizontal, TrendingUp, Trash2 } from 'lucide-react';
 import Carousel from './Carousel'
 import TimeAgo from './TimeAgo'
 import CommentsList from './CommentsList'
@@ -28,6 +28,8 @@ export function Post({ post, onDelete }: PostProps) {
   const [commentsCount, setCommentsCount] = useState(post.comments_count || 0)
   const [commentsPageable, setCommentsPageable] = useState<any>(null)
   const [loadingMoreComments, setLoadingMoreComments] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleted, setIsDeleted] = useState(false)
 
   useEffect(() => {
     if (showComments && !commentsLoaded) {
@@ -74,11 +76,17 @@ export function Post({ post, onDelete }: PostProps) {
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this post?')) {
+      setIsDeleting(true)
       const res = await deletePost(post.public_id)
       if (res.ok) {
-        onDelete?.(post.public_id)
+        setIsDeleted(true)
+        // Add a small delay for the animation effect
+        setTimeout(() => {
+          onDelete?.(post.public_id)
+        }, 300)
       } else {
         alert(res.body?.message || 'Failed to delete post')
+        setIsDeleting(false)
       }
     }
   }
@@ -101,8 +109,12 @@ export function Post({ post, onDelete }: PostProps) {
     }
   }
 
+  if (isDeleted) return null
+
   return (
-    <article className="bg-white rounded-lg border border-gray-200 mb-4">
+    <article className={`bg-white rounded-lg border border-gray-200 mb-4 transition-all duration-300 ${
+      isDeleting ? 'opacity-50 scale-95 transform' : 'opacity-100 scale-100'
+    }`}>
       {/* Post Header */}
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
@@ -117,26 +129,22 @@ export function Post({ post, onDelete }: PostProps) {
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <TimeAgo date={post.created_at} className="text-xs text-gray-400" />
-                {user && user.id === post.user?.id && (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      handleDelete()
-                    }}
-                    className="text-xs text-red-500 hover:text-red-700"
-                  >
-                    {t('delete')}
-                  </button>
-                )}
               </div>
             </div>
           </div>
-          <button
-            onClick={handleShare}
-            className="p-2 hover:bg-gray-100 rounded-full text-gray-500"
-          >
-            <Share2 className="w-5 h-5" />
-          </button>
+          {user && user.id === post.user?.id && (
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                handleDelete()
+              }}
+              disabled={isDeleting}
+              className="p-2 hover:bg-gray-100 rounded-full text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={t('delete')}
+            >
+              <Trash2 className={`w-5 h-5 ${isDeleting ? 'animate-spin' : ''}`} />
+            </button>
+          )}
         </div>
 
         {/* Post Title */}
