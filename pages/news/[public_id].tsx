@@ -137,12 +137,10 @@ export default function NewsDetailPage({ news, comments: initialComments, pageab
         )}
         <meta name="twitter:url" content={fullUrl} />
       </Head>
-      <div className="container py-8">
-        <NewsItem
-          news={news}
-          isDetail={true}
-        />
-      </div>
+      <NewsItem
+        news={news}
+        isDetail={true}
+      />
     </>
   )
 }
