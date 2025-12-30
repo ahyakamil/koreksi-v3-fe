@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import Head from 'next/head'
 import { getPublishedNews } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
@@ -72,27 +73,36 @@ export default function NewsPage() {
   }, [pageable])
 
   return (
-    <div className="container py-8">
-      <main>
-        <h1 className="text-2xl font-bold mb-6">{t('news')}</h1>
-
-        {error ? (
-          <div className="text-center py-8 text-red-600">{error}</div>
-        ) : news.length > 0 ? (
-          <ul className="space-y-4">
-            {news.map(item => (
-              <NewsItem key={item.public_id} news={item} />
-            ))}
-          </ul>
-        ) : (
-          <div className="text-center py-8 text-gray-500">
-            {t('no_more')}
-          </div>
-        )}
-        <div className="mt-4 text-center text-sm text-gray-600">
-          {loadingMore ? t('loading') : (pageable && pageable.pageNumber+1 >= pageable.totalPages ? t('no_more') || 'No more news' : '')}
+    <>
+      <Head>
+        <title>News - Koreksi.org</title>
+        <meta name="description" content="Latest news from Koreksi.org - Social media for journalism." />
+        <meta property="og:title" content="News - Koreksi.org" />
+        <meta property="og:description" content="Latest news from Koreksi.org - Social media for journalism." />
+        <meta property="og:url" content="https://koreksi.org/news" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Koreksi.org" />
+      </Head>
+      {error ? (
+        <div className="text-center py-8 text-red-600">{error}</div>
+      ) : news.length > 0 ? (
+        news.map(item => (
+          <NewsItem key={item.public_id} news={item} />
+        ))
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          {t('no_more')}
         </div>
-      </main>
-    </div>
+      )}
+      <div className="text-center py-8">
+        <button
+          onClick={() => setPage(p => p + 1)}
+          disabled={loadingMore || (pageable ? pageable.pageNumber + 1 >= pageable.totalPages : false)}
+          className="px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+        >
+          {loadingMore ? t('loading') : 'Load more news'}
+        </button>
+      </div>
+    </>
   )
 }

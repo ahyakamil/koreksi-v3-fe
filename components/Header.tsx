@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Home, Users, Video, Bell, MessageCircle, ChevronDown, LogOut } from 'lucide-react';
+import { Search, Home, Users, Newspaper, Bell, MessageCircle, ChevronDown, LogOut } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
@@ -30,6 +30,8 @@ export function Header() {
       setActiveTab('home');
     } else if (pathname === '/friends') {
       setActiveTab('friends');
+    } else if (pathname === '/news') {
+      setActiveTab('news');
     } else {
       setActiveTab('');
     }
@@ -92,8 +94,15 @@ export function Header() {
             >
               <Users className="w-6 h-6" />
             </button>
-            <button className="px-8 py-2 rounded-lg hover:bg-gray-100 text-gray-500">
-              <Video className="w-6 h-6" />
+            <button
+              onClick={() => router.push('/news')}
+              className={`px-8 py-2 rounded-lg hover:bg-gray-100 ${
+                activeTab === 'news'
+                  ? 'text-blue-600 border-b-4 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Newspaper className="w-6 h-6" />
             </button>
             <button className="px-8 py-2 rounded-lg hover:bg-gray-100 text-gray-500">
               <MessageCircle className="w-6 h-6" />
@@ -210,9 +219,14 @@ export function Header() {
           <Users className="w-6 h-6" />
           <span className="text-xs mt-1">Friends</span>
         </button>
-        <button className="flex flex-col items-center justify-center flex-1 py-2 text-gray-500">
-          <Video className="w-6 h-6" />
-          <span className="text-xs mt-1">Watch</span>
+        <button
+          onClick={() => router.push('/news')}
+          className={`flex flex-col items-center justify-center flex-1 py-2 ${
+            activeTab === 'news' ? 'text-blue-600' : 'text-gray-500'
+          }`}
+        >
+          <Newspaper className="w-6 h-6" />
+          <span className="text-xs mt-1">News</span>
         </button>
         <button className="flex flex-col items-center justify-center flex-1 py-2 text-gray-500">
           <MessageCircle className="w-6 h-6" />

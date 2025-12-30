@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { MessageCircle, Share2, ChevronDown } from 'lucide-react'
 import CommentsList from './CommentsList'
 import CommentForm from './CommentForm'
 import { News, Comment } from '../types'
@@ -20,6 +21,8 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
   const [comments, setComments] = useState<Comment[]>([])
   const [showComments, setShowComments] = useState(false)
   const [commentsLoaded, setCommentsLoaded] = useState(false)
+  const [commentsPageable, setCommentsPageable] = useState<any>(null)
+  const [loadingMoreComments, setLoadingMoreComments] = useState(false)
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -53,12 +56,21 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
     }
   }, [showComments, commentsLoaded])
 
-  const loadComments = async () => {
-    const res = await getComments('news', news.public_id, 0, 100)
+  const loadComments = async (page: number = 0, size: number = 10) => {
+    const res = await getComments('news', news.public_id, page, size)
     if (res.ok) {
-      setComments(res.body.data.content || [])
+      setComments(prev => page === 0 ? res.body.data.content || [] : [...prev, ...res.body.data.content])
+      setCommentsPageable(res.body.data.pageable)
       setCommentsLoaded(true)
     }
+  }
+
+  const loadMoreComments = () => {
+    if (!commentsPageable || loadingMoreComments) return
+    const nextPage = commentsPageable.pageNumber + 1
+    if (nextPage >= commentsPageable.totalPages) return
+    setLoadingMoreComments(true)
+    loadComments(nextPage, 10).finally(() => setLoadingMoreComments(false))
   }
 
   const handleCommentSubmit = async (content: string, parentId?: string) => {
@@ -106,7 +118,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
   const Container = isDetail ? 'div' : 'li'
 
   return (
-    <Container className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <Container className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow mb-4">
       <div className="p-6">
         <h3 className="font-bold text-xl text-gray-900 mb-3 leading-tight text-center">
           {news.title}
@@ -148,34 +160,6 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
           </div>
         )}
 
-        <div className="mb-3 flex justify-end">
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              const url = window.location.origin + '/news/' + news.public_id
-              const title = news.title
-              if (navigator.share) {
-                navigator.share({
-                  title,
-                  url
-                }).catch(() => {
-                  // Fallback to clipboard
-                  navigator.clipboard.writeText(url)
-                  alert('URL copied to clipboard!')
-                })
-              } else {
-                navigator.clipboard.writeText(url)
-                alert('URL copied to clipboard!')
-              }
-            }}
-            className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-            </svg>
-            <span>{t('share')}</span>
-          </button>
-        </div>
 
         <div className="text-gray-700 leading-relaxed mb-3">
           {isDetail || isExpanded ? (
@@ -214,27 +198,60 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
           </div>
         )}
 
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            {!isDetail && shouldTruncate && (
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
-              >
-                {isExpanded ? t('hide') : t('show_all')}
-              </button>
-            )}
-            <button
-              onClick={() => setShowComments(!showComments)}
-              className="text-sm text-blue-600 hover:text-blue-800"
-            >
-              {showComments ? t('hide') : `${t('load_comments')}${news.comments_count && news.comments_count > 0 ? ` (${news.comments_count})` : ''}`}
-            </button>
+        {/* Engagement Stats */}
+        {news.comments_count && news.comments_count > 0 ? (
+          <div className="px-4 py-2 flex items-center justify-end text-sm text-gray-500 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <span>{news.comments_count} comments</span>
+            </div>
           </div>
+        ) : ''}
+
+        {/* Action Buttons */}
+        <div className="px-4 py-2 flex items-center justify-around">
+          {!isDetail && shouldTruncate && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
+            >
+              <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+              <span>{isExpanded ? t('hide') : t('show_all')}</span>
+            </button>
+          )}
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span>{t('comment')}</span>
+          </button>
+          <button
+            onClick={() => {
+              const url = window.location.origin + '/news/' + news.public_id
+              const title = news.title
+              if (navigator.share) {
+                navigator.share({
+                  title,
+                  url
+                }).catch(() => {
+                  navigator.clipboard.writeText(url)
+                  alert('URL copied to clipboard!')
+                })
+              } else {
+                navigator.clipboard.writeText(url)
+                alert('URL copied to clipboard!')
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
+          >
+            <Share2 className="w-5 h-5" />
+            <span>{t('share')}</span>
+          </button>
         </div>
 
+
         {showComments && (
-          <div className="mt-4 space-y-3">
+          <div className="px-4 pb-4">
             {user && (
               <CommentForm
                 commentableType="news"
@@ -249,6 +266,18 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
               commentableType="news"
               commentableId={news.public_id}
             />
+
+            {commentsPageable && commentsPageable.pageNumber + 1 < commentsPageable.totalPages && (
+              <div className="mt-3 text-center">
+                <button
+                  onClick={loadMoreComments}
+                  disabled={loadingMoreComments}
+                  className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 disabled:opacity-50"
+                >
+                  {loadingMoreComments ? t('loading') : t('load_more')}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
