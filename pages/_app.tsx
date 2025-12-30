@@ -1,6 +1,5 @@
 import '../styles/globals.css'
 import Head from 'next/head'
-import Header from '../components/Header'
 import ChatWidget from '../components/ChatWidget'
 import { AuthProvider, useAuth } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
@@ -30,7 +29,6 @@ function AppContent({ Component, pageProps }: AppProps) {
           </>
         )}
       </Head>
-      <Header />
       <Component {...pageProps} />
       {user && (
         <ChatWidget

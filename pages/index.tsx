@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef } from 'react'
 import Head from 'next/head'
 import { apiFetch } from '../utils/api'
-import PostForm from '../components/PostForm'
 import { useAuth } from '../context/AuthContext'
-import CommentsList from '../components/CommentsList'
 import { useLocale } from '../context/LocaleContext'
 import { Post, Pageable } from '../types'
-import PostItem from '../components/PostItem'
+import { Header } from '../components/Header'
+import { Sidebar } from '../components/Sidebar'
+import { RightSidebar } from '../components/RightSidebar'
+import { CreatePost } from '../components/CreatePost'
+import { Post as PostComponent } from '../components/Post'
 
 export default function Home() {
   const { user, loading } = useAuth()
@@ -16,7 +18,6 @@ export default function Home() {
   const [size] = useState(10)
   const [pageable, setPageable] = useState<Pageable | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [showPostForm, setShowPostForm] = useState(false)
   const mountedRef = useRef(false)
   const isFetchingRef = useRef(false)
   const initialLoadedRef = useRef(false)
@@ -78,47 +79,86 @@ export default function Home() {
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Koreksi.org" />
       </Head>
-      <div className="container py-8">
-      <main>
-        {loading ? (
-          <div>{t('loading')}</div>
-        ) : user ? (
-          <>
-            <div className="flex justify-center mb-4">
-              <button
-                onClick={() => setShowPostForm(!showPostForm)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                <svg className={`w-5 h-5 transition-transform ${showPostForm ? 'rotate-45' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span>{showPostForm ? t('hide_post_form') : t('show_post_form')}</span>
-              </button>
+      <div className="min-h-screen bg-gray-100">
+        <Header />
+
+        <div className="flex max-w-[1920px] mx-auto">
+          <Sidebar />
+
+          <main className="flex-1 lg:ml-64 xl:mr-80 px-4 py-4">
+            <div className="max-w-2xl mx-auto">
+              {loading ? (
+                <div>{t('loading')}</div>
+              ) : user ? (
+                <>
+                  <CreatePost onCreated={() => { setPage(0); load(0) }} />
+                  {posts.map(p => (
+                    <PostComponent
+                      key={p.public_id}
+                      author={{
+                        name: p.user?.name || 'Unknown',
+                        avatar: 'https://via.placeholder.com/40',
+                        verified: false,
+                        title: '',
+                      }}
+                      timestamp={p.created_at}
+                      content={p.content}
+                      image={p.medias?.[0]?.url}
+                      category=""
+                      likes={0}
+                      comments={p.comments_count || 0}
+                      shares={0}
+                      trending={false}
+                    />
+                  ))}
+                  <div className="text-center py-8">
+                    <button
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={loadingMore || (pageable ? pageable.pageNumber + 1 >= pageable.totalPages : false)}
+                      className="px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      {loadingMore ? t('loading') : 'Load more posts'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {posts.map(p => (
+                    <PostComponent
+                      key={p.public_id}
+                      author={{
+                        name: p.user?.name || 'Unknown',
+                        avatar: 'https://via.placeholder.com/40',
+                        verified: false,
+                        title: '',
+                      }}
+                      timestamp={p.created_at}
+                      content={p.content}
+                      image={p.medias?.[0]?.url}
+                      category=""
+                      likes={0}
+                      comments={p.comments_count || 0}
+                      shares={0}
+                      trending={false}
+                    />
+                  ))}
+                  <div className="text-center py-8">
+                    <button
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={loadingMore || (pageable ? pageable.pageNumber + 1 >= pageable.totalPages : false)}
+                      className="px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      {loadingMore ? t('loading') : 'Load more posts'}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
-            {showPostForm && <PostForm onCreated={() => { setPage(0); load(0); setShowPostForm(false) }} />}
-            <ul className="space-y-4">
-              {posts.map(p => (
-                <PostItem key={p.public_id} post={p} onDelete={(deletedId) => setPosts(prev => prev.filter(p => p.public_id !== deletedId))} />
-              ))}
-            </ul>
-            <div className="mt-4 text-center text-sm text-gray-600">
-              {loadingMore ? t('loading') : (pageable && pageable.pageNumber+1 >= pageable.totalPages ? t('no_more') || 'No more posts' : t('loading'))}
-            </div>
-          </>
-        ) : (
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium mb-2">{t('posts')}</h2>
-            <ul className="space-y-4">
-              {posts.map(p => (
-                <PostItem key={p.public_id} post={p} onDelete={(deletedId) => setPosts(prev => prev.filter(p => p.public_id !== deletedId))} />
-              ))}
-            </ul>
-            <div className="mt-4 text-center text-sm text-gray-600">{loadingMore ? t('loading') : (pageable && pageable.pageNumber+1 >= pageable.totalPages ? t('no_more') || 'No more posts' : '')}</div>
-          </div>
-        )}
-        
-      </main>
-    </div>
+          </main>
+
+          <RightSidebar />
+        </div>
+      </div>
     </>
   )
 }
