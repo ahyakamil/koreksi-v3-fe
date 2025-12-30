@@ -174,6 +174,10 @@ type TranslationKeys = {
   enter_your_password: string
   dont_have_account: string
   sign_up: string
+  create_your_account: string
+  enter_your_name: string
+  already_have_account: string
+  sign_in: string
 }
 
 type Translations = {
@@ -356,6 +360,10 @@ const translations: Translations = {
     enter_your_password: 'Masukkan kata sandi Anda',
     dont_have_account: 'Belum punya akun?',
     sign_up: 'Daftar',
+    create_your_account: 'Buat akun Anda',
+    enter_your_name: 'Masukkan nama Anda',
+    already_have_account: 'Sudah punya akun?',
+    sign_in: 'Masuk',
   },
   en: {
     comments: 'Comments',
@@ -531,6 +539,10 @@ const translations: Translations = {
     enter_your_password: 'Enter your password',
     dont_have_account: "Don't have an account?",
     sign_up: 'Sign up',
+    create_your_account: 'Create your account',
+    enter_your_name: 'Enter your name',
+    already_have_account: 'Already have an account?',
+    sign_in: 'Sign in',
   }
 }
 
