@@ -178,7 +178,7 @@ export function Post({ post, onDelete, alwaysShowComments = false }: PostProps) 
             className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
           >
             <MessageCircle className="w-5 h-5" />
-            <span>{t('comment')}</span>
+            <span>{t('comments')}</span>
           </button>
         )}
         <button

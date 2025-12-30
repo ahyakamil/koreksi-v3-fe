@@ -208,7 +208,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
         ) : ''}
 
         {/* Action Buttons */}
-        <div className="px-4 py-2 flex items-center justify-around">
+        <div className="px-4 py-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-around">
           {!isDetail && shouldTruncate && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
@@ -223,7 +223,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
             className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
           >
             <MessageCircle className="w-5 h-5" />
-            <span>{t('comment')}</span>
+            <span>{t('comments')}</span>
           </button>
           <button
             onClick={() => {
