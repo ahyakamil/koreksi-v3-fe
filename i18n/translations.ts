@@ -25,6 +25,7 @@ type TranslationKeys = {
   next: string
   title: string
   content_placeholder: string
+  share_story_placeholder: string
   image_placeholder: string
   write_comment: string
   send: string
@@ -203,6 +204,7 @@ const translations: Translations = {
     next: 'Selanjutnya',
     title: 'Judul',
     content_placeholder: 'Apa yang harus dikoreksi?',
+    share_story_placeholder: 'Bagikan cerita atau berita terkini...',
     image_placeholder: 'URL Gambar (opsional)',
     write_comment: 'Tulis komentar...',
     send: 'Kirim',
@@ -372,6 +374,7 @@ const translations: Translations = {
     next: 'Next',
     title: 'Title',
     content_placeholder: 'What should be corrected?',
+    share_story_placeholder: 'Share a story or breaking news...',
     image_placeholder: 'Image URL (optional)',
     write_comment: 'Write a comment...',
     send: 'Send',

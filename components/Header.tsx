@@ -1,6 +1,10 @@
+'use client'
+
 import { Search, Home, Users, Video, Bell, Menu, MessageCircle } from 'lucide-react';
+import { useLocale } from '../context/LocaleContext';
 
 export function Header() {
+  const { locale, changeLocale } = useLocale();
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-[1920px] mx-auto px-4">
@@ -38,6 +42,18 @@ export function Header() {
 
           {/* Right Section */}
           <div className="flex items-center gap-2 flex-1 justify-end">
+            <button
+              onClick={() => changeLocale('id')}
+              className={`px-2 py-1 text-sm rounded ${locale === 'id' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              ID
+            </button>
+            <button
+              onClick={() => changeLocale('en')}
+              className={`px-2 py-1 text-sm rounded ${locale === 'en' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              EN
+            </button>
             <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center">
               <Menu className="w-6 h-6" />
             </button>

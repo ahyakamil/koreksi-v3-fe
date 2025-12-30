@@ -77,7 +77,7 @@ export function CreatePost({ onCreated }: CreatePostProps) {
         {!expanded && (
           <input
             type="text"
-            placeholder="Share a story or breaking news..."
+            placeholder={t('share_story_placeholder')}
             className="flex-1 px-4 py-2 bg-gray-100 rounded-full hover:bg-gray-200 cursor-pointer"
             onClick={() => setExpanded(true)}
             readOnly={!expanded}
@@ -94,14 +94,14 @@ export function CreatePost({ onCreated }: CreatePostProps) {
             className="w-full border rounded p-2 mb-2"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title (optional)"
+            placeholder={`${t('title')} (optional)`}
           />
           <textarea
             rows={3}
             className="w-full border rounded p-2 mb-2"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="What's happening?"
+            placeholder={t('content_placeholder')}
           />
           <input
             type="text"
@@ -122,14 +122,14 @@ export function CreatePost({ onCreated }: CreatePostProps) {
               onClick={() => setExpanded(false)}
               className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
             >
-              Cancel
+              {t('cancel')}
             </button>
             <button
               type="submit"
               disabled={submitting}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
             >
-              {submitting ? 'Posting...' : 'Post'}
+              {submitting ? t('loading') : t('post_button')}
             </button>
           </div>
         </>
