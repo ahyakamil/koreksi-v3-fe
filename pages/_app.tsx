@@ -3,6 +3,7 @@ import Head from 'next/head'
 import ChatWidget from '../components/ChatWidget'
 import { AuthProvider, useAuth } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
+import { FullscreenProvider } from '../context/FullscreenContext'
 import { AppProps } from 'next/app'
 
 function AppContent({ Component, pageProps }: AppProps) {
@@ -45,7 +46,9 @@ export default function App(props: AppProps) {
   return (
     <AuthProvider>
       <LocaleProvider>
-        <AppContent {...props} />
+        <FullscreenProvider>
+          <AppContent {...props} />
+        </FullscreenProvider>
       </LocaleProvider>
     </AuthProvider>
   )

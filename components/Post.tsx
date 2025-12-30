@@ -156,9 +156,7 @@ export function Post({ post, onDelete }: PostProps) {
 
       {/* Post Media */}
       {(post.medias || post.youtube_video) && (
-        <div className="w-full">
-          <Carousel medias={post.medias || []} youtubeVideo={post.youtube_video} />
-        </div>
+        <Carousel medias={post.medias || []} youtubeVideo={post.youtube_video} />
       )}
 
       {/* Engagement Stats */}
