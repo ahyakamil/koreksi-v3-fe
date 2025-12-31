@@ -240,7 +240,7 @@ export function Post({ post, onDelete, alwaysShowComments = false, initialCommen
                 onClick={loadAllComments}
                 className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
               >
-                {t('see_all_comments')}
+                {t('show_all_comments')}
               </button>
             </div>
           )}

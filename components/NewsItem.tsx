@@ -302,7 +302,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
                   onClick={loadAllComments}
                   className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
                 >
-                  {t('see_all_comments')}
+                  {t('show_all_comments')}
                 </button>
               </div>
             )}
