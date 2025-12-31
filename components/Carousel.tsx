@@ -129,17 +129,17 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
   return (
     <div className="mt-2">
       <div
-        className="relative overflow-hidden rounded"
+        className="relative overflow-hidden rounded cursor-pointer"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        onClick={openFullscreen}
       >
         {slides[currentIndex].type === 'image' ? (
           <img
             src={slides[currentIndex].url}
             alt={t('post_media')}
-            className="w-full h-64 object-contain cursor-pointer"
-            onClick={openFullscreen}
+            className="w-full h-64 object-contain"
           />
         ) : slides[currentIndex].type === 'video' ? (
           <iframe
@@ -149,11 +149,12 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="cursor-pointer"
-            onClick={openFullscreen}
+            style={{ pointerEvents: 'none' }}
           ></iframe>
         ) : (
-          <InstagramEmbed reelId={slides[currentIndex].id} />
+          <div style={{ pointerEvents: 'none' }}>
+            <InstagramEmbed reelId={slides[currentIndex].id} />
+          </div>
         )}
         {slides.length > 1 && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
