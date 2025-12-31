@@ -10,24 +10,26 @@ interface InstagramEmbedProps {
 export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
   const blockquoteRef = useRef<HTMLQuoteElement>(null);
 
+  const resetStyles = () => {
+    document.body.style.touchAction = 'pan-y';
+    document.body.style.overflowY = 'auto';
+    document.body.style.overflow = 'auto';
+    document.body.style.pointerEvents = 'auto';
+    document.documentElement.style.touchAction = 'pan-y';
+    document.documentElement.style.overflowY = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    if (blockquoteRef.current) {
+      blockquoteRef.current.style.touchAction = 'pan-y';
+      blockquoteRef.current.style.overflow = 'auto';
+    }
+  };
+
   useEffect(() => {
-    const resetStyles = () => {
-      document.body.style.touchAction = 'pan-y';
-      document.body.style.overflowY = 'auto';
-      document.body.style.overflow = 'auto';
-      document.body.style.pointerEvents = 'auto';
-      document.documentElement.style.touchAction = 'pan-y';
-      document.documentElement.style.overflowY = 'auto';
-      document.documentElement.style.overflow = 'auto';
-      if (blockquoteRef.current) {
-        blockquoteRef.current.style.touchAction = 'pan-y';
-        blockquoteRef.current.style.overflow = 'auto';
-      }
-    };
 
     if ((window as any).instgrm) {
       (window as any).instgrm.Embeds.process();
       // Force styles after embed processes
+      resetStyles();
       setTimeout(() => {
         resetStyles();
       }, 100);
@@ -37,21 +39,9 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
     const handleTouch = () => resetStyles();
     document.addEventListener('touchstart', handleTouch, { passive: true });
 
-    // Use MutationObserver to watch for style changes on body and html
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-          resetStyles();
-        }
-      });
-    });
-
-    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
-
     return () => {
       document.removeEventListener('touchstart', handleTouch);
-      observer.disconnect();
+      // observer.disconnect();
     };
   }, [reelId]);
 
@@ -70,11 +60,10 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
         strategy="afterInteractive"
         onLoad={() => {
           (window as any).instgrm?.Embeds.process();
-          // Force touch-action after script loads and processes
+          // Force styles after script loads and processes
+          resetStyles();
           setTimeout(() => {
-            if (blockquoteRef.current) {
-              blockquoteRef.current.style.touchAction = 'pan-y';
-            }
+            resetStyles();
           }, 1000);
         }}
       />
