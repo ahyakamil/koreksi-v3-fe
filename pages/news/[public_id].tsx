@@ -140,6 +140,12 @@ export default function NewsDetailPage({ news, comments: initialComments, pageab
       <NewsItem
         news={news}
         isDetail={true}
+        initialComments={comments}
+        initialPageable={pageable}
+        initialReplies={initialReplies}
+        initialShowReplies={initialShowReplies}
+        initialRepliesPageable={initialRepliesPageable}
+        highlightedCommentId={specificCommentId}
       />
     </>
   )
@@ -196,14 +202,13 @@ export const getServerSideProps: GetServerSideProps<NewsDetailPageProps> = async
       if (commentRes.ok) {
         const commentData = await commentRes.json()
         if (commentData.statusCode === 2000) {
-          const specificComment = commentData.data.comment as Comment
-          const specificReplies = commentData.data.replies as any[] || []
-          const pageable = commentData.data.pageable
-          comments = [specificComment]
-          // Set replies for the component
-          initialReplies = { [specificComment.id]: specificReplies }
-          initialShowReplies = { [specificComment.id]: true }
-          initialRepliesPageable = { [specificComment.id]: pageable }
+          const rootComment = commentData.data.comment as Comment
+          const replies = commentData.data.replies as Comment[]
+          const repliesPageable = commentData.data.pageable
+          comments = [rootComment]
+          initialReplies = { [rootComment.id]: replies }
+          initialShowReplies = { [rootComment.id]: true }
+          initialRepliesPageable = { [rootComment.id]: repliesPageable }
           specificCommentId = parseInt(commentId as string)
         }
       }

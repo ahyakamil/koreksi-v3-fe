@@ -12,17 +12,25 @@ interface NewsItemProps {
   news: News
   hideOrganization?: boolean
   isDetail?: boolean
+  alwaysShowComments?: boolean
+  initialComments?: Comment[]
+  initialPageable?: any
+  initialReplies?: Record<string, Comment[]>
+  initialShowReplies?: Record<string, boolean>
+  initialRepliesPageable?: Record<string, any>
+  highlightedCommentId?: number | null
 }
 
-export default function NewsItem({ news, hideOrganization = false, isDetail = false }: NewsItemProps) {
+export default function NewsItem({ news, hideOrganization = false, isDetail = false, alwaysShowComments = false, initialComments = [], initialPageable = null, initialReplies = {}, initialShowReplies = {}, initialRepliesPageable = {}, highlightedCommentId }: NewsItemProps) {
   const { user } = useAuth()
   const { t, locale } = useLocale()
   const [isExpanded, setIsExpanded] = useState(false)
-  const [comments, setComments] = useState<Comment[]>([])
-  const [showComments, setShowComments] = useState(false)
-  const [commentsLoaded, setCommentsLoaded] = useState(false)
-  const [commentsPageable, setCommentsPageable] = useState<any>(null)
+  const [comments, setComments] = useState<Comment[]>(initialComments)
+  const [showComments, setShowComments] = useState(alwaysShowComments || initialComments.length > 0)
+  const [commentsLoaded, setCommentsLoaded] = useState(initialComments.length > 0)
+  const [commentsPageable, setCommentsPageable] = useState<any>(initialPageable)
   const [loadingMoreComments, setLoadingMoreComments] = useState(false)
+  const [showAllComments, setShowAllComments] = useState(!highlightedCommentId)
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -63,6 +71,11 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
       setCommentsPageable(res.body.data.pageable)
       setCommentsLoaded(true)
     }
+  }
+
+  const loadAllComments = () => {
+    setShowAllComments(true)
+    loadComments(0, 10)
   }
 
   const loadMoreComments = () => {
@@ -265,9 +278,13 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
               currentUser={user}
               commentableType="news"
               commentableId={news.public_id}
+              highlightedCommentId={highlightedCommentId}
+              initialReplies={initialReplies}
+              initialShowReplies={initialShowReplies}
+              initialRepliesPageable={initialRepliesPageable}
             />
 
-            {commentsPageable && commentsPageable.pageNumber + 1 < commentsPageable.totalPages && (
+            {showAllComments && commentsPageable && commentsPageable.pageNumber + 1 < commentsPageable.totalPages && (
               <div className="mt-3 text-center">
                 <button
                   onClick={loadMoreComments}
@@ -275,6 +292,17 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
                   className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 disabled:opacity-50"
                 >
                   {loadingMoreComments ? t('loading') : t('load_more')}
+                </button>
+              </div>
+            )}
+
+            {!showAllComments && highlightedCommentId && (
+              <div className="mt-3 text-center">
+                <button
+                  onClick={loadAllComments}
+                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                >
+                  {t('see_all_comments')}
                 </button>
               </div>
             )}
