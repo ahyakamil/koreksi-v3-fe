@@ -15,7 +15,7 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
   }, [reelId]);
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center" style={{ touchAction: 'pan-y' }}>
       <blockquote
         className="instagram-media"
         data-instgrm-permalink={`https://www.instagram.com/reel/${reelId}/`}
