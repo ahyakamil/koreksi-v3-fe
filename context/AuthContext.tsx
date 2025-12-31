@@ -118,9 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }){
   const refreshNotificationsCount = useCallback(async () => {
     if (user) {
       try {
-        const res = await apiFetch('/notifications')
+        const res = await apiFetch('/notifications/unread-count')
         if (res.body && res.body.statusCode === 2000) {
-          const unreadCount = res.body.data.notifications?.filter((n: any) => !n.read_at).length || 0
+          const unreadCount = res.body.data.count || 0
           if (unreadCount > previousNotificationsCount) {
             playNotificationSound()
           }

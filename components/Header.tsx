@@ -10,7 +10,7 @@ import { Avatar } from './Avatar';
 
 export function Header() {
   const { locale, changeLocale } = useLocale();
-  const { user, setUser } = useAuth();
+  const { user, setUser, notificationsCount } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
@@ -153,9 +153,16 @@ export function Header() {
             </div>
             {user ? (
               <>
-                <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center relative">
+                <button
+                  onClick={() => router.push('/notifications')}
+                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center relative"
+                >
                   <Bell className="w-6 h-6" />
-                  <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
+                  {notificationsCount > 0 && (
+                    <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                      {notificationsCount > 99 ? '99+' : notificationsCount}
+                    </span>
+                  )}
                 </button>
                 <div className="relative" ref={avatarDropdownRef}>
                   <button
