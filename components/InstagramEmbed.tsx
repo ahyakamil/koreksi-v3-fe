@@ -11,15 +11,27 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
   const blockquoteRef = useRef<HTMLQuoteElement>(null);
 
   useEffect(() => {
+    const resetTouchAction = () => {
+      document.body.style.touchAction = 'pan-y';
+      if (blockquoteRef.current) {
+        blockquoteRef.current.style.touchAction = 'pan-y';
+      }
+    };
+
     if ((window as any).instgrm) {
       (window as any).instgrm.Embeds.process();
       // Force touch-action after embed processes
       setTimeout(() => {
-        if (blockquoteRef.current) {
-          blockquoteRef.current.style.touchAction = 'pan-y';
-        }
+        resetTouchAction();
       }, 1000);
     }
+
+    // Reset touch-action on any touch to ensure scrolling works
+    document.addEventListener('touchstart', resetTouchAction, { passive: true });
+
+    return () => {
+      document.removeEventListener('touchstart', resetTouchAction);
+    };
   }, [reelId]);
 
   return (

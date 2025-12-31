@@ -100,3 +100,7 @@ html {
 .instagram-media {
   touch-action: pan-y !important;
 }
+
+html, body {
+  touch-action: pan-y !important;
+}
