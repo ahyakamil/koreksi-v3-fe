@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/router'
+import { List, FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { Organization, Space, News } from '../../../../types'
 import { getOrganization, getSpaces, getNews, reviewNews, deleteNews } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
@@ -153,24 +154,27 @@ const NewsManagementPage: React.FC = () => {
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8">
             {[
-              { key: 'all', label: t('all') },
-              { key: 'draft', label: t('draft') },
-              { key: 'need_review', label: t('need_review') },
-              { key: 'published', label: t('published') },
-              { key: 'rejected', label: t('rejected') }
-            ].map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.key
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+              { key: 'all', icon: List },
+              { key: 'draft', icon: FileText },
+              { key: 'need_review', icon: Clock },
+              { key: 'published', icon: CheckCircle },
+              { key: 'rejected', icon: XCircle }
+            ].map(tab => {
+              const IconComponent = tab.icon
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as any)}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab.key
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <IconComponent className="w-5 h-5" />
+                </button>
+              )
+            })}
           </nav>
         </div>
       </div>
