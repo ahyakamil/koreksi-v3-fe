@@ -1,6 +1,7 @@
 import '../styles/globals.css'
 import Head from 'next/head'
 import ChatWidget from '../components/ChatWidget'
+import PWAInstallPrompt from '../components/PWAInstallPrompt'
 import { Layout } from '../components/Layout'
 import { AuthProvider, useAuth } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
@@ -59,6 +60,7 @@ function AppContent({ Component, pageProps, router }: AppProps & { router: any }
           userId={user.id}
         />
       )}
+      <PWAInstallPrompt />
     </>
   )
 }
