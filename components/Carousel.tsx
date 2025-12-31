@@ -29,8 +29,22 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
     return s
   }, [youtubeVideo, instagramVideo, medias])
 
-  const next = useCallback(() => setCurrentIndex((prev) => (prev + 1) % slides.length), [slides.length])
-  const prev = useCallback(() => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length), [slides.length])
+  useEffect(() => {
+    if (currentIndex >= slides.length && slides.length > 0) {
+      setCurrentIndex(Math.max(0, slides.length - 1))
+    }
+  }, [slides.length])
+
+  const next = useCallback(() => {
+    if (slides.length > 0) {
+      setCurrentIndex((prev) => (prev + 1) % slides.length)
+    }
+  }, [slides.length])
+  const prev = useCallback(() => {
+    if (slides.length > 0) {
+      setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length)
+    }
+  }, [slides.length])
 
   const minSwipeDistance = 50
 
@@ -54,14 +68,16 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
     }
   }
 
-  const createFullscreenContent = () => (
-    <div
-      key={fullscreenKey}
-      className="relative w-full h-full flex items-center justify-center"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
+  const createFullscreenContent = () => {
+    if (slides.length === 0) return null
+    return (
+      <div
+        key={fullscreenKey}
+        className="relative w-full h-full flex items-center justify-center"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
       <button
         onClick={(e) => { e.stopPropagation(); hideFullscreen(); }}
         className="absolute top-4 right-4 text-white hover:text-gray-300 z-60 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
@@ -74,7 +90,7 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
         <iframe
           width="560"
           height="315"
-          src={`https://www.youtube.com/embed/${slides[currentIndex].id}`}
+          src={`https://www.youtube.com/embed/${slides[currentIndex].id}?autoplay=1`}
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -110,7 +126,8 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
         </>
       )}
     </div>
-  );
+  )
+  };
 
   const openFullscreen = () => {
     showFullscreen(createFullscreenContent());

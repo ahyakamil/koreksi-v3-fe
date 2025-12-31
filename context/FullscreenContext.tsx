@@ -11,8 +11,10 @@ const FullscreenContext = createContext<FullscreenContextType | undefined>(undef
 
 export function FullscreenProvider({ children }: { children: ReactNode }) {
   const [fullscreenContent, setFullscreenContent] = useState<ReactNode | null>(null);
+  const [scrollY, setScrollY] = useState(0);
 
   const showFullscreen = (content: ReactNode) => {
+    setScrollY(window.scrollY);
     setFullscreenContent(content);
   };
 
@@ -44,7 +46,7 @@ export function FullscreenProvider({ children }: { children: ReactNode }) {
 
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
-      document.body.style.top = '0';
+      document.body.style.top = `-${scrollY}px`;
       document.body.style.left = '0';
       document.body.style.width = '100%';
       document.body.style.height = '100%';
@@ -55,6 +57,7 @@ export function FullscreenProvider({ children }: { children: ReactNode }) {
       document.body.style.left = originalLeft;
       document.body.style.width = originalWidth;
       document.body.style.height = originalHeight;
+      window.scrollTo(0, scrollY);
     }
 
     return () => {
@@ -64,8 +67,9 @@ export function FullscreenProvider({ children }: { children: ReactNode }) {
       document.body.style.left = originalLeft;
       document.body.style.width = originalWidth;
       document.body.style.height = originalHeight;
+      window.scrollTo(0, scrollY);
     };
-  }, [fullscreenContent]);
+  }, [fullscreenContent, scrollY]);
 
   return (
     <FullscreenContext.Provider value={{
