@@ -23,9 +23,10 @@ interface FriendListProps {
   onSelectFriend: (friendId: string) => void;
   selectedFriendId: string | null;
   loading: boolean;
+  error?: string | null;
 }
 
-const FriendList: React.FC<FriendListProps> = ({ friends, unreadCounts, onSelectFriend, selectedFriendId, loading }) => {
+const FriendList: React.FC<FriendListProps> = ({ friends, unreadCounts, onSelectFriend, selectedFriendId, loading, error }) => {
   const { t } = useLocale()
   const isOnline = (onlineAt: string | null) => {
     if (!onlineAt) return false;
@@ -39,6 +40,8 @@ const FriendList: React.FC<FriendListProps> = ({ friends, unreadCounts, onSelect
     <div className="w-full border-r overflow-y-auto">
       {loading ? (
         <div className="p-4 text-center text-gray-500">{t('loading_friends')}</div>
+      ) : error ? (
+        <div className="p-4 text-center text-red-500">Error: {error}</div>
       ) : friends.length === 0 ? (
         <div className="p-4 text-center text-gray-500">{t('no_friends')}</div>
       ) : (

@@ -69,6 +69,8 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingFriends, setLoadingFriends] = useState(false);
+  const [errorFriends, setErrorFriends] = useState<string | null>(null);
   const selectedFriendRef = useRef<Friend | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
@@ -80,6 +82,8 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
   useEffect(() => {
     if (userId && token) {
       const loadFriends = async () => {
+        setLoadingFriends(true);
+        setErrorFriends(null);
         try {
           // Load all friends for chat
           const allFriends: Friend[] = []
@@ -90,6 +94,9 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
             const response = await fetch(`${apiUrl}/friends?page=${page}&size=${size}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
             const data = await response.json()
             if (data.statusCode === 2000 && data.data.content) {
               allFriends.push(...data.data.content)
@@ -97,13 +104,16 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
               if (pageable.pageNumber + 1 >= pageable.totalPages) break
               page++
             } else {
-              break
+              throw new Error(data.message || 'Failed to load friends');
             }
           }
 
           setFriends(allFriends)
         } catch (error) {
           console.error('Failed to load friends for chat:', error)
+          setErrorFriends(error instanceof Error ? error.message : 'Unknown error')
+        } finally {
+          setLoadingFriends(false);
         }
       }
 
@@ -306,6 +316,8 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     setSelectedFriend,
     messages,
     loading,
+    loadingFriends,
+    errorFriends,
     sendMessage,
     markAsRead,
     encryptionLoaded: true, // Always loaded since no encryption on frontend

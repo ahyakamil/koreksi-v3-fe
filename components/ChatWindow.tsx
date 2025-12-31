@@ -12,7 +12,7 @@ interface ChatWindowProps {
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, apiUrl, token, userId, initialSelectedFriendId }) => {
-  const { friends, unreadCounts, selectedFriend, setSelectedFriend, messages, sendMessage, markAsRead, loading, encryptionLoaded } = useChat(apiUrl, token, userId);
+  const { friends, unreadCounts, selectedFriend, setSelectedFriend, messages, sendMessage, markAsRead, loading, loadingFriends, errorFriends, encryptionLoaded } = useChat(apiUrl, token, userId);
   const selectedFriendId = selectedFriend?.user.id || null;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -77,7 +77,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, apiUrl, token, userId,
             unreadCounts={unreadCounts}
             onSelectFriend={handleSelectFriend}
             selectedFriendId={selectedFriendId}
-            loading={loading}
+            loading={loadingFriends}
+            error={errorFriends}
           />
         </div>
         {selectedFriendId && selectedFriend && (
@@ -111,7 +112,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, apiUrl, token, userId,
                 unreadCounts={unreadCounts}
                 onSelectFriend={handleModalSelectFriend}
                 selectedFriendId={selectedFriendId}
-                loading={loading}
+                loading={loadingFriends}
+                error={errorFriends}
               />
             </div>
           </div>

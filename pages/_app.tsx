@@ -5,6 +5,7 @@ import { Layout } from '../components/Layout'
 import { AuthProvider, useAuth } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
 import { FullscreenProvider } from '../context/FullscreenContext'
+import { getCookie } from '../utils/api'
 import { AppProps } from 'next/app'
 
 function AppContent({ Component, pageProps, router }: AppProps & { router: any }) {
@@ -51,7 +52,7 @@ function AppContent({ Component, pageProps, router }: AppProps & { router: any }
       {user && (
         <ChatWidget
           apiUrl={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}`}
-          token={typeof window !== 'undefined' ? localStorage.getItem('accessToken')! : ''}
+          token={typeof window !== 'undefined' ? getCookie('s_user') || '' : ''}
           userId={user.id}
         />
       )}

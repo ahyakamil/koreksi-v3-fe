@@ -46,7 +46,7 @@ export async function apiFetch(path: string, options: ApiOptions = {}, _retry = 
   return { ok: res.ok, status: res.status, body: json }
 }
 
-export { setCookie, clearCookie }
+export { setCookie, clearCookie, getCookie }
 
 export default apiFetch
 
