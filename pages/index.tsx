@@ -85,6 +85,7 @@ export default function Home() {
             <PostComponent
               key={p.public_id}
               post={p}
+              onUpdate={(updatedPost) => setPosts(prev => prev.map(post => post.public_id === updatedPost.public_id ? updatedPost : post))}
             />
           ))}
           <div className="text-center py-8">
