@@ -132,7 +132,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
 
   return (
     <Container className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow mb-4">
-      <div className="p-6">
+      <div className="p-2">
         <h3 className="font-bold text-xl text-gray-900 mb-3 leading-tight text-center">
           {news.title}
         </h3>
@@ -221,14 +221,14 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
         ) : ''}
 
         {/* Action Buttons */}
-        <div className="px-4 py-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-around">
+        <div className="px-4 py-2 flex items-center justify-around gap-2">
           {!isDetail && shouldTruncate && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
             >
               <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-              <span>{isExpanded ? t('hide') : t('show_all')}</span>
+              <span className="hidden md:inline">{isExpanded ? t('hide') : t('show_all')}</span>
             </button>
           )}
           <button
@@ -236,7 +236,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
             className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
           >
             <MessageCircle className="w-5 h-5" />
-            <span>{t('comments')}</span>
+            <span className="hidden md:inline">{t('comments')}</span>
           </button>
           <button
             onClick={() => {
@@ -258,7 +258,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
             className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
           >
             <Share2 className="w-5 h-5" />
-            <span>{t('share')}</span>
+            <span className="hidden md:inline">{t('share')}</span>
           </button>
         </div>
 

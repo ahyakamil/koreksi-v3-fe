@@ -47,7 +47,9 @@ function AppContent({ Component, pageProps, router }: AppProps & { router: any }
         showHeader={true}
         {...layoutProps}
       >
-        {content}
+        <div className='mb-24'>
+          {content}
+        </div>
       </Layout>
       {user && (
         <ChatWidget
