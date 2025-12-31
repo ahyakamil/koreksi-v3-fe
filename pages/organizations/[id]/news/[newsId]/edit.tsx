@@ -85,6 +85,7 @@ const EditNewsPage: React.FC = () => {
 
     const newsData = {
       ...formData,
+      content: formData.content.replace(/&nbsp;/g, ' '),
       image: imageUrl
     }
 
