@@ -14,11 +14,14 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
     const resetStyles = () => {
       document.body.style.touchAction = 'pan-y';
       document.body.style.overflowY = 'auto';
+      document.body.style.overflow = 'auto';
       document.body.style.pointerEvents = 'auto';
       document.documentElement.style.touchAction = 'pan-y';
       document.documentElement.style.overflowY = 'auto';
+      document.documentElement.style.overflow = 'auto';
       if (blockquoteRef.current) {
         blockquoteRef.current.style.touchAction = 'pan-y';
+        blockquoteRef.current.style.overflow = 'auto';
       }
     };
 

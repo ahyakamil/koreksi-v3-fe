@@ -16,6 +16,8 @@ type Slide = { type: 'image', url: string } | { type: 'video', id: string } | { 
 export default function Carousel({ medias, youtubeVideo, instagramVideo }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [fullscreenKey, setFullscreenKey] = useState(0)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const { t } = useLocale()
   const { showFullscreen, updateFullscreen, hideFullscreen, isFullscreen } = useFullscreen()
 
@@ -30,8 +32,36 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
   const next = useCallback(() => setCurrentIndex((prev) => (prev + 1) % slides.length), [slides.length])
   const prev = useCallback(() => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length), [slides.length])
 
+  const minSwipeDistance = 50
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX)
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+    if (isLeftSwipe) {
+      next()
+    }
+    if (isRightSwipe) {
+      prev()
+    }
+  }
+
   const createFullscreenContent = () => (
-    <div key={fullscreenKey} className="relative w-full h-full flex items-center justify-center">
+    <div
+      key={fullscreenKey}
+      className="relative w-full h-full flex items-center justify-center"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <button
         onClick={(e) => { e.stopPropagation(); hideFullscreen(); }}
         className="absolute top-4 right-4 text-white hover:text-gray-300 z-60 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
@@ -98,7 +128,12 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
 
   return (
     <div className="mt-2">
-      <div className="relative overflow-hidden rounded">
+      <div
+        className="relative overflow-hidden rounded"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {slides[currentIndex].type === 'image' ? (
           <img
             src={slides[currentIndex].url}

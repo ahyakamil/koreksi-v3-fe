@@ -27,13 +27,43 @@ export function FullscreenProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    let originalOverflow = '';
+    let originalPosition = '';
+    let originalTop = '';
+    let originalLeft = '';
+    let originalWidth = '';
+    let originalHeight = '';
+
     if (fullscreenContent) {
+      originalOverflow = document.body.style.overflow || '';
+      originalPosition = document.body.style.position || '';
+      originalTop = document.body.style.top || '';
+      originalLeft = document.body.style.left || '';
+      originalWidth = document.body.style.width || '';
+      originalHeight = document.body.style.height || '';
+
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = '0';
+      document.body.style.left = '0';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.top = originalTop;
+      document.body.style.left = originalLeft;
+      document.body.style.width = originalWidth;
+      document.body.style.height = originalHeight;
     }
+
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.top = originalTop;
+      document.body.style.left = originalLeft;
+      document.body.style.width = originalWidth;
+      document.body.style.height = originalHeight;
     };
   }, [fullscreenContent]);
 
