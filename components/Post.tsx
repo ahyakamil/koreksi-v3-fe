@@ -171,8 +171,8 @@ export function Post({ post, onDelete, alwaysShowComments = false, initialCommen
       </div>
 
       {/* Post Media */}
-      {(post.medias || post.youtube_video) && (
-        <Carousel medias={post.medias || []} youtubeVideo={post.youtube_video} />
+      {(post.medias || post.youtube_video || post.instagram_video) && (
+        <Carousel medias={post.medias || []} youtubeVideo={post.youtube_video} instagramVideo={post.instagram_video} />
       )}
 
       {/* Engagement Stats */}

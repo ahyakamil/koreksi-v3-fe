@@ -17,6 +17,7 @@ export function CreatePost({ onCreated }: CreatePostProps) {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [youtubeVideo, setYoutubeVideo] = useState('');
+  const [instagramVideo, setInstagramVideo] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -51,11 +52,12 @@ export function CreatePost({ onCreated }: CreatePostProps) {
       });
     }
 
-    const { body } = await apiFetch('/posts', { method: 'POST', body: JSON.stringify({ title, content, youtube_video: youtubeVideo, medias }) });
+    const { body } = await apiFetch('/posts', { method: 'POST', body: JSON.stringify({ title, content, youtube_video: youtubeVideo, instagram_video: instagramVideo, medias }) });
     if (body && body.statusCode === 2000) {
       setTitle('');
       setContent('');
       setYoutubeVideo('');
+      setInstagramVideo('');
       setImageFiles([]);
       setExpanded(false);
       if (onCreated) onCreated(body.data.post);
@@ -109,6 +111,13 @@ export function CreatePost({ onCreated }: CreatePostProps) {
             className="w-full border rounded p-2 mb-2"
             value={youtubeVideo}
             onChange={(e) => setYoutubeVideo(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Instagram Video ID"
+            className="w-full border rounded p-2 mb-2"
+            value={instagramVideo}
+            onChange={(e) => setInstagramVideo(e.target.value)}
           />
           <MultiImageUpload
             onFilesSelected={handleFilesSelected}

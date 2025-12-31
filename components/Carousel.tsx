@@ -3,15 +3,17 @@ import { Media } from '../types'
 import { useLocale } from '../context/LocaleContext'
 import { useFullscreen } from '../context/FullscreenContext'
 import { X } from 'lucide-react'
+import InstagramEmbed from './InstagramEmbed'
 
 interface CarouselProps {
   medias: Media[]
   youtubeVideo?: string
+  instagramVideo?: string
 }
 
-type Slide = { type: 'image', url: string } | { type: 'video', id: string }
+type Slide = { type: 'image', url: string } | { type: 'video', id: string } | { type: 'instagram', id: string }
 
-export default function Carousel({ medias, youtubeVideo }: CarouselProps) {
+export default function Carousel({ medias, youtubeVideo, instagramVideo }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [fullscreenKey, setFullscreenKey] = useState(0)
   const { t } = useLocale()
@@ -19,6 +21,7 @@ export default function Carousel({ medias, youtubeVideo }: CarouselProps) {
 
   const slides: Slide[] = []
   if (youtubeVideo) slides.push({ type: 'video', id: youtubeVideo })
+  if (instagramVideo) slides.push({ type: 'instagram', id: instagramVideo })
   medias.forEach(m => slides.push({ type: 'image', url: m.url }))
 
   if (slides.length === 0) return null
@@ -36,7 +39,7 @@ export default function Carousel({ medias, youtubeVideo }: CarouselProps) {
       </button>
       {slides[currentIndex].type === 'image' ? (
         <img src={slides[currentIndex].url} alt="" className="max-w-full max-h-full object-contain" />
-      ) : (
+      ) : slides[currentIndex].type === 'video' ? (
         <iframe
           width="560"
           height="315"
@@ -46,6 +49,8 @@ export default function Carousel({ medias, youtubeVideo }: CarouselProps) {
           allowFullScreen
           className="max-w-full max-h-full"
         ></iframe>
+      ) : (
+        <InstagramEmbed reelId={slides[currentIndex].id} />
       )}
       {slides.length > 1 && (
         <>
@@ -67,7 +72,7 @@ export default function Carousel({ medias, youtubeVideo }: CarouselProps) {
                 key={index}
                 onClick={(e) => { e.stopPropagation(); setCurrentIndex(index); }}
                 className={`w-4 h-4 rounded-full transition-all ${index === currentIndex ? 'bg-blue-500 ring-2 ring-white' : 'bg-gray-400 hover:bg-gray-300'}`}
-                title={slide.type === 'video' ? 'YouTube Video' : 'Image'}
+                title={slide.type === 'video' ? 'YouTube Video' : slide.type === 'instagram' ? 'Instagram Video' : 'Image'}
               ></button>
             ))}
           </div>
@@ -98,7 +103,7 @@ export default function Carousel({ medias, youtubeVideo }: CarouselProps) {
             className="w-full h-64 object-contain cursor-pointer"
             onClick={openFullscreen}
           />
-        ) : (
+        ) : slides[currentIndex].type === 'video' ? (
           <iframe
             width="100%"
             height="256"
@@ -109,6 +114,8 @@ export default function Carousel({ medias, youtubeVideo }: CarouselProps) {
             className="cursor-pointer"
             onClick={openFullscreen}
           ></iframe>
+        ) : (
+          <InstagramEmbed reelId={slides[currentIndex].id} />
         )}
         {slides.length > 1 && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
@@ -117,7 +124,7 @@ export default function Carousel({ medias, youtubeVideo }: CarouselProps) {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`w-4 h-4 rounded-full transition-all ${index === currentIndex ? 'bg-blue-500 ring-2 ring-white' : 'bg-gray-400 hover:bg-gray-300'}`}
-                title={slide.type === 'video' ? 'YouTube Video' : 'Image'}
+                title={slide.type === 'video' ? 'YouTube Video' : slide.type === 'instagram' ? 'Instagram Video' : 'Image'}
               />
             ))}
           </div>

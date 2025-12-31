@@ -20,6 +20,7 @@ export interface Post {
   medias?: Media[]
   comments_count?: number
   youtube_video?: string
+  instagram_video?: string
 }
 
 export interface Comment {
