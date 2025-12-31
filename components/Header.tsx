@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Home, Users, Newspaper, Bell, MessageCircle, ChevronDown, LogOut } from 'lucide-react';
+import { Search, Home, Users, Newspaper, Bell, Building2, ChevronDown, LogOut } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
@@ -32,6 +32,8 @@ export function Header() {
       setActiveTab('friends');
     } else if (pathname === '/news') {
       setActiveTab('news');
+    } else if (pathname === '/organizations') {
+      setActiveTab('organizations');
     } else {
       setActiveTab('');
     }
@@ -104,8 +106,15 @@ export function Header() {
             >
               <Newspaper className="w-6 h-6" />
             </button>
-            <button className="px-8 py-2 rounded-lg hover:bg-gray-100 text-gray-500">
-              <MessageCircle className="w-6 h-6" />
+            <button
+              onClick={() => router.push('/organizations')}
+              className={`px-8 py-2 rounded-lg hover:bg-gray-100 ${
+                activeTab === 'organizations'
+                  ? 'text-blue-600 border-b-4 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Building2 className="w-6 h-6" />
             </button>
           </div>
 
@@ -228,9 +237,14 @@ export function Header() {
           <Newspaper className="w-6 h-6" />
           <span className="text-xs mt-1">News</span>
         </button>
-        <button className="flex flex-col items-center justify-center flex-1 py-2 text-gray-500">
-          <MessageCircle className="w-6 h-6" />
-          <span className="text-xs mt-1">Chat</span>
+        <button
+          onClick={() => router.push('/organizations')}
+          className={`flex flex-col items-center justify-center flex-1 py-2 ${
+            activeTab === 'organizations' ? 'text-blue-600' : 'text-gray-500'
+          }`}
+        >
+          <Building2 className="w-6 h-6" />
+          <span className="text-xs mt-1">Organization</span>
         </button>
       </div>
     </nav>

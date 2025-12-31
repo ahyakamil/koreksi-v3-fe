@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { Newspaper, Users, Building2, Settings } from 'lucide-react'
 import { Organization, User, Space, News, OrganizationUser } from '../../types'
 import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization } from '../../utils/api'
 import { useAuth } from '../../context/AuthContext'
@@ -269,7 +270,7 @@ const OrganizationDetailsPage: React.FC = () => {
   if (!organization) return <div>{t('organization_not_found')}</div>
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="mx-auto">
       <div className="mb-8">
         <button
           onClick={() => router.push('/organizations')}
@@ -282,7 +283,7 @@ const OrganizationDetailsPage: React.FC = () => {
           <p className="text-gray-600 mt-2">{organization.description}</p>
         )}
         {organization.image && (
-          <img src={organization.image} alt={organization.title} className="w-full h-48 object-contain rounded-lg mt-4" />
+          <img src={organization.image} alt={organization.title} className="w-full h-32 sm:h-40 md:h-48 object-contain rounded-lg mt-4" />
         )}
       </div>
 
@@ -306,42 +307,52 @@ const OrganizationDetailsPage: React.FC = () => {
             <nav className="flex overflow-x-auto space-x-8 pb-2">
               <button
                 onClick={() => setActiveTab('news')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'news'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {t('news')}
+                <Newspaper className="w-5 h-5" />
               </button>
               {canManage && (
                 <button
                   onClick={() => setActiveTab('members')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  className={`py-2 px-1 pr-3 border-b-2 font-medium text-sm relative ${
                     activeTab === 'members'
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  {t('members')} ({organization.users_count || 0})
+                  <Users className="w-5 h-5" />
+                  {(organization.users_count || 0) > 0 && (
+                    <span className="absolute top-1 right-0 transform translate-x-1/2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {organization.users_count || 0}
+                    </span>
+                  )}
                 </button>
               )}
               <button
                 onClick={() => setActiveTab('spaces')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                className={`py-2 px-1 pr-3 border-b-2 font-medium text-sm relative ${
                   activeTab === 'spaces'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {t('spaces')} ({organization.spaces_count || 0})
+                <Building2 className="w-5 h-5" />
+                {(organization.spaces_count || 0) > 0 && (
+                  <span className="absolute top-1 right-0 transform translate-x-1/2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {organization.spaces_count || 0}
+                  </span>
+                )}
               </button>
               {canManage && (
                 <button
                   onClick={() => router.push(`/organizations/${id}/news`)}
-                  className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+                  className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 >
-                  {t('manage_news')}
+                  <Settings className="w-5 h-5" />
                 </button>
               )}
             </nav>
@@ -487,11 +498,11 @@ const OrganizationDetailsPage: React.FC = () => {
                   spaces.map(space => (
                     <div key={space.id} className="bg-white p-4 rounded-lg shadow mb-2 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/organizations/${id}/spaces/${space.id}`)}>
                       <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16">
                           {space.image ? (
-                            <img src={space.image} alt={space.name} className="w-16 h-16 object-cover rounded-lg" />
+                            <img src={space.image} alt={space.name} className="w-full h-full object-cover rounded-lg" />
                           ) : (
-                            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
                               <span className="text-gray-500 text-xs">{t('no_image')}</span>
                             </div>
                           )}
@@ -532,7 +543,7 @@ const OrganizationDetailsPage: React.FC = () => {
               {news.length === 0 ? (
                 <p>{t('no_news_available')}</p>
               ) : (
-                <ul className="space-y-4">
+                <ul>
                   {news.map(item => (
                     <NewsItem key={item.public_id} news={item} hideOrganization={false} />
                   ))}
