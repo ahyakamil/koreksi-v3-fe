@@ -95,3 +95,8 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Fix scrolling issue with Instagram embeds */
+.instagram-media {
+  touch-action: pan-y !important;
+}
