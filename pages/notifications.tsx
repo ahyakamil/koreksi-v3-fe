@@ -62,7 +62,7 @@ export default function Notifications(){
         Router.push(`/news/${commentable_id}?commentId=${comment_id}`)
       }
     } else if (notification.data.type === 'friend_request') {
-      Router.push('/friends')
+      Router.push('/friends?tab=requests')
     }
   }
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { apiFetch } from '../utils/api'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
@@ -9,6 +10,7 @@ import { Search, UserPlus, Users, UserCheck, UserX, Shield, Bell, ChevronDown } 
 export default function Friends() {
   const { t } = useLocale()
   const { refreshPendingCount, user } = useAuth()
+  const router = useRouter()
   const [friends, setFriends] = useState<Friendship[]>([])
   const [requests, setRequests] = useState<FriendRequest[]>([])
   const [blocked, setBlocked] = useState<Friendship[]>([])
@@ -48,6 +50,12 @@ export default function Friends() {
   }
 
   useEffect(() => { load() }, [])
+
+  useEffect(() => {
+    if (router.query.tab) {
+      setActiveTab(router.query.tab as string)
+    }
+  }, [router.query.tab])
 
   async function search() {
     if (!query.trim()) {
