@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Media } from '../types'
 import { useLocale } from '../context/LocaleContext'
 import { useFullscreen } from '../context/FullscreenContext'
@@ -19,15 +19,16 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
   const { t } = useLocale()
   const { showFullscreen, updateFullscreen, hideFullscreen, isFullscreen } = useFullscreen()
 
-  const slides: Slide[] = []
-  if (youtubeVideo) slides.push({ type: 'video', id: youtubeVideo })
-  if (instagramVideo) slides.push({ type: 'instagram', id: instagramVideo })
-  medias.forEach(m => slides.push({ type: 'image', url: m.url }))
+  const slides = useMemo(() => {
+    const s: Slide[] = []
+    if (youtubeVideo) s.push({ type: 'video', id: youtubeVideo })
+    if (instagramVideo) s.push({ type: 'instagram', id: instagramVideo })
+    medias.forEach(m => s.push({ type: 'image', url: m.url }))
+    return s
+  }, [youtubeVideo, instagramVideo, medias])
 
-  if (slides.length === 0) return null
-
-  const next = () => setCurrentIndex((prev) => (prev + 1) % slides.length)
-  const prev = () => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length)
+  const next = useCallback(() => setCurrentIndex((prev) => (prev + 1) % slides.length), [slides.length])
+  const prev = useCallback(() => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length), [slides.length])
 
   const createFullscreenContent = () => (
     <div key={fullscreenKey} className="relative w-full h-full flex items-center justify-center">
@@ -92,6 +93,8 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
       updateFullscreen(createFullscreenContent());
     }
   }, [currentIndex]);
+
+  if (slides.length === 0) return null
 
   return (
     <div className="mt-2">
