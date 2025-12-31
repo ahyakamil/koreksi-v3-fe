@@ -187,6 +187,11 @@ export async function getPublishedNews(page: number = 0, size: number = 10) {
   return res
 }
 
+export async function getTrendingNews(page: number = 0, size: number = 10) {
+  const res = await apiFetch(`/news/trending?page=${page}&size=${size}`)
+  return res
+}
+
 export async function getNews(organizationId: string, page: number = 0, size: number = 10, status?: string) {
   const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
   if (status && status !== 'all') params.append('status', status)
