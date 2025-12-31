@@ -16,7 +16,7 @@ interface PostDetailProps {
     initialRepliesPageable?: Record<string, any>
     fullUrl: string
 }
-export default function PostDetail({ post, comments: initialComments, pageable: initialPageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl }: PostDetailProps) {
+export default function PostDetail({ post, comments, pageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl }: PostDetailProps) {
 
   const { t } = useLocale()
 
@@ -67,13 +67,17 @@ export default function PostDetail({ post, comments: initialComments, pageable: 
         )}
         <meta name="twitter:url" content={fullUrl} />
       </Head>
-      <div className="container py-8">
-        <PostComponent
-          post={post}
-          alwaysShowComments={true}
-          onDelete={() => window.location.href = '/'}
-        />
-      </div>
+      <PostComponent
+        post={post}
+        alwaysShowComments={true}
+        onDelete={() => window.location.href = '/'}
+        initialComments={comments}
+        initialPageable={pageable}
+        initialReplies={initialReplies}
+        initialShowReplies={initialShowReplies}
+        initialRepliesPageable={initialRepliesPageable}
+        highlightedCommentId={specificCommentId}
+      />
     </>
   )
 }

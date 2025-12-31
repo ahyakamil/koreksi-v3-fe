@@ -17,17 +17,24 @@ interface PostProps {
   post: PostType
   onDelete?: (postId: string) => void
   alwaysShowComments?: boolean
+  initialComments?: Comment[]
+  initialPageable?: any
+  initialReplies?: Record<string, Comment[]>
+  initialShowReplies?: Record<string, boolean>
+  initialRepliesPageable?: Record<string, any>
+  highlightedCommentId?: number | null
 }
 
-export function Post({ post, onDelete, alwaysShowComments = false }: PostProps) {
+export function Post({ post, onDelete, alwaysShowComments = false, initialComments = [], initialPageable = null, initialReplies = {}, initialShowReplies = {}, initialRepliesPageable = {}, highlightedCommentId }: PostProps) {
   const { user } = useAuth()
   const { t } = useLocale()
-  const [comments, setComments] = useState<Comment[]>([])
-  const [showComments, setShowComments] = useState(alwaysShowComments)
-  const [commentsLoaded, setCommentsLoaded] = useState(false)
-  const [commentsCount, setCommentsCount] = useState(post.comments_count || 0)
-  const [commentsPageable, setCommentsPageable] = useState<any>(null)
+  const [comments, setComments] = useState<Comment[]>(initialComments)
+  const [showComments, setShowComments] = useState(alwaysShowComments || initialComments.length > 0)
+  const [commentsLoaded, setCommentsLoaded] = useState(initialComments.length > 0)
+  const [commentsCount, setCommentsCount] = useState(post.comments_count || initialComments.length)
+  const [commentsPageable, setCommentsPageable] = useState<any>(initialPageable)
   const [loadingMoreComments, setLoadingMoreComments] = useState(false)
+  const [showAllComments, setShowAllComments] = useState(!highlightedCommentId)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDeleted, setIsDeleted] = useState(false)
 
@@ -44,6 +51,11 @@ export function Post({ post, onDelete, alwaysShowComments = false }: PostProps) 
       setCommentsPageable(res.body.data.pageable)
       setCommentsLoaded(true)
     }
+  }
+
+  const loadAllComments = () => {
+    setShowAllComments(true)
+    loadComments(0, 10)
   }
 
   const loadMoreComments = () => {
@@ -172,15 +184,13 @@ export function Post({ post, onDelete, alwaysShowComments = false }: PostProps) 
 
       {/* Action Buttons */}
       <div className="px-4 py-2 flex items-center justify-around">
-        {!alwaysShowComments && (
-          <button
-            onClick={() => setShowComments(!showComments)}
-            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span>{t('comments')}</span>
-          </button>
-        )}
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
+        >
+          <MessageCircle className="w-5 h-5" />
+          <span>{t('comments')}</span>
+        </button>
         <button
           onClick={handleShare}
           className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg ${alwaysShowComments ? 'flex-1' : 'flex-1'} justify-center text-gray-600`}
@@ -206,9 +216,13 @@ export function Post({ post, onDelete, alwaysShowComments = false }: PostProps) 
             currentUser={user}
             commentableType="posts"
             commentableId={post.public_id}
+            highlightedCommentId={highlightedCommentId}
+            initialReplies={initialReplies}
+            initialShowReplies={initialShowReplies}
+            initialRepliesPageable={initialRepliesPageable}
           />
 
-          {commentsPageable && commentsPageable.pageNumber + 1 < commentsPageable.totalPages && (
+          {showAllComments && commentsPageable && commentsPageable.pageNumber + 1 < commentsPageable.totalPages && (
             <div className="mt-3 text-center">
               <button
                 onClick={loadMoreComments}
@@ -216,6 +230,17 @@ export function Post({ post, onDelete, alwaysShowComments = false }: PostProps) 
                 className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 disabled:opacity-50"
               >
                 {loadingMoreComments ? t('loading') : t('load_more')}
+              </button>
+            </div>
+          )}
+
+          {!showAllComments && highlightedCommentId && (
+            <div className="mt-3 text-center">
+              <button
+                onClick={loadAllComments}
+                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+              >
+                {t('see_all_comments')}
               </button>
             </div>
           )}
