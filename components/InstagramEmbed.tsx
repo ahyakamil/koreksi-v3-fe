@@ -27,7 +27,7 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
       // Force styles after embed processes
       setTimeout(() => {
         resetStyles();
-      }, 1000);
+      }, 100);
     }
 
     // Reset styles on any touch

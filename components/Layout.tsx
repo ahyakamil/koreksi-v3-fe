@@ -17,7 +17,7 @@ export function Layout({
   showHeader = true
 }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 pt-14">
       {showHeader && <Header />}
 
       <div className="flex max-w-[1920px] mx-auto">

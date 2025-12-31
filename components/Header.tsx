@@ -18,6 +18,8 @@ export function Header() {
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
   const avatarDropdownRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState('home');
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   const logout = () => {
     document.cookie = 's_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
@@ -54,9 +56,31 @@ export function Header() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollY.current;
+
+      if (Math.abs(scrollDelta) > 10) { // threshold to avoid jitter
+        if (scrollDelta > 0 && currentScrollY > 50) {
+          setIsHeaderVisible(false);
+        } else if (scrollDelta < 0) {
+          setIsHeaderVisible(true);
+        }
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   return (
     <>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <header className={`bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 shadow-sm transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="max-w-[1920px] mx-auto px-4">
           <div className="flex items-center justify-between h-14">
           {/* Left Section */}
