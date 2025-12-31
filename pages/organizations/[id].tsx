@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Newspaper, Users, Building2, Settings } from 'lucide-react'
+import { Newspaper, Users, Folder, Settings } from 'lucide-react'
 import { Organization, User, Space, News, OrganizationUser } from '../../types'
 import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization } from '../../utils/api'
 import { useAuth } from '../../context/AuthContext'
@@ -340,7 +340,7 @@ const OrganizationDetailsPage: React.FC = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                <Building2 className="w-5 h-5" />
+                <Folder className="w-5 h-5" />
                 {(organization.spaces_count || 0) > 0 && (
                   <span className="absolute top-1 right-0 transform translate-x-1/2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {organization.spaces_count || 0}
