@@ -59,7 +59,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
           <div className="text-sm font-medium text-gray-900">{comment.user?.name || 'Anonymous'}</div>
           <div className="flex items-center space-x-2">
             <TimeAgo date={comment.created_at} className="text-xs text-gray-500" />
-            {!isReply && !highlightedCommentId && (
+            {!highlightedCommentId && (
               <button
                 onClick={(e) => {
                   e.preventDefault()
