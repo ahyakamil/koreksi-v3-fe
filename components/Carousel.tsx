@@ -80,7 +80,7 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
       >
       <button
         onClick={(e) => { e.stopPropagation(); hideFullscreen(); }}
-        className="absolute top-4 right-4 text-white hover:text-gray-300 z-60 p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
+        className="absolute top-20 left-4 text-black hover:text-gray-700 z-[1000000] p-2 rounded-full bg-white bg-opacity-90 hover:bg-opacity-100 transition-all"
       >
         <X className="w-6 h-6" />
       </button>
