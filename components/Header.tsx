@@ -61,8 +61,8 @@ export function Header() {
           <div className="flex items-center justify-between h-14">
           {/* Left Section */}
           <div className="flex items-center gap-2 flex-1">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white">SJ</span>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center">
+              <img src="/icon-512x512.png" alt="Koreksi Logo" className="w-10 h-10 rounded-full object-cover" />
             </div>
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
