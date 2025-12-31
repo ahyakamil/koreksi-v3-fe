@@ -247,13 +247,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
                   title,
                   url
                 }).catch(() => {
-                  // Fallback to clipboard
-                  navigator.clipboard.writeText(url)
-                  alert('URL copied to clipboard!')
                 })
-              } else {
-                navigator.clipboard.writeText(url)
-                alert('URL copied to clipboard!')
               }
             }}
             className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"

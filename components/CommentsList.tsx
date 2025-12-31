@@ -71,13 +71,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
                       title,
                       url
                     }).catch(() => {
-                      // Fallback to clipboard
-                      navigator.clipboard.writeText(url)
-                      alert('URL copied to clipboard!')
                     })
-                  } else {
-                    navigator.clipboard.writeText(url)
-                    alert('URL copied to clipboard!')
                   }
                 }}
                 className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"

@@ -143,13 +143,7 @@ export function Post({ post, onDelete, onUpdate, alwaysShowComments = false, ini
         title,
         url
       }).catch(() => {
-        // Fallback to clipboard
-        navigator.clipboard.writeText(url)
-        alert('URL copied to clipboard!')
       })
-    } else {
-      navigator.clipboard.writeText(url)
-      alert('URL copied to clipboard!')
     }
   }
 
