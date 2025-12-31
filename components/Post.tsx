@@ -2,20 +2,21 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, MoreHorizontal, TrendingUp, Trash2 } from 'lucide-react';
+import { MessageCircle, Share2, MoreHorizontal, TrendingUp, Trash2, Edit } from 'lucide-react';
 import Carousel from './Carousel'
 import TimeAgo from './TimeAgo'
 import CommentsList from './CommentsList'
 import CommentForm from './CommentForm'
 import { Avatar } from './Avatar'
 import { Post as PostType, Comment, Pageable } from '../types'
-import { getComments, createComment, deletePost } from '../utils/api'
+import { getComments, createComment, deletePost, apiFetch } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 
 interface PostProps {
   post: PostType
   onDelete?: (postId: string) => void
+  onUpdate?: (post: PostType) => void
   alwaysShowComments?: boolean
   initialComments?: Comment[]
   initialPageable?: any
@@ -25,7 +26,7 @@ interface PostProps {
   highlightedCommentId?: number | null
 }
 
-export function Post({ post, onDelete, alwaysShowComments = false, initialComments = [], initialPageable = null, initialReplies = {}, initialShowReplies = {}, initialRepliesPageable = {}, highlightedCommentId }: PostProps) {
+export function Post({ post, onDelete, onUpdate, alwaysShowComments = false, initialComments = [], initialPageable = null, initialReplies = {}, initialShowReplies = {}, initialRepliesPageable = {}, highlightedCommentId }: PostProps) {
   const { user } = useAuth()
   const { t } = useLocale()
   const [comments, setComments] = useState<Comment[]>(initialComments)
@@ -37,12 +38,29 @@ export function Post({ post, onDelete, alwaysShowComments = false, initialCommen
   const [showAllComments, setShowAllComments] = useState(!highlightedCommentId)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDeleted, setIsDeleted] = useState(false)
+  const [showFullContent, setShowFullContent] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editContent, setEditContent] = useState('')
+  const [editYoutube, setEditYoutube] = useState('')
+  const [editInstagram, setEditInstagram] = useState('')
+  const [editing, setEditing] = useState(false)
+  const [updateSuccess, setUpdateSuccess] = useState(false)
 
   useEffect(() => {
     if (showComments && !commentsLoaded) {
       loadComments()
     }
   }, [showComments, commentsLoaded])
+
+  useEffect(() => {
+    if (isEditing) {
+      setEditTitle(post.title || '')
+      setEditContent(post.content)
+      setEditYoutube(post.youtube_video || '')
+      setEditInstagram(post.instagram_video || '')
+    }
+  }, [isEditing, post])
 
   const loadComments = async (page: number = 0, size: number = 10) => {
     const res = await getComments('posts', post.public_id, page, size)
@@ -103,6 +121,20 @@ export function Post({ post, onDelete, alwaysShowComments = false, initialCommen
     }
   }
 
+  const handleUpdate = async () => {
+    setEditing(true)
+    const res = await apiFetch(`/posts/${post.public_id}`, { method: 'PUT', body: JSON.stringify({ title: editTitle, content: editContent, youtube_video: editYoutube, instagram_video: editInstagram }) })
+    if (res.ok) {
+      onUpdate?.(res.body.data.post)
+      setIsEditing(false)
+      setUpdateSuccess(true)
+      setTimeout(() => setUpdateSuccess(false), 2000)
+    } else {
+      alert(res.body.message || 'Failed to update post')
+    }
+    setEditing(false)
+  }
+
   const handleShare = () => {
     const url = window.location.origin + '/post/' + post.public_id
     const title = post.title || post.content.substring(0, 50) + '...'
@@ -120,6 +152,10 @@ export function Post({ post, onDelete, alwaysShowComments = false, initialCommen
       alert('URL copied to clipboard!')
     }
   }
+
+  const MAX_CONTENT_LENGTH = 200;
+  const isLongContent = post.content && post.content.length > MAX_CONTENT_LENGTH;
+  const displayContent = showFullContent || !isLongContent ? post.content : post.content.substring(0, MAX_CONTENT_LENGTH) + '...';
 
   if (isDeleted) return null
 
@@ -145,29 +181,103 @@ export function Post({ post, onDelete, alwaysShowComments = false, initialCommen
             </div>
           </div>
           {user && user.id === post.user?.id && (
-            <button
-              onClick={(e) => {
-                e.preventDefault()
-                handleDelete()
-              }}
-              disabled={isDeleting}
-              className="p-2 hover:bg-gray-100 rounded-full text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              title={t('delete')}
-            >
-              <Trash2 className={`w-5 h-5 ${isDeleting ? 'animate-spin' : ''}`} />
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  setIsEditing(true)
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full text-blue-500 hover:text-blue-700"
+                title="Edit"
+              >
+                <Edit className="w-5 h-5" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleDelete()
+                }}
+                disabled={isDeleting}
+                className="p-2 hover:bg-gray-100 rounded-full text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={t('delete')}
+              >
+                <Trash2 className={`w-5 h-5 ${isDeleting ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
           )}
         </div>
 
+        {updateSuccess && (
+          <div className="text-green-600 text-sm mb-2 animate-pulse">
+            ✓ Post updated successfully!
+          </div>
+        )}
+
         {/* Post Title */}
-        {post.title && (
-          alwaysShowComments ?
-            <h1 className="text-2xl font-bold mb-2">{post.title}</h1> :
-            <h3 className="font-semibold mb-2">{post.title}</h3>
+        {isEditing ? (
+          <input
+            type="text"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            className="w-full border rounded p-2 mb-2 text-xl font-bold"
+            placeholder="Title (optional)"
+          />
+        ) : (
+          post.title && (
+            alwaysShowComments ?
+              <h1 className="text-2xl font-bold mb-2">{post.title}</h1> :
+              <h3 className="font-semibold mb-2">{post.title}</h3>
+          )
         )}
 
         {/* Post Content */}
-        <p className="text-gray-900 mb-3">{post.content}</p>
+        {isEditing ? (
+          <div className="mb-3">
+            <textarea
+              rows={3}
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="w-full border rounded p-2 mb-2"
+              placeholder="Content"
+            />
+            <input
+              type="text"
+              value={editYoutube}
+              onChange={(e) => setEditYoutube(e.target.value)}
+              className="w-full border rounded p-2 mb-2"
+              placeholder="YouTube Video ID"
+            />
+            <input
+              type="text"
+              value={editInstagram}
+              onChange={(e) => setEditInstagram(e.target.value)}
+              className="w-full border rounded p-2 mb-2"
+              placeholder="Instagram Video ID"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdate}
+                disabled={editing}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              >
+                {editing ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-gray-900 mb-3" style={{ whiteSpace: 'pre-wrap' }}>{displayContent}</p>
+            {isLongContent && !showFullContent && (
+              <button onClick={() => setShowFullContent(true)} className="text-blue-600 hover:underline text-sm mb-3">See more</button>
+            )}
+          </>
+        )}
       </div>
 
       {/* Post Media */}
