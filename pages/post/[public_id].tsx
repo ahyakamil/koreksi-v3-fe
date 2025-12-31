@@ -15,8 +15,9 @@ interface PostDetailProps {
     initialShowReplies?: Record<string, boolean>
     initialRepliesPageable?: Record<string, any>
     fullUrl: string
+    baseUrl: string
 }
-export default function PostDetail({ post, comments, pageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl }: PostDetailProps) {
+export default function PostDetail({ post, comments, pageable, error, specificCommentId, initialReplies, initialShowReplies, initialRepliesPageable, fullUrl, baseUrl }: PostDetailProps) {
 
   const { t } = useLocale()
 
@@ -42,6 +43,11 @@ export default function PostDetail({ post, comments, pageable, error, specificCo
 
   const title = post.title ? `${post.title} - Koreksi` : 'Post - Koreksi'
   const description = post.content.length > 160 ? post.content.substring(0, 157) + '...' : post.content
+  const imageUrl = post.medias && post.medias.length > 0
+    ? (post.medias[0].url.startsWith('http') ? post.medias[0].url : baseUrl + post.medias[0].url)
+    : post.youtube_video
+    ? `https://img.youtube.com/vi/${post.youtube_video}/0.jpg`
+    : null
 
 
   return (
@@ -56,14 +62,14 @@ export default function PostDetail({ post, comments, pageable, error, specificCo
         <meta property="og:site_name" content="Koreksi" />
         <meta property="article:published_time" content={post.created_at} />
         {post.user && <meta property="article:author" content={post.user.name} />}
-        {post.medias && post.medias.length > 0 && (
-          <meta property="og:image" content={post.medias[0].url} />
+        {imageUrl && (
+          <meta property="og:image" content={imageUrl} />
         )}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
-        {post.medias && post.medias.length > 0 && (
-          <meta name="twitter:image" content={post.medias[0].url} />
+        {imageUrl && (
+          <meta name="twitter:image" content={imageUrl} />
         )}
         <meta name="twitter:url" content={fullUrl} />
       </Head>
@@ -101,7 +107,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
           comments: [],
           pageable: null,
           error: 'Post not found',
-          fullUrl
+          fullUrl,
+          baseUrl: `${protocol}://${host}`
         }
       }
     }
@@ -115,7 +122,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
           comments: [],
           pageable: null,
           error: postData.message || 'Failed to load post',
-          fullUrl
+          fullUrl,
+          baseUrl: `${protocol}://${host}`
         }
       }
     }
@@ -161,7 +169,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
         initialReplies,
         initialShowReplies,
         initialRepliesPageable,
-        fullUrl
+        fullUrl,
+        baseUrl: `${protocol}://${host}`
       }
     }
   } catch (error) {
@@ -171,7 +180,8 @@ export const getServerSideProps: GetServerSideProps<PostDetailProps> = async (co
         comments: [],
         pageable: null,
         error: 'Failed to load post',
-        fullUrl
+        fullUrl,
+        baseUrl: `${protocol}://${host}`
       }
     }
   }
