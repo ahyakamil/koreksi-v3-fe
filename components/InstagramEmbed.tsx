@@ -11,10 +11,12 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
   const blockquoteRef = useRef<HTMLQuoteElement>(null);
 
   useEffect(() => {
-    const resetTouchAction = () => {
+    const resetStyles = () => {
       document.body.style.touchAction = 'pan-y';
       document.body.style.overflowY = 'auto';
       document.body.style.pointerEvents = 'auto';
+      document.documentElement.style.touchAction = 'pan-y';
+      document.documentElement.style.overflowY = 'auto';
       if (blockquoteRef.current) {
         blockquoteRef.current.style.touchAction = 'pan-y';
       }
@@ -22,17 +24,31 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
 
     if ((window as any).instgrm) {
       (window as any).instgrm.Embeds.process();
-      // Force touch-action after embed processes
+      // Force styles after embed processes
       setTimeout(() => {
-        resetTouchAction();
+        resetStyles();
       }, 1000);
     }
 
-    // Reset touch-action on any touch to ensure scrolling works
-    document.addEventListener('touchstart', resetTouchAction, { passive: true });
+    // Reset styles on any touch
+    const handleTouch = () => resetStyles();
+    document.addEventListener('touchstart', handleTouch, { passive: true });
+
+    // Use MutationObserver to watch for style changes on body and html
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+          resetStyles();
+        }
+      });
+    });
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
 
     return () => {
-      document.removeEventListener('touchstart', resetTouchAction);
+      document.removeEventListener('touchstart', handleTouch);
+      observer.disconnect();
     };
   }, [reelId]);
 
