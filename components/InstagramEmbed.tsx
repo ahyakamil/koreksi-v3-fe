@@ -13,6 +13,8 @@ export default function InstagramEmbed({ reelId }: InstagramEmbedProps) {
   useEffect(() => {
     const resetTouchAction = () => {
       document.body.style.touchAction = 'pan-y';
+      document.body.style.overflowY = 'auto';
+      document.body.style.pointerEvents = 'auto';
       if (blockquoteRef.current) {
         blockquoteRef.current.style.touchAction = 'pan-y';
       }

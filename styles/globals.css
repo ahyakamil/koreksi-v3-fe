@@ -103,4 +103,6 @@ html {
 
 html, body {
   touch-action: pan-y !important;
+  overflow-y: auto !important;
+  pointer-events: auto !important;
 }
