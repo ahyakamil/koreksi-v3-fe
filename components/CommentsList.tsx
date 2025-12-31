@@ -64,8 +64,21 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
                 onClick={(e) => {
                   e.preventDefault()
                   const path = commentableType === 'posts' ? '/post/' : commentableType === 'news' ? '/news/' : '/post/'
-                  navigator.clipboard.writeText(window.location.origin + path + commentableId + '?commentId=' + comment.id)
-                  alert('Comment URL copied to clipboard!')
+                  const url = window.location.origin + path + commentableId + '?commentId=' + comment.id
+                  const title = 'Comment by ' + (comment.user?.name || 'Anonymous')
+                  if (navigator.share) {
+                    navigator.share({
+                      title,
+                      url
+                    }).catch(() => {
+                      // Fallback to clipboard
+                      navigator.clipboard.writeText(url)
+                      alert('URL copied to clipboard!')
+                    })
+                  } else {
+                    navigator.clipboard.writeText(url)
+                    alert('URL copied to clipboard!')
+                  }
                 }}
                 className="text-xs text-blue-500 hover:text-blue-700 flex items-center space-x-1"
               >

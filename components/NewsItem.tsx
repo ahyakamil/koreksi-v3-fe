@@ -247,6 +247,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
                   title,
                   url
                 }).catch(() => {
+                  // Fallback to clipboard
                   navigator.clipboard.writeText(url)
                   alert('URL copied to clipboard!')
                 })
