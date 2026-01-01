@@ -146,33 +146,42 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
             <h1 className="text-3xl font-bold">{campaign.title}</h1>
             <p className="text-gray-600 mt-2">{t('by')} {organization.title}</p>
           </div>
-          {canManage && (
-            <Link
-              href={`/organizations/${id}/donations/${donationId}/edit`}
-              className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 inline-flex items-center"
-              title={t('edit_campaign')}
+          <div className="flex gap-2">
+            {canManage ? (
+              <Link
+                href={`/organizations/${id}/donations/${donationId}/edit`}
+                className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 inline-flex items-center"
+                title={t('edit_campaign')}
+              >
+                <Edit className="w-4 h-4" />
+              </Link>
+            ) : (
+              <div
+                className="bg-gray-300 text-white p-2 rounded inline-flex items-center opacity-50 cursor-not-allowed"
+                title={t('edit_campaign')}
+              >
+                <Edit className="w-4 h-4" />
+              </div>
+            )}
+            <button
+              onClick={() => {
+                const title = campaign.title
+                const text = campaign.description || `Support ${campaign.title} by ${organization.title}`
+                if (navigator.share) {
+                  navigator.share({
+                    title,
+                    text,
+                    url: window.location.href,
+                  }).catch(() => {
+                  })
+                }
+              }}
+              className="bg-green-500 text-white p-2 rounded hover:bg-green-600 inline-flex items-center"
+              title={t('share')}
             >
-              <Edit className="w-4 h-4" />
-            </Link>
-          )}
-          <button
-            onClick={() => {
-              const title = campaign.title
-              const text = campaign.description || `Support ${campaign.title} by ${organization.title}`
-              if (navigator.share) {
-                navigator.share({
-                  title,
-                  text,
-                  url: window.location.href,
-                }).catch(() => {
-                })
-              }
-            }}
-            className="bg-green-500 text-white p-2 rounded hover:bg-green-600 inline-flex items-center"
-            title={t('share')}
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
