@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { Plus, Edit, Trash2, Coins, Target, Calendar } from 'lucide-react'
 import { DonationCampaign, Organization } from '../../../../types'
 import { getOrganization, getDonationCampaigns, deleteDonationCampaign } from '../../../../utils/api'
+import { formatNumber } from '../../../../utils/format'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 
@@ -123,12 +124,12 @@ const DonationsPage: React.FC = () => {
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <span className="flex items-center">
                       <Coins className="w-4 h-4 mr-1" />
-                      {t('collected')}: Rp {(campaign.current_amount || 0).toLocaleString()}
+                      {t('collected')}: Rp {formatNumber(campaign.current_amount || 0)}
                     </span>
                     {campaign.target_amount && (
                       <span className="flex items-center">
                         <Target className="w-4 h-4 mr-1" />
-                        {t('target')}: Rp {campaign.target_amount?.toLocaleString()}
+                        {t('target')}: Rp {formatNumber(campaign.target_amount || 0)}
                       </span>
                     )}
                     {campaign.end_date && (

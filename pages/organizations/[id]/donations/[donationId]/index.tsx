@@ -6,6 +6,7 @@ import Script from 'next/script'
 import { Edit, Heart, DollarSign, Target, Calendar, Users, Clock, Share2 } from 'lucide-react'
 import { DonationCampaign, Organization } from '../../../../../types'
 import { getOrganization, getDonationCampaign, donateToCampaign, getDonationTransactions } from '../../../../../utils/api'
+import { formatCurrency, formatNumber } from '../../../../../utils/format'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
 
@@ -64,7 +65,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
 
     const amount = parseFloat(donationAmount)
     if (isNaN(amount) || amount < 50000) {
-      alert(t('minimum_donation_amount') + ' Rp50.000')
+      alert(t('minimum_donation_amount') + ' ' + formatCurrency(50000))
       return
     }
 
@@ -223,7 +224,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
               </div>
               <div className="flex justify-between text-sm text-gray-600">
                 <span>{Math.round(((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100)}% {t('completed')}</span>
-                <span>Rp {(campaign.current_amount || 0).toLocaleString()} / Rp {(campaign.target_amount || 0).toLocaleString()}</span>
+                <span>Rp {formatNumber(campaign.current_amount || 0)} / Rp {formatNumber(campaign.target_amount || 0)}</span>
               </div>
             </div>
           )}
@@ -253,7 +254,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                     step="1000"
                     className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <p className="text-xs text-gray-500 mt-1">{t('minimum_donation')}: Rp50.000 </p>
+                  <p className="text-xs text-gray-500 mt-1">{t('minimum_donation')}: {formatCurrency(50000)}</p>
                 </div>
                 <button
                   onClick={handleDonate}
@@ -306,7 +307,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                     <div>
                       <p className="font-medium">{transaction.user?.name || 'Anonymous'}</p>
                     </div>
-                    <p className="font-semibold text-green-600">Rp {transaction.amount.toLocaleString()}</p>
+                    <p className="font-semibold text-green-600">{formatCurrency(transaction.amount)}</p>
                   </div>
                 ))}
                 {transactions.length > 5 && (

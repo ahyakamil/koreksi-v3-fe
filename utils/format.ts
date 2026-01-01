@@ -17,3 +17,13 @@ export function formatDate(ts: string | number | Date): string {
     return String(ts)
   }
 }
+
+export function formatCurrency(amount: number | string): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount
+  return `Rp ${num.toLocaleString('id-ID')}`
+}
+
+export function formatNumber(amount: number | string): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount
+  return num.toLocaleString('id-ID')
+}

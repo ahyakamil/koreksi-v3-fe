@@ -217,6 +217,7 @@ type TranslationKeys = {
   order_id: string
   payment_error: string
   recent_donations: string
+  no_donations_yet: string
   and_more: string
   campaign_status: string
   active: string
@@ -447,7 +448,7 @@ const translations: Translations = {
     total_raised: 'Total Terkumpul',
     target_reached: 'Target Tercapai!',
     make_a_donation: 'Buat Donasi',
-    donation_amount: 'Jumlah Donasi (Rp)',
+    donation_amount: 'Jumlah Donasi',
     minimum_donation: 'Donasi minimum',
     minimum_donation_amount: 'Jumlah donasi minimum adalah',
     donate_now: 'Donasi Sekarang',
@@ -456,6 +457,7 @@ const translations: Translations = {
     order_id: 'ID Pesanan',
     payment_error: 'Terjadi kesalahan pembayaran',
     recent_donations: 'Donasi Terbaru',
+    no_donations_yet: 'Belum ada donasi.',
     and_more: 'dan {count} lagi',
     campaign_status: 'Status Kampanye',
     active: 'Aktif',
@@ -679,7 +681,7 @@ const translations: Translations = {
     total_raised: 'Total Raised',
     target_reached: 'Target Reached!',
     make_a_donation: 'Make a Donation',
-    donation_amount: 'Donation Amount (Rp)',
+    donation_amount: 'Donation Amount',
     minimum_donation: 'Minimum donation',
     minimum_donation_amount: 'Minimum donation amount is',
     donate_now: 'Donate Now',
@@ -688,6 +690,7 @@ const translations: Translations = {
     order_id: 'Order ID',
     payment_error: 'Payment error occurred',
     recent_donations: 'Recent Donations',
+    no_donations_yet: 'No donations yet.',
     and_more: 'and {count} more',
     campaign_status: 'Campaign Status',
     active: 'Active',
