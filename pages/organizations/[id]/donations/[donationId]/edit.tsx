@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, DonationCampaign } from '../../../../../types'
-import { getOrganization, getDonationCampaign, updateDonationCampaign } from '../../../../../utils/api'
+import { getOrganization, getPublicOrganization, getDonationCampaign, updateDonationCampaign, checkOrganizationMembership } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
 
@@ -25,20 +25,26 @@ const EditDonationPage: React.FC = () => {
   const { id, donationId } = router.query
 
   useEffect(() => {
-    if (id && donationId && user) {
+    if (id && donationId) {
       fetchData()
     }
-  }, [id, donationId, user])
+  }, [id, donationId])
 
   const fetchData = async () => {
     if (!id || !donationId) return
 
-    // Fetch organization
-    const orgRes = await getOrganization(id as string)
+    // Fetch membership first
+    const membershipRes = await checkOrganizationMembership(id as string)
+    if (membershipRes.ok) {
+      setMemberRole(membershipRes.body.data.role || null)
+    } else {
+      setMemberRole(null)
+    }
+
+    // Fetch organization (public)
+    const orgRes = await getPublicOrganization(id as string)
     if (orgRes.ok) {
       setOrganization(orgRes.body.data.organization)
-      const role = orgRes.body.data.organization.users?.find((u: any) => u.id === user?.id)?.pivot?.role
-      setMemberRole(role || null)
     }
 
     // Fetch donation
@@ -107,6 +113,7 @@ const EditDonationPage: React.FC = () => {
   const canManage = memberRole === 'admin'
 
   if (loading) return <div>{t('loading')}</div>
+  if (!canManage) return <div>{t('forbidden')}</div>
   if (!organization || !donation) return <div>{t('not_found')}</div>
 
   return (
