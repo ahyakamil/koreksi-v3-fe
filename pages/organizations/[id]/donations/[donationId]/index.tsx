@@ -5,7 +5,7 @@ import Head from 'next/head'
 import Script from 'next/script'
 import { Edit, Heart, DollarSign, Target, Calendar, Users, Clock, Share2 } from 'lucide-react'
 import { DonationCampaign, Organization } from '../../../../../types'
-import { getOrganization, getDonationCampaign, donateToCampaign } from '../../../../../utils/api'
+import { getOrganization, getDonationCampaign, donateToCampaign, getDonationTransactions } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
 
@@ -16,16 +16,18 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
   const [donating, setDonating] = useState(false)
   const [donationAmount, setDonationAmount] = useState('')
   const [memberRole, setMemberRole] = useState<string | null>(null)
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [transactionsLoading, setTransactionsLoading] = useState(false)
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
   const { id, donationId } = router.query
 
   useEffect(() => {
-    if (id && donationId && user) {
+    if (id && donationId) {
       fetchData()
     }
-  }, [id, donationId, user])
+  }, [id, donationId])
 
   const fetchData = async () => {
     if (!id || !donationId) return
@@ -45,6 +47,14 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
     } else {
       setCampaign(null)
     }
+
+    // Fetch transactions
+    setTransactionsLoading(true)
+    const transactionsRes = await getDonationTransactions(id as string, donationId as string, 0, 10)
+    if (transactionsRes.ok) {
+      setTransactions(transactionsRes.body.data.content || [])
+    }
+    setTransactionsLoading(false)
 
     setLoading(false)
   }
@@ -282,6 +292,30 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Donation Transactions */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4">{t('recent_donations')}</h2>
+            {transactionsLoading ? (
+              <p>{t('loading')}</p>
+            ) : transactions.length > 0 ? (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {transactions.slice(0, 5).map((transaction) => (
+                  <div key={transaction.id} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                    <div>
+                      <p className="font-medium">{transaction.user?.name || 'Anonymous'}</p>
+                    </div>
+                    <p className="font-semibold text-green-600">Rp {transaction.amount.toLocaleString()}</p>
+                  </div>
+                ))}
+                {transactions.length > 5 && (
+                  <p className="text-xs text-gray-500 text-center mt-2">And {transactions.length - 5} more...</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 italic text-sm">{t('no_donations_yet')}</p>
+            )}
           </div>
         </div>
       </div>

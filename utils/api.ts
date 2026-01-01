@@ -379,3 +379,9 @@ export async function getStickyDonationCampaign(organizationId: string) {
   const res = await apiFetch(`/organizations/${organizationId}/donations/sticky`)
   return res
 }
+
+export async function getDonationTransactions(organizationId: string, campaignId: string, page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/transactions?${params}`)
+  return res
+}
