@@ -8,9 +8,9 @@ import { Avatar } from '../components/Avatar'
 import { Search, UserPlus, Users, UserCheck, UserX, Shield, Bell, ChevronDown } from 'lucide-react'
 
 export default function Friends() {
-  const { t } = useLocale()
-  const { refreshPendingCount, user } = useAuth()
-  const router = useRouter()
+   const { t } = useLocale()
+   const { refreshPendingCount, user, loading: authLoading } = useAuth()
+   const router = useRouter()
   const [friends, setFriends] = useState<Friendship[]>([])
   const [requests, setRequests] = useState<FriendRequest[]>([])
   const [blocked, setBlocked] = useState<Friendship[]>([])
@@ -22,6 +22,8 @@ export default function Friends() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string>('friends')
+
+  const [loading, setLoading] = useState(true)
 
   async function load() {
     // Load all friends
@@ -47,9 +49,17 @@ export default function Friends() {
     if (r.body && r.body.statusCode === 2000) setRequests(r.body.data.requests || [])
     const b = await apiFetch('/friends/blocked')
     if (b.body && b.body.statusCode === 2000) setBlocked(b.body.data.blocked || [])
+    setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    if (authLoading) return
+    if (!user) {
+      router.push('/login')
+      return
+    }
+    load()
+  }, [user, authLoading, router])
 
   useEffect(() => {
     if (router.query.tab) {
@@ -130,6 +140,8 @@ export default function Friends() {
     { id: 'search', label: 'Find Friend', icon: Search },
     { id: 'blocked', label: 'Blocked', icon: Shield, count: blocked.length }
   ]
+
+  if (loading) return <div>{t('loading')}</div>
 
   return (
     <div className="pb-20 md:pb-8">

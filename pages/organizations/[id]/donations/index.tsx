@@ -13,7 +13,7 @@ const DonationsPage: React.FC = () => {
   const [campaigns, setCampaigns] = useState<DonationCampaign[]>([])
   const [loading, setLoading] = useState(true)
   const [memberRole, setMemberRole] = useState<string | null>(null)
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
   const { id } = router.query
@@ -23,6 +23,14 @@ const DonationsPage: React.FC = () => {
       fetchData()
     }
   }, [id, user])
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!user) {
+      router.push('/login')
+      return
+    }
+  }, [user, authLoading, router])
 
   const fetchData = async () => {
     if (!id) return
