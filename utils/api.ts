@@ -331,3 +331,51 @@ export async function pingWebSubHub(feedUrl: string) {
   });
   return res.ok;
 }
+
+// Donation Campaign API functions
+export async function getDonationCampaigns(organizationId: string, page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/organizations/${organizationId}/donations?${params}`)
+  return res
+}
+
+export async function getDonationCampaign(organizationId: string, campaignId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}`)
+  return res
+}
+
+export async function createDonationCampaign(organizationId: string, data: { title: string; description?: string; target_amount?: number; sticky?: boolean; end_date?: string; is_active?: boolean }) {
+  const res = await apiFetch(`/organizations/${organizationId}/donations`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function updateDonationCampaign(organizationId: string, campaignId: string, data: { title?: string; description?: string; target_amount?: number; sticky?: boolean; end_date?: string; is_active?: boolean }) {
+  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function deleteDonationCampaign(organizationId: string, campaignId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}`, {
+    method: 'DELETE'
+  })
+  return res
+}
+
+export async function donateToCampaign(organizationId: string, campaignId: string, amount: number) {
+  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/donate`, {
+    method: 'POST',
+    body: JSON.stringify({ amount })
+  })
+  return res
+}
+
+export async function getStickyDonationCampaign(organizationId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/donations/sticky`)
+  return res
+}

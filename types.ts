@@ -132,6 +132,41 @@ export interface Message {
   decryptedContent?: string
 }
 
+export interface DonationCampaign {
+  id: string
+  title: string
+  description?: string
+  target_amount?: number
+  current_amount: number
+  organization_id: string
+  sticky: boolean
+  end_date?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  organization?: Organization
+  transactions?: DonationTransaction[]
+  transactions_count?: number
+  progress_percentage?: number
+  is_completed?: boolean
+  is_expired?: boolean
+}
+
+export interface DonationTransaction {
+  id: string
+  donation_campaign_id: string
+  user_id: string
+  amount: number
+  midtrans_order_id?: string
+  status: 'pending' | 'paid' | 'failed' | 'expired'
+  payment_data?: any
+  paid_at?: string
+  created_at: string
+  updated_at: string
+  campaign?: DonationCampaign
+  user?: User
+}
+
 export interface ApiResponse {
   ok: boolean
   status: number

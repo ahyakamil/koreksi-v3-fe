@@ -178,6 +178,59 @@ type TranslationKeys = {
   enter_your_name: string
   already_have_account: string
   sign_in: string
+  // Donation translations
+  donation_campaigns: string
+  create_campaign: string
+  create_donation: string
+  edit_donation: string
+  update_donation: string
+  delete_donation: string
+  donation_not_found: string
+  failed_to_create_donation: string
+  failed_to_update_donation: string
+  failed_to_delete_donation: string
+  are_you_sure_delete_campaign: string
+  no_campaigns_found: string
+  target: string
+  collected: string
+  completed: string
+  make_sticky: string
+  sticky_donation_description: string
+  back_to_donations: string
+  amount: string
+  target_amount: string
+  end_date: string
+  is_active: string
+  about_this_campaign: string
+  no_description: string
+  campaign_details: string
+  progress: string
+  total_raised: string
+  target_reached: string
+  make_a_donation: string
+  donation_amount: string
+  minimum_donation: string
+  minimum_donation_amount: string
+  donate_now: string
+  donating: string
+  payment_initiated: string
+  order_id: string
+  payment_error: string
+  recent_donations: string
+  and_more: string
+  campaign_status: string
+  active: string
+  inactive: string
+  expired: string
+  ends_on: string
+  edit_campaign: string
+  unauthorized: string
+  viewing_as_guest: string
+  campaign_not_found: string
+  invalid_amount: string
+  failed_to_initiate_payment: string
+  featured_campaign: string
+  donate: string
 }
 
 type Translations = {
@@ -364,6 +417,59 @@ const translations: Translations = {
     enter_your_name: 'Masukkan nama Anda',
     already_have_account: 'Sudah punya akun?',
     sign_in: 'Masuk',
+    // Donation translations
+    donation_campaigns: 'Kampanye Donasi',
+    create_campaign: 'Buat Kampanye',
+    create_donation: 'Buat Donasi',
+    edit_donation: 'Edit Donasi',
+    update_donation: 'Perbarui Donasi',
+    delete_donation: 'Hapus Donasi',
+    donation_not_found: 'Donasi tidak ditemukan',
+    failed_to_create_donation: 'Gagal membuat donasi',
+    failed_to_update_donation: 'Gagal memperbarui donasi',
+    failed_to_delete_donation: 'Gagal menghapus donasi',
+    are_you_sure_delete_campaign: 'Apakah Anda yakin ingin menghapus kampanye ini?',
+    no_campaigns_found: 'Tidak ada kampanye ditemukan',
+    target: 'Target',
+    collected: 'Terkumpul',
+    completed: 'selesai',
+    make_sticky: 'Jadikan Sticky',
+    sticky_donation_description: 'Kampanye sticky akan muncul menonjol di halaman organisasi',
+    back_to_donations: 'Kembali ke Donasi',
+    amount: 'Jumlah',
+    target_amount: 'Jumlah Target',
+    end_date: 'Tanggal Berakhir',
+    is_active: 'Aktif',
+    about_this_campaign: 'Tentang kampanye ini',
+    no_description: 'Tidak ada deskripsi',
+    campaign_details: 'Detail Kampanye',
+    progress: 'Progress',
+    total_raised: 'Total Terkumpul',
+    target_reached: 'Target Tercapai!',
+    make_a_donation: 'Buat Donasi',
+    donation_amount: 'Jumlah Donasi (Rp)',
+    minimum_donation: 'Donasi minimum: Rp 1.000',
+    minimum_donation_amount: 'Jumlah donasi minimum adalah Rp 1.000',
+    donate_now: 'Donasi Sekarang',
+    donating: 'Mendonasi...',
+    payment_initiated: 'Pembayaran dimulai',
+    order_id: 'ID Pesanan',
+    payment_error: 'Terjadi kesalahan pembayaran',
+    recent_donations: 'Donasi Terbaru',
+    and_more: 'dan {count} lagi',
+    campaign_status: 'Status Kampanye',
+    active: 'Aktif',
+    inactive: 'Tidak Aktif',
+    expired: 'Kadaluarsa',
+    ends_on: 'Berakhir pada {date}',
+    edit_campaign: 'Edit Kampanye',
+    unauthorized: 'Tidak Diizinkan',
+    viewing_as_guest: 'Melihat sebagai tamu',
+    campaign_not_found: 'Kampanye tidak ditemukan',
+    invalid_amount: 'Jumlah tidak valid',
+    failed_to_initiate_payment: 'Gagal memulai pembayaran',
+    featured_campaign: 'Kampanye Unggulan',
+    donate: 'Donasi',
   },
   en: {
     comments: 'Comments',
@@ -543,6 +649,59 @@ const translations: Translations = {
     enter_your_name: 'Enter your name',
     already_have_account: 'Already have an account?',
     sign_in: 'Sign in',
+    // Donation translations
+    donation_campaigns: 'Donation Campaigns',
+    create_campaign: 'Create Campaign',
+    create_donation: 'Create Donation',
+    edit_donation: 'Edit Donation',
+    update_donation: 'Update Donation',
+    delete_donation: 'Delete Donation',
+    donation_not_found: 'Donation not found',
+    failed_to_create_donation: 'Failed to create donation',
+    failed_to_update_donation: 'Failed to update donation',
+    failed_to_delete_donation: 'Failed to delete donation',
+    are_you_sure_delete_campaign: 'Are you sure you want to delete this campaign?',
+    no_campaigns_found: 'No campaigns found',
+    target: 'Target',
+    collected: 'Collected',
+    completed: 'completed',
+    make_sticky: 'Make Sticky',
+    sticky_donation_description: 'Sticky campaigns appear prominently on the organization page',
+    back_to_donations: 'Back to Donations',
+    amount: 'Amount',
+    target_amount: 'Target Amount',
+    end_date: 'End Date',
+    is_active: 'Active',
+    about_this_campaign: 'About this campaign',
+    no_description: 'No description provided',
+    campaign_details: 'Campaign Details',
+    progress: 'Progress',
+    total_raised: 'Total Raised',
+    target_reached: 'Target Reached!',
+    make_a_donation: 'Make a Donation',
+    donation_amount: 'Donation Amount (Rp)',
+    minimum_donation: 'Minimum donation: Rp 1,000',
+    minimum_donation_amount: 'Minimum donation amount is Rp 1,000',
+    donate_now: 'Donate Now',
+    donating: 'Donating...',
+    payment_initiated: 'Payment initiated',
+    order_id: 'Order ID',
+    payment_error: 'Payment error occurred',
+    recent_donations: 'Recent Donations',
+    and_more: 'and {count} more',
+    campaign_status: 'Campaign Status',
+    active: 'Active',
+    inactive: 'Inactive',
+    expired: 'Expired',
+    ends_on: 'Ends on {date}',
+    edit_campaign: 'Edit Campaign',
+    unauthorized: 'Unauthorized',
+    viewing_as_guest: 'Viewing as guest',
+    campaign_not_found: 'Campaign not found',
+    invalid_amount: 'Invalid amount',
+    failed_to_initiate_payment: 'Failed to initiate payment',
+    featured_campaign: 'Featured Campaign',
+    donate: 'Donate',
   }
 }
 

@@ -1,0 +1,176 @@
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { Plus, Edit, Trash2, DollarSign, Target, Calendar } from 'lucide-react'
+import { DonationCampaign, Organization } from '../../../../types'
+import { getOrganization, getDonationCampaigns, deleteDonationCampaign } from '../../../../utils/api'
+import { useAuth } from '../../../../context/AuthContext'
+import { useLocale } from '../../../../context/LocaleContext'
+
+const DonationsPage: React.FC = () => {
+  const [organization, setOrganization] = useState<Organization | null>(null)
+  const [campaigns, setCampaigns] = useState<DonationCampaign[]>([])
+  const [loading, setLoading] = useState(true)
+  const [memberRole, setMemberRole] = useState<string | null>(null)
+  const { user } = useAuth()
+  const { t } = useLocale()
+  const router = useRouter()
+  const { id } = router.query
+
+  useEffect(() => {
+    if (id && user) {
+      fetchData()
+    }
+  }, [id, user])
+
+  const fetchData = async () => {
+    if (!id) return
+
+    // Fetch organization
+    const orgRes = await getOrganization(id as string)
+    if (orgRes.ok) {
+      setOrganization(orgRes.body.data.organization)
+      // Check member role
+      const role = orgRes.body.data.organization.users?.find((u: any) => u.id === user?.id)?.pivot?.role
+      setMemberRole(role || null)
+    }
+
+    // Fetch campaigns
+    const campaignsRes = await getDonationCampaigns(id as string)
+    if (campaignsRes.ok) {
+      setCampaigns(campaignsRes.body.data.content)
+    }
+
+    setLoading(false)
+  }
+
+  const handleDelete = async (campaignId: string) => {
+    if (!organization) return
+    if (!confirm(t('are_you_sure_delete_campaign'))) return
+
+    const res = await deleteDonationCampaign(organization.id, campaignId)
+    if (res.ok) {
+      setCampaigns(campaigns.filter(c => c.id !== campaignId))
+    } else {
+      if (res.status === 401) {
+        alert(t('login_required'))
+      } else if (res.status === 403) {
+        alert(t('unauthorized'))
+      } else {
+        alert(res.body.message || t('failed_to_delete_campaign'))
+      }
+    }
+  }
+
+  const canManage = memberRole === 'admin'
+
+  if (loading) return <div>{t('loading')}</div>
+  if (!organization) return <div>{t('organization_not_found')}</div>
+
+  return (
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-8">
+        <button
+          onClick={() => router.push(`/organizations/${id}`)}
+          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+        >
+          {t('back_to_organization')}
+        </button>
+        <h1 className="text-3xl font-bold">{t('donation_campaigns')} - {organization.title}</h1>
+        {!canManage && (
+          <p className="text-gray-600 mt-2">{t('viewing_as_guest')}</p>
+        )}
+      </div>
+
+      {canManage && (
+        <div className="mb-6">
+          <Link
+            href={`/organizations/${id}/donations/create`}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-flex items-center"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {t('create_campaign')}
+          </Link>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {campaigns.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">{t('no_campaigns_found')}</p>
+          </div>
+        ) : (
+          campaigns.map(campaign => (
+            <div key={campaign.id} className="bg-white p-6 rounded-lg shadow-md">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                     <Link
+                       href={`/organizations/${id}/donations/${campaign.id}`}
+                       className="text-xl font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                     >
+                       {campaign.title}
+                     </Link>
+                     {campaign.is_active && (
+                       <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
+                         {t('active')}
+                       </span>
+                     )}
+                   </div>
+                  {campaign.description && (
+                    <p className="text-gray-600 mb-2">{campaign.description}</p>
+                  )}
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <span className="flex items-center">
+                      <Target className="w-4 h-4 mr-1" />
+                      {t('target')}: Rp {campaign.target_amount?.toLocaleString() || 'No target'}
+                    </span>
+                    <span className="flex items-center">
+                      <DollarSign className="w-4 h-4 mr-1" />
+                      {t('collected')}: Rp {(campaign.current_amount || 0).toLocaleString()}
+                    </span>
+                    <span className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      {new Date(campaign.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  {campaign.target_amount && (
+                    <div className="mt-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${Math.min(((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {Math.round(((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100)}% {t('completed')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                {canManage && (
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/organizations/${id}/donations/${campaign.id}/edit`}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(campaign.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default DonationsPage

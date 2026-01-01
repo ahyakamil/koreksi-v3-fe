@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Newspaper, Users, Folder, Settings } from 'lucide-react'
-import { Organization, User, Space, News, OrganizationUser } from '../../types'
-import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization } from '../../utils/api'
+import { Newspaper, Users, Folder, Settings, Heart } from 'lucide-react'
+import { Organization, User, Space, News, OrganizationUser, DonationCampaign } from '../../types'
+import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization, getStickyDonationCampaign, donateToCampaign } from '../../utils/api'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import SpaceForm from '../../components/SpaceForm'
@@ -27,6 +27,8 @@ const OrganizationDetailsPage: React.FC = () => {
   const [showCreateSpace, setShowCreateSpace] = useState(false)
   const [editingSpace, setEditingSpace] = useState<Space | null>(null)
   const [joining, setJoining] = useState(false)
+  const [stickyCampaign, setStickyCampaign] = useState<DonationCampaign | null>(null)
+  const [donating, setDonating] = useState(false)
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -121,6 +123,14 @@ const OrganizationDetailsPage: React.FC = () => {
       setHasMoreMembers(pageable.pageNumber + 1 < pageable.totalPages)
     }
     setLoadingMembers(false)
+  }
+
+  const fetchStickyCampaign = async () => {
+    if (!id) return
+    const res = await getStickyDonationCampaign(id as string)
+    if (res.ok) {
+      setStickyCampaign(res.body.data.campaign)
+    }
   }
 
   const loadMoreMembers = async () => {
@@ -246,6 +256,34 @@ const OrganizationDetailsPage: React.FC = () => {
     setJoining(false)
   }
 
+  const handleDonate = async (campaign: DonationCampaign) => {
+    if (!organization || donating) return
+
+    // Prompt user for donation amount
+    const amount = prompt(t('enter_donation_amount'), '10000')
+    if (!amount || isNaN(Number(amount)) || Number(amount) < 1000) {
+      alert(t('invalid_amount'))
+      return
+    }
+
+    setDonating(true)
+
+    try {
+      const res = await donateToCampaign(organization.id, campaign.id, Number(amount))
+      if (res.ok) {
+        const { snap_token } = res.body.data
+        // For now, just show the snap token. In production, you'd integrate with Midtrans Snap.js
+        alert(`${t('payment_initiated')}! Snap Token: ${snap_token}`)
+      } else {
+        alert(res.body.message || t('failed_to_initiate_payment'))
+      }
+    } catch (error) {
+      alert(t('payment_error'))
+    }
+
+    setDonating(false)
+  }
+
   const currentUserRole = useMemo(() => {
     return memberRole
   }, [memberRole])
@@ -263,6 +301,10 @@ const OrganizationDetailsPage: React.FC = () => {
       // Fetch news and spaces for members who can't manage
       fetchNews()
       fetchSpaces()
+    }
+    // Always fetch sticky campaign if organization is loaded
+    if (organization) {
+      fetchStickyCampaign()
     }
   }, [organization, activeTab, currentUserRole, canManage])
 
@@ -286,6 +328,64 @@ const OrganizationDetailsPage: React.FC = () => {
           <img src={organization.image} alt={organization.title} className="w-full h-32 sm:h-40 md:h-48 object-contain rounded-lg mt-4" />
         )}
       </div>
+
+      {stickyCampaign && (
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-pink-50 to-red-50 border border-pink-200 rounded-lg p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <Heart className="w-6 h-6 text-pink-500" />
+              <h3 className="text-lg font-semibold text-pink-800">{t('featured_campaign')}</h3>
+            </div>
+            <h4 className="text-xl font-bold text-gray-800 mb-2">{stickyCampaign.title}</h4>
+            {stickyCampaign.description && (
+              <p className="text-gray-700 mb-4">{stickyCampaign.description}</p>
+            )}
+
+            {/* Progress Bar */}
+            {stickyCampaign.target_amount && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>{t('progress')}</span>
+                  <span>Rp {(stickyCampaign.current_amount || 0).toLocaleString()} / Rp {(stickyCampaign.target_amount || 0).toLocaleString()}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-pink-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(((stickyCampaign.current_amount || 0) / (stickyCampaign.target_amount || 1)) * 100, 100)}%` }}
+                  ></div>
+                </div>
+                <div className="text-right text-sm text-gray-500 mt-1">
+                  {Math.round(((stickyCampaign.current_amount || 0) / (stickyCampaign.target_amount || 1)) * 100)}% {t('completed')}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-600">{t('total_raised')}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  Rp {(stickyCampaign.current_amount || 0).toLocaleString()}
+                </div>
+                {stickyCampaign.target_amount && (
+                  <div className="text-sm text-gray-500">
+                    {t('target')}: Rp {(stickyCampaign.target_amount || 0).toLocaleString()}
+                  </div>
+                )}
+              </div>
+              {user && (
+                <button
+                  onClick={() => handleDonate(stickyCampaign)}
+                  disabled={donating}
+                  className="bg-pink-500 text-white px-6 py-2 rounded-lg hover:bg-pink-600 disabled:opacity-50 flex items-center gap-2"
+                >
+                  <Heart className="w-4 h-4" />
+                  {donating ? t('donating') : t('donate_now')}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {!user && (
         <div className="mb-8">
@@ -349,12 +449,18 @@ const OrganizationDetailsPage: React.FC = () => {
               </button>
               {canManage && (
                 <button
-                  onClick={() => router.push(`/organizations/${id}/news`)}
+                  onClick={() => router.push(`/organizations/${id}/donations`)}
                   className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Heart className="w-5 h-5" />
                 </button>
               )}
+              <button
+                onClick={() => router.push(`/organizations/${id}/news`)}
+                className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
             </nav>
           </div>
         </div>
