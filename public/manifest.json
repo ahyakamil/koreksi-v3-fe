@@ -1,16 +1,17 @@
 {
-  "name": "Koreksi",
-  "short_name": "Koreksi",
-  "description": "Social Media Journalisme",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1f2937",
-  "icons": [
-    {
-      "src": "/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+   "name": "Koreksi",
+   "short_name": "Koreksi",
+   "description": "Social Media Journalisme",
+   "version": "1.0.1",
+   "start_url": "/",
+   "display": "standalone",
+   "background_color": "#ffffff",
+   "theme_color": "#1f2937",
+   "icons": [
+     {
+       "src": "/icon-512x512.png",
+       "sizes": "512x512",
+       "type": "image/png"
+     }
+   ]
+ }
