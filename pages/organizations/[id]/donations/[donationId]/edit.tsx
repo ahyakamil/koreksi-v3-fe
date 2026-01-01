@@ -208,13 +208,15 @@ const EditDonationPage: React.FC = () => {
         </div>
 
         <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-          >
-            {submitting ? t('updating') : t('update_donation')}
-          </button>
+          {donation.is_active && (
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {submitting ? t('updating') : t('update_donation')}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => router.push(`/organizations/${id}/donations`)}
