@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Edit, Heart, DollarSign, Target, Calendar, Users, Clock } from 'lucide-react'
+import Head from 'next/head'
+import { Edit, Heart, DollarSign, Target, Calendar, Users, Clock, Share2 } from 'lucide-react'
 import { DonationCampaign, Organization } from '../../../../../types'
 import { getOrganization, getDonationCampaign, donateToCampaign } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
 
-const DonationCampaignPage: React.FC = () => {
-  const [organization, setOrganization] = useState<Organization | null>(null)
-  const [campaign, setCampaign] = useState<DonationCampaign | null>(null)
+const DonationCampaignPage: React.FC<{ organization: Organization | null; campaign: DonationCampaign | null }> = ({ organization: initialOrganization, campaign: initialCampaign }) => {
+  const [organization, setOrganization] = useState<Organization | null>(initialOrganization)
+  const [campaign, setCampaign] = useState<DonationCampaign | null>(initialCampaign)
   const [loading, setLoading] = useState(true)
   const [donating, setDonating] = useState(false)
   const [donationAmount, setDonationAmount] = useState('')
@@ -89,7 +90,21 @@ const DonationCampaignPage: React.FC = () => {
   if (!organization || !campaign) return <div>{t('not_found')}</div>
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <>
+      <Head>
+        <title>{campaign.title} - {organization.title}</title>
+        <meta name="description" content={campaign.description || `Support ${campaign.title} by ${organization.title}`} />
+        <meta property="og:title" content={campaign.title} />
+        <meta property="og:description" content={campaign.description || `Support ${campaign.title} by ${organization.title}`} />
+        <meta property="og:image" content={organization.image || '/default-image.jpg'} />
+        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={campaign.title} />
+        <meta name="twitter:description" content={campaign.description || `Support ${campaign.title} by ${organization.title}`} />
+        <meta name="twitter:image" content={organization.image || '/default-image.jpg'} />
+      </Head>
+      <div className="mx-auto max-w-4xl">
       <div className="mb-8">
         <button
           onClick={() => router.push(`/organizations/${id}/donations`)}
@@ -105,12 +120,30 @@ const DonationCampaignPage: React.FC = () => {
           {canManage && (
             <Link
               href={`/organizations/${id}/donations/${donationId}/edit`}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-flex items-center"
+              className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 inline-flex items-center"
+              title={t('edit_campaign')}
             >
-              <Edit className="w-4 h-4 mr-2" />
-              {t('edit_campaign')}
+              <Edit className="w-4 h-4" />
             </Link>
           )}
+          <button
+            onClick={() => {
+              const title = campaign.title
+              const text = campaign.description || `Support ${campaign.title} by ${organization.title}`
+              if (navigator.share) {
+                navigator.share({
+                  title,
+                  text,
+                  url: window.location.href,
+                }).catch(() => {
+                })
+              }
+            }}
+            className="bg-green-500 text-white p-2 rounded hover:bg-green-600 inline-flex items-center"
+            title={t('share')}
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
@@ -235,7 +268,35 @@ const DonationCampaignPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
 export default DonationCampaignPage
+
+export async function getServerSideProps(context: any) {
+  const { id, donationId } = context.params
+
+  // Fetch organization (public)
+  const orgRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${id}/public`)
+  let organization = null
+  if (orgRes.ok) {
+    const orgData = await orgRes.json()
+    organization = orgData.data.organization
+  }
+
+  // Fetch campaign
+  const campaignRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${id}/donations/${donationId}`)
+  let campaign = null
+  if (campaignRes.ok) {
+    const campaignData = await campaignRes.json()
+    campaign = campaignData.data.campaign
+  }
+
+  return {
+    props: {
+      organization,
+      campaign,
+    },
+  }
+}
