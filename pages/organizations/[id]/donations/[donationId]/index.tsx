@@ -80,6 +80,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
           (window as any).snap.pay(snap_token, {
             onSuccess: function(result: any) {
               alert('Payment success!')
+              setCampaign(prev => prev ? { ...prev, current_amount: (prev.current_amount || 0) + amount } : prev)
               fetchData()
               setDonationAmount('')
             },
@@ -228,11 +229,11 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
               <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
                 <div
                   className="bg-blue-600 h-4 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min(((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100, 100)}%` }}
+                  style={{ width: `${Math.min(100, ((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100)}%` }}
                 ></div>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
-                <span>{Math.round(((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100)}% {t('completed')}</span>
+                <span>{Math.round(Math.min(100, ((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100))}% {t('completed')}</span>
                 <span>Rp {formatNumber(campaign.current_amount || 0)} / Rp {formatNumber(campaign.target_amount || 0)}</span>
               </div>
             </div>
@@ -249,7 +250,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
               {t('make_a_donation')}
             </h2>
             {user ? (
-              campaign.is_active && !campaign.is_expired ? (
+              campaign.is_active && !campaign.is_expired && (!campaign.target_amount || (campaign.current_amount || 0) < campaign.target_amount) ? (
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -276,7 +277,12 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                   </button>
                 </div>
               ) : (
-                <p className="text-gray-500">{t('campaign_not_active')}</p>
+                <p className="text-gray-500">
+                  {campaign.target_amount && (campaign.current_amount || 0) >= campaign.target_amount
+                    ? t('target_reached')
+                    : t('campaign_not_active')
+                  }
+                </p>
               )
             ) : (
               <div className="text-center">
