@@ -133,22 +133,6 @@ const DonationCampaignPage: React.FC = () => {
             <h2 className="text-xl font-semibold mb-4">{t('campaign_details')}</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center">
-                <Target className="w-5 h-5 text-blue-500 mr-2" />
-                <div>
-                  <p className="text-sm text-gray-600">{t('target')}</p>
-                  <p className="font-semibold">
-                    Rp {campaign.target_amount?.toLocaleString() || t('no_target')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <DollarSign className="w-5 h-5 text-green-500 mr-2" />
-                <div>
-                  <p className="text-sm text-gray-600">{t('collected')}</p>
-                  <p className="font-semibold">Rp {(campaign.current_amount || 0).toLocaleString()}</p>
-                </div>
-              </div>
-              <div className="flex items-center">
                 <Calendar className="w-5 h-5 text-purple-500 mr-2" />
                 <div>
                   <p className="text-sm text-gray-600">{t('created')}</p>

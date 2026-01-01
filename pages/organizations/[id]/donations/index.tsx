@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Plus, Edit, Trash2, DollarSign, Target, Calendar } from 'lucide-react'
+import { Plus, Edit, Trash2, Coins, Target, Calendar } from 'lucide-react'
 import { DonationCampaign, Organization } from '../../../../types'
 import { getOrganization, getDonationCampaigns, deleteDonationCampaign } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
@@ -122,17 +122,21 @@ const DonationsPage: React.FC = () => {
                   )}
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <span className="flex items-center">
-                      <Target className="w-4 h-4 mr-1" />
-                      {t('target')}: Rp {campaign.target_amount?.toLocaleString() || 'No target'}
-                    </span>
-                    <span className="flex items-center">
-                      <DollarSign className="w-4 h-4 mr-1" />
+                      <Coins className="w-4 h-4 mr-1" />
                       {t('collected')}: Rp {(campaign.current_amount || 0).toLocaleString()}
                     </span>
-                    <span className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(campaign.created_at).toLocaleDateString()}
-                    </span>
+                    {campaign.target_amount && (
+                      <span className="flex items-center">
+                        <Target className="w-4 h-4 mr-1" />
+                        {t('target')}: Rp {campaign.target_amount?.toLocaleString()}
+                      </span>
+                    )}
+                    {campaign.end_date && (
+                      <span className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {t('end_date')}: {new Date(campaign.end_date).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
                   {campaign.target_amount && (
                     <div className="mt-2">
