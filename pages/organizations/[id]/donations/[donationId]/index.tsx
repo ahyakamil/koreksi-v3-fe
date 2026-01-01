@@ -221,22 +221,27 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
             </div>
           </div>
 
-          {/* Progress Bar */}
-          {campaign.target_amount && (
-            <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-              <h2 className="text-xl font-semibold mb-4">{t('progress')}</h2>
-              <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
-                <div
-                  className="bg-blue-600 h-4 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min(100, ((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>{Math.round(Math.min(100, ((campaign.current_amount || 0) / (campaign.target_amount || 1)) * 100))}% {t('completed')}</span>
-                <span>Rp {formatNumber(campaign.current_amount || 0)} / Rp {formatNumber(campaign.target_amount || 0)}</span>
-              </div>
+          {/* Raised Amount */}
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 className="text-xl font-semibold mb-4">{t('total_raised')}</h2>
+            <div className="text-2xl font-bold text-green-600 mb-2">
+              Rp {formatNumber(campaign.current_amount || 0)}
             </div>
-          )}
+            {campaign.target_amount && campaign.target_amount > 0 && (
+              <>
+                <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
+                  <div
+                    className="bg-blue-600 h-4 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(100, ((campaign.current_amount || 0) / campaign.target_amount) * 100)}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>{Math.round(Math.min(100, ((campaign.current_amount || 0) / campaign.target_amount) * 100))}% {t('completed')}</span>
+                  <span>Rp {formatNumber(campaign.target_amount)}</span>
+                </div>
+              </>
+            )}
+          </div>
 
         </div>
 
