@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Edit, Heart, DollarSign, Target, Calendar, Users, Clock } from 'lucide-react'
-import { DonationCampaign, Organization, DonationTransaction } from '../../../../../types'
+import { DonationCampaign, Organization } from '../../../../../types'
 import { getOrganization, getDonationCampaign, donateToCampaign } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
@@ -41,8 +41,7 @@ const DonationCampaignPage: React.FC = () => {
     if (campaignRes.ok) {
       setCampaign(campaignRes.body.data.campaign)
     } else {
-      alert(t('campaign_not_found'))
-      router.push(`/organizations/${id}/donations`)
+      setCampaign(null)
     }
 
     setLoading(false)
@@ -136,7 +135,7 @@ const DonationCampaignPage: React.FC = () => {
                 <Calendar className="w-5 h-5 text-purple-500 mr-2" />
                 <div>
                   <p className="text-sm text-gray-600">{t('created')}</p>
-                  <p className="font-semibold">{new Date(campaign.created_at).toLocaleDateString()}</p>
+                  <p className="font-semibold">{campaign.created_at && !isNaN(new Date(campaign.created_at).getTime()) ? new Date(campaign.created_at).toLocaleDateString() : 'N/A'}</p>
                 </div>
               </div>
               {campaign.end_date && (
@@ -168,28 +167,6 @@ const DonationCampaignPage: React.FC = () => {
             </div>
           )}
 
-          {/* Recent Donations */}
-          {campaign.transactions && campaign.transactions.length > 0 && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4">{t('recent_donations')}</h2>
-              <div className="space-y-3">
-                {campaign.transactions.slice(0, 10).map((transaction: DonationTransaction) => (
-                  <div key={transaction.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                    <div>
-                      <p className="font-medium">{transaction.user?.name}</p>
-                      <p className="text-sm text-gray-500">{new Date(transaction.created_at).toLocaleDateString()}</p>
-                    </div>
-                    <p className="font-semibold text-green-600">Rp {transaction.amount.toLocaleString()}</p>
-                  </div>
-                ))}
-              </div>
-              {campaign.transactions.length > 10 && (
-                <p className="text-center text-gray-500 mt-4">
-                  {t('and_more', { count: campaign.transactions.length - 10 })}
-                </p>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Sidebar */}
