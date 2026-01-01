@@ -257,31 +257,10 @@ const OrganizationDetailsPage: React.FC = () => {
   }
 
   const handleDonate = async (campaign: DonationCampaign) => {
-    if (!organization || donating) return
+    if (!organization) return
 
-    // Prompt user for donation amount
-    const amount = prompt(t('enter_donation_amount'), '10000')
-    if (!amount || isNaN(Number(amount)) || Number(amount) < 1000) {
-      alert(t('invalid_amount'))
-      return
-    }
-
-    setDonating(true)
-
-    try {
-      const res = await donateToCampaign(organization.id, campaign.id, Number(amount))
-      if (res.ok) {
-        const { snap_token } = res.body.data
-        // For now, just show the snap token. In production, you'd integrate with Midtrans Snap.js
-        alert(`${t('payment_initiated')}! Snap Token: ${snap_token}`)
-      } else {
-        alert(res.body.message || t('failed_to_initiate_payment'))
-      }
-    } catch (error) {
-      alert(t('payment_error'))
-    }
-
-    setDonating(false)
+    // Go to donation detail page
+    router.push(`/organizations/${organization.id}/donations/${campaign.id}`)
   }
 
   const currentUserRole = useMemo(() => {
@@ -329,7 +308,7 @@ const OrganizationDetailsPage: React.FC = () => {
         )}
       </div>
 
-      {stickyCampaign && (
+      {stickyCampaign && currentUserRole && (
         <div className="mb-8">
           <div className="bg-gradient-to-r from-pink-50 to-red-50 border border-pink-200 rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
@@ -447,7 +426,7 @@ const OrganizationDetailsPage: React.FC = () => {
                   </span>
                 )}
               </button>
-              {canManage && (
+              {user && (
                 <button
                   onClick={() => router.push(`/organizations/${id}/donations`)}
                   className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
