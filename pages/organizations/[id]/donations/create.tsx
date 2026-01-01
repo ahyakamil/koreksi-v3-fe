@@ -122,15 +122,16 @@ const CreateDonationPage: React.FC = () => {
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('target_amount')}
+            {t('target_amount')} (Rp)
           </label>
           <input
             type="number"
             name="target_amount"
             value={formData.target_amount}
             onChange={handleChange}
-            min="0.01"
-            step="0.01"
+            onKeyDown={(e) => { if (e.key === '.') e.preventDefault(); }}
+            min="0"
+            step="1"
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>

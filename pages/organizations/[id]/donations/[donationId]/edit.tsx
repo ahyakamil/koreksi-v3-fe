@@ -49,7 +49,7 @@ const EditDonationPage: React.FC = () => {
       setFormData({
         title: donationData.title,
         description: donationData.description || '',
-        target_amount: donationData.target_amount?.toString() || '',
+        target_amount: donationData.target_amount ? donationData.target_amount.toString().replace(/\.00$/, '') : '',
         sticky: donationData.sticky,
         end_date: donationData.end_date ? new Date(donationData.end_date).toISOString().split('T')[0] : '',
         is_active: donationData.is_active
@@ -151,15 +151,16 @@ const EditDonationPage: React.FC = () => {
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('target_amount')}
+            {t('target_amount')} (Rp)
           </label>
           <input
             type="number"
             name="target_amount"
             value={formData.target_amount}
             onChange={handleChange}
-            min="0.01"
-            step="0.01"
+            onKeyDown={(e) => { if (e.key === '.') e.preventDefault(); }}
+            min="0"
+            step="1"
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
