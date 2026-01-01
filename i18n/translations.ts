@@ -179,6 +179,16 @@ type TranslationKeys = {
   enter_your_name: string
   already_have_account: string
   sign_in: string
+  forgot_password: string
+  reset_password: string
+  enter_new_password: string
+  confirm_password: string
+  send_reset_link: string
+  back_to_login: string
+  check_your_email: string
+  reset_link_sent: string
+  invalid_reset_link: string
+  password_reset_success: string
   // Donation translations
   donation_campaigns: string
   create_campaign: string
@@ -421,6 +431,16 @@ const translations: Translations = {
     enter_your_name: 'Masukkan nama Anda',
     already_have_account: 'Sudah punya akun?',
     sign_in: 'Masuk',
+    forgot_password: 'Lupa Kata Sandi',
+    reset_password: 'Atur Ulang Kata Sandi',
+    enter_new_password: 'Masukkan kata sandi baru',
+    confirm_password: 'Konfirmasi kata sandi',
+    send_reset_link: 'Kirim tautan atur ulang',
+    back_to_login: 'Kembali ke login',
+    check_your_email: 'Periksa email Anda',
+    reset_link_sent: 'Tautan atur ulang telah dikirim ke email Anda',
+    invalid_reset_link: 'Tautan atur ulang tidak valid',
+    password_reset_success: 'Kata sandi berhasil diatur ulang',
     // Donation translations
     donation_campaigns: 'Kampanye Donasi',
     create_campaign: 'Buat Kampanye',
@@ -657,6 +677,16 @@ const translations: Translations = {
     enter_your_name: 'Enter your name',
     already_have_account: 'Already have an account?',
     sign_in: 'Sign in',
+    forgot_password: 'Forgot Password',
+    reset_password: 'Reset Password',
+    enter_new_password: 'Enter new password',
+    confirm_password: 'Confirm password',
+    send_reset_link: 'Send reset link',
+    back_to_login: 'Back to login',
+    check_your_email: 'Check your email',
+    reset_link_sent: 'Reset link has been sent to your email',
+    invalid_reset_link: 'Invalid reset link',
+    password_reset_success: 'Password reset successfully',
     // Donation translations
     donation_campaigns: 'Donation Campaigns',
     create_campaign: 'Create Campaign',

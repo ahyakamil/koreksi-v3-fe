@@ -322,6 +322,28 @@ export async function register(name: string, email: string, password: string) {
   return { ok: res.ok, status: res.status, body: json }
 }
 
+export async function forgotPassword(email: string) {
+  const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  })
+  let json = null
+  try { json = await res.json() } catch (e) { /* ignore */ }
+  return { ok: res.ok, status: res.status, body: json }
+}
+
+export async function resetPassword(email: string, token: string, password: string, password_confirmation: string) {
+  const res = await fetch(`${API_BASE}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, token, password, password_confirmation })
+  })
+  let json = null
+  try { json = await res.json() } catch (e) { /* ignore */ }
+  return { ok: res.ok, status: res.status, body: json }
+}
+
 export async function pingWebSubHub(feedUrl: string) {
   const hubUrl = 'https://pubsubhubbub.appspot.com/';
   const res = await fetch(hubUrl, {
