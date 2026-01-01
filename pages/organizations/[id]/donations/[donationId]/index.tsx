@@ -5,7 +5,7 @@ import Head from 'next/head'
 import Script from 'next/script'
 import { Edit, Heart, DollarSign, Target, Calendar, Users, Clock, Share2 } from 'lucide-react'
 import { DonationCampaign, Organization } from '../../../../../types'
-import { getOrganization, getDonationCampaign, donateToCampaign, getDonationTransactions } from '../../../../../utils/api'
+import { getOrganization, getPublicOrganization, getDonationCampaign, donateToCampaign, getDonationTransactions, checkOrganizationMembership } from '../../../../../utils/api'
 import { formatCurrency, formatNumber } from '../../../../../utils/format'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
@@ -33,12 +33,18 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
   const fetchData = async () => {
     if (!id || !donationId) return
 
-    // Fetch organization
-    const orgRes = await getOrganization(id as string)
+    // Fetch membership first
+    const membershipRes = await checkOrganizationMembership(id as string)
+    if (membershipRes.ok) {
+      setMemberRole(membershipRes.body.data.role || null)
+    } else {
+      setMemberRole(null)
+    }
+
+    // Fetch organization (public)
+    const orgRes = await getPublicOrganization(id as string)
     if (orgRes.ok) {
       setOrganization(orgRes.body.data.organization)
-      const role = orgRes.body.data.organization.users?.find((u: any) => u.id === user?.id)?.pivot?.role
-      setMemberRole(role || null)
     }
 
     // Fetch campaign
@@ -148,7 +154,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
             <p className="text-gray-600 mt-2">{t('by')} {organization.title}</p>
           </div>
           <div className="flex gap-2">
-            {canManage ? (
+            {canManage && (
               <Link
                 href={`/organizations/${id}/donations/${donationId}/edit`}
                 className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 inline-flex items-center"
@@ -156,13 +162,6 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
               >
                 <Edit className="w-4 h-4" />
               </Link>
-            ) : (
-              <div
-                className="bg-gray-300 text-white p-2 rounded inline-flex items-center opacity-50 cursor-not-allowed"
-                title={t('edit_campaign')}
-              >
-                <Edit className="w-4 h-4" />
-              </div>
             )}
             <button
               onClick={() => {
