@@ -383,7 +383,7 @@ const OrganizationDetailsPage: React.FC = () => {
       {currentUserRole && (
         <div className="mb-8">
           <div className="border-b border-gray-200 mb-6">
-            <nav className="flex overflow-x-auto space-x-8 pb-2">
+            <nav className="flex overflow-x-auto space-x-8 pb-2 sticky top-0 bg-white z-10">
               <button
                 onClick={() => setActiveTab('news')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -397,34 +397,24 @@ const OrganizationDetailsPage: React.FC = () => {
               {canManage && (
                 <button
                   onClick={() => setActiveTab('members')}
-                  className={`py-2 px-1 pr-3 border-b-2 font-medium text-sm relative ${
+                  className={`py-2 px-1 border-b-2 font-medium text-sm relative ${
                     activeTab === 'members'
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
                   <Users className="w-5 h-5" />
-                  {(organization.users_count || 0) > 0 && (
-                    <span className="absolute top-1 right-0 transform translate-x-1/2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {organization.users_count || 0}
-                    </span>
-                  )}
                 </button>
               )}
               <button
                 onClick={() => setActiveTab('spaces')}
-                className={`py-2 px-1 pr-3 border-b-2 font-medium text-sm relative ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm relative ${
                   activeTab === 'spaces'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <Folder className="w-5 h-5" />
-                {(organization.spaces_count || 0) > 0 && (
-                  <span className="absolute top-1 right-0 transform translate-x-1/2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {organization.spaces_count || 0}
-                  </span>
-                )}
               </button>
               {user && (
                 <button
@@ -450,7 +440,7 @@ const OrganizationDetailsPage: React.FC = () => {
           {activeTab === 'members' && canManage && (
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">{t('members')}</h2>
+                <h2 className="text-2xl font-semibold">{t('members')} ({members.length})</h2>
                 {currentUserRole === 'admin' && (
                   <button
                     onClick={() => setShowInvite(!showInvite)}
@@ -544,7 +534,7 @@ const OrganizationDetailsPage: React.FC = () => {
           {activeTab === 'spaces' && (
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">{t('spaces')}</h2>
+                <h2 className="text-2xl font-semibold">{t('spaces')} ({spaces.length})</h2>
                 {currentUserRole === 'admin' && (
                   <button
                     onClick={() => setShowCreateSpace(true)}

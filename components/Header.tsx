@@ -19,6 +19,7 @@ export function Header() {
   const avatarDropdownRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const lastScrollY = useRef(0);
 
   const logout = () => {
@@ -42,22 +43,15 @@ export function Header() {
   }, [pathname]);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsLanguageDropdownOpen(false);
-      }
-      if (avatarDropdownRef.current && !avatarDropdownRef.current.contains(event.target as Node)) {
-        setIsAvatarDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
+    if (!isMobile) return;
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const scrollDelta = currentScrollY - lastScrollY.current;
@@ -77,10 +71,27 @@ export function Header() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
+  }, [isMobile]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsLanguageDropdownOpen(false);
+      }
+      if (avatarDropdownRef.current && !avatarDropdownRef.current.contains(event.target as Node)) {
+        setIsAvatarDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
   return (
     <>
-      <header className={`bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 shadow-sm transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <header className={`bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 shadow-sm ${isMobile ? 'transition-transform duration-300' : ''} ${isMobile && !isHeaderVisible ? '-translate-y-full' : 'translate-y-0'}`}>
         <div className="max-w-[1920px] mx-auto px-4">
           <div className="flex items-center justify-between h-14">
           {/* Left Section */}
