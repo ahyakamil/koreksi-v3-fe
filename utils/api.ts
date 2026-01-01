@@ -321,3 +321,13 @@ export async function register(name: string, email: string, password: string) {
   try { json = await res.json() } catch (e) { /* ignore */ }
   return { ok: res.ok, status: res.status, body: json }
 }
+
+export async function pingWebSubHub(feedUrl: string) {
+  const hubUrl = 'https://pubsubhubbub.appspot.com/';
+  const res = await fetch(hubUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ 'hub.mode': 'publish', 'hub.url': feedUrl })
+  });
+  return res.ok;
+}

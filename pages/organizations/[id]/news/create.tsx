@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Space } from '../../../../types'
-import { getOrganization, getSpaces, createNews, uploadImage, createSpace } from '../../../../utils/api'
+import { getOrganization, getSpaces, createNews, uploadImage, createSpace, pingWebSubHub } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 import RichTextEditor from '../../../../components/RichTextEditor'
@@ -95,6 +95,9 @@ const CreateNewsPage: React.FC = () => {
     setSubmitting(false)
 
     if (res.ok) {
+      // Ping WebSub hub for real-time updates
+      const feedUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/rss.xml`;
+      pingWebSubHub(feedUrl).catch(err => console.error('WebSub ping failed:', err));
       router.push(`/organizations/${id}/news`)
     } else {
       alert(res.body.message || t('failed_to_create_news'))

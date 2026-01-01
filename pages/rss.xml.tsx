@@ -29,6 +29,8 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 <description>Latest published news</description>
 <language>en-us</language>
 <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+<link rel="hub" href="https://pubsubhubbub.appspot.com/" />
+<link rel="self" href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/rss.xml" />
 ${news.map(item => `
 <item>
 <title><![CDATA[${decodeHtmlEntities(item.title)}]]></title>
