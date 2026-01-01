@@ -325,7 +325,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                 {transactions.slice(0, 5).map((transaction) => (
                   <div key={transaction.id} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
                     <div>
-                      <p className="font-medium">{transaction.user?.name || 'Anonymous'}</p>
+                      <p className="font-medium">{transaction.transaction?.user?.name || 'Anonymous'}</p>
                     </div>
                     <p className="font-semibold text-green-600">{formatCurrency(transaction.amount)}</p>
                   </div>
