@@ -168,6 +168,7 @@ type TranslationKeys = {
   // Login
   login_required: string
   login_to_access_full_features: string
+  login_to_donate: string
   please_login_to_view_this_page: string
   welcome_back: string
   enter_your_email: string
@@ -232,6 +233,8 @@ type TranslationKeys = {
   failed_to_initiate_payment: string
   featured_campaign: string
   donate: string
+  ends: string
+  created: string
 }
 
 type Translations = {
@@ -472,6 +475,9 @@ const translations: Translations = {
     failed_to_initiate_payment: 'Gagal memulai pembayaran',
     featured_campaign: 'Kampanye Unggulan',
     donate: 'Donasi',
+    login_to_donate: 'Silakan masuk untuk melakukan donasi.',
+    ends: 'Waktu berakhir',
+    created: 'Waktu dibuat',
   },
   en: {
     comments: 'Comments',
@@ -705,6 +711,9 @@ const translations: Translations = {
     failed_to_initiate_payment: 'Failed to initiate payment',
     featured_campaign: 'Featured Campaign',
     donate: 'Donate',
+    login_to_donate: 'Please login to make a donation.',
+    ends: 'Ends',
+    created: 'Created',
   }
 }
 

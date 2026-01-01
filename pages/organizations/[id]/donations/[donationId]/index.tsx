@@ -233,40 +233,51 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
 
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          {/* Donation Form */}
-          {user && campaign.is_active && !campaign.is_expired && (
-            <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <Heart className="w-5 h-5 text-red-500 mr-2" />
-                {t('make_a_donation')}
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('donation_amount')} (Rp)
-                  </label>
-                  <input
-                    type="number"
-                    value={donationAmount}
-                    onChange={(e) => setDonationAmount(e.target.value)}
-                    placeholder="50000"
-                    min="50000"
-                    step="1000"
-                    className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">{t('minimum_donation')}: {formatCurrency(50000)}</p>
+          {/* Donation Section */}
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <Heart className="w-5 h-5 text-red-500 mr-2" />
+              {t('make_a_donation')}
+            </h2>
+            {user ? (
+              campaign.is_active && !campaign.is_expired ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('donation_amount')} (Rp)
+                    </label>
+                    <input
+                      type="number"
+                      value={donationAmount}
+                      onChange={(e) => setDonationAmount(e.target.value)}
+                      placeholder="50000"
+                      min="50000"
+                      step="1000"
+                      className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">{t('minimum_donation')}: {formatCurrency(50000)}</p>
+                  </div>
+                  <button
+                    onClick={handleDonate}
+                    disabled={donating || !donationAmount}
+                    className="w-full bg-red-500 text-white py-3 px-4 rounded hover:bg-red-600 disabled:opacity-50 flex items-center justify-center"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    {donating ? t('processing') : t('donate_now')}
+                  </button>
                 </div>
-                <button
-                  onClick={handleDonate}
-                  disabled={donating || !donationAmount}
-                  className="w-full bg-red-500 text-white py-3 px-4 rounded hover:bg-red-600 disabled:opacity-50 flex items-center justify-center"
-                >
-                  <Heart className="w-4 h-4 mr-2" />
-                  {donating ? t('processing') : t('donate_now')}
-                </button>
+              ) : (
+                <p className="text-gray-500">{t('campaign_not_active')}</p>
+              )
+            ) : (
+              <div className="text-center">
+                <p className="text-gray-700 mb-4">{t('login_to_donate')}</p>
+                <Link href="/login" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                  {t('login')}
+                </Link>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Campaign Status */}
           <div className="bg-white p-6 rounded-lg shadow-md">
