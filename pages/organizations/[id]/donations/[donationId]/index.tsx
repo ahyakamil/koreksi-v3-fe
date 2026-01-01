@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import Script from 'next/script'
 import { Edit, Heart, DollarSign, Target, Calendar, Users, Clock, Share2 } from 'lucide-react'
 import { DonationCampaign, Organization } from '../../../../../types'
 import { getOrganization, getDonationCampaign, donateToCampaign } from '../../../../../utils/api'
@@ -52,8 +53,8 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
     if (!organization || !campaign || !donationAmount) return
 
     const amount = parseFloat(donationAmount)
-    if (isNaN(amount) || amount < 1000) {
-      alert(t('minimum_donation_amount'))
+    if (isNaN(amount) || amount < 50000) {
+      alert(t('minimum_donation_amount') + ' Rp50.000')
       return
     }
 
@@ -63,11 +64,27 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
       const res = await donateToCampaign(organization.id, campaign.id, amount)
       if (res.ok) {
         const { snap_token, order_id } = res.body.data
-        // In production, integrate with Midtrans Snap.js
-        alert(`${t('payment_initiated')}! ${t('order_id')}: ${order_id}`)
-        // Refresh campaign data
-        fetchData()
-        setDonationAmount('')
+        // Integrate with Midtrans Snap.js
+        if ((window as any).snap) {
+          (window as any).snap.pay(snap_token, {
+            onSuccess: function(result: any) {
+              alert('Payment success!')
+              fetchData()
+              setDonationAmount('')
+            },
+            onPending: function(result: any) {
+              alert('Payment pending!')
+            },
+            onError: function(result: any) {
+              alert('Payment failed!')
+            },
+            onClose: function() {
+              alert('Payment popup closed!')
+            }
+          })
+        } else {
+          alert('Midtrans Snap not loaded')
+        }
       } else {
         if (res.status === 401) {
           alert(t('login_required'))
@@ -104,6 +121,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
         <meta name="twitter:description" content={campaign.description || `Support ${campaign.title} by ${organization.title}`} />
         <meta name="twitter:image" content={organization.image || '/default-image.jpg'} />
       </Head>
+      <Script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY} />
       <div className="mx-auto max-w-4xl">
       <div className="mb-8">
         <button
@@ -220,12 +238,12 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                     type="number"
                     value={donationAmount}
                     onChange={(e) => setDonationAmount(e.target.value)}
-                    placeholder="10000"
-                    min="1000"
+                    placeholder="50000"
+                    min="50000"
                     step="1000"
                     className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <p className="text-xs text-gray-500 mt-1">{t('minimum_donation')}: Rp 1,000</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('minimum_donation')}: Rp50.000 </p>
                 </div>
                 <button
                   onClick={handleDonate}
