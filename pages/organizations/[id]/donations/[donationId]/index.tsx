@@ -164,6 +164,15 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                 <Edit className="w-4 h-4" />
               </Link>
             )}
+            {canManage && (
+              <Link
+                href={`/organizations/${id}/donations/${donationId}/withdrawals`}
+                className="bg-purple-500 text-white p-2 rounded hover:bg-purple-600 inline-flex items-center"
+                title={t('manage_withdrawals')}
+              >
+                <DollarSign className="w-4 h-4" />
+              </Link>
+            )}
             <button
               onClick={() => {
                 const title = campaign.title
@@ -325,23 +334,6 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
               )}
             </div>
           </div>
-
-          {/* Withdrawal Management (Admin Only) */}
-          {canManage && (
-            <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <DollarSign className="w-5 h-5 text-green-500 mr-2" />
-                {t('withdrawal_management')}
-              </h2>
-              <Link
-                href={`/organizations/${id}/donations/${donationId}/withdrawals`}
-                className="w-full bg-green-500 text-white py-3 px-4 rounded hover:bg-green-600 flex items-center justify-center"
-              >
-                <DollarSign className="w-4 h-4 mr-2" />
-                {t('manage_withdrawals')}
-              </Link>
-            </div>
-          )}
 
           {/* Donation Transactions */}
           <div className="bg-white p-6 rounded-lg shadow-md">
