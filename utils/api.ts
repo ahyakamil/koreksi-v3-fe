@@ -420,3 +420,32 @@ export async function getWithdrawalRequests(organizationId: string, campaignId: 
   const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/withdrawal-requests?${params}`)
   return res
 }
+
+// Subscription API functions
+export async function subscribeToOrganization(organizationId: string, plan: 'daily' | 'weekly' | 'monthly') {
+  const res = await apiFetch(`/organizations/${organizationId}/subscribe`, {
+    method: 'POST',
+    body: JSON.stringify({ plan })
+  })
+  return res
+}
+
+export async function getMySubscriptions() {
+  const res = await apiFetch('/subscriptions/my')
+  return res
+}
+
+export async function cancelSubscription(subscriptionId: string) {
+  const res = await apiFetch(`/subscriptions/${subscriptionId}/cancel`, {
+    method: 'POST'
+  })
+  return res
+}
+
+export async function updatePremiumSettings(organizationId: string, data: { is_premium_enabled?: boolean; daily_price?: number; weekly_price?: number; monthly_price?: number }) {
+  const res = await apiFetch(`/organizations/${organizationId}/premium-settings`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+  return res
+}

@@ -74,6 +74,10 @@ export interface Organization {
   users?: OrganizationUser[]
   users_count?: number
   spaces_count?: number
+  is_premium_enabled?: boolean
+  daily_price?: number
+  weekly_price?: number
+  monthly_price?: number
 }
 
 export interface OrganizationUser {
@@ -177,6 +181,33 @@ export interface DonationAudit {
   created_at: string
   transaction?: DonationTransaction
   referenceTransaction?: DonationTransaction
+}
+
+export interface Subscription {
+  id: string
+  organization_id: string
+  user_id: string
+  plan: 'daily' | 'weekly' | 'monthly'
+  start_date: string
+  end_date: string
+  status: 'active' | 'cancelled' | 'expired'
+  created_at: string
+  updated_at: string
+  organization?: Organization
+}
+
+export interface Payment {
+  id: string
+  subscription_id: string
+  amount: number
+  currency: string
+  transaction_id?: string
+  order_id?: string
+  status: 'pending' | 'success' | 'failed' | 'cancelled'
+  payment_response?: any
+  created_at: string
+  updated_at: string
+  subscription?: Subscription
 }
 
 export interface ApiResponse {

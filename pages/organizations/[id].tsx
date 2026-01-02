@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Newspaper, Users, Folder, Settings, Heart, Pencil } from 'lucide-react'
-import { Organization, User, Space, News, OrganizationUser, DonationCampaign } from '../../types'
-import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization, getStickyDonationCampaign, donateToCampaign } from '../../utils/api'
+import { Organization, User, Space, News, OrganizationUser, DonationCampaign, Subscription } from '../../types'
+import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization, getStickyDonationCampaign, donateToCampaign, subscribeToOrganization, getMySubscriptions, cancelSubscription, updatePremiumSettings } from '../../utils/api'
 import { formatCurrency, formatNumber } from '../../utils/format'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
@@ -30,6 +30,15 @@ const OrganizationDetailsPage: React.FC = () => {
   const [joining, setJoining] = useState(false)
   const [stickyCampaign, setStickyCampaign] = useState<DonationCampaign | null>(null)
   const [donating, setDonating] = useState(false)
+  const [mySubscriptions, setMySubscriptions] = useState<Subscription[]>([])
+  const [subscribing, setSubscribing] = useState(false)
+  const [showPremiumSettings, setShowPremiumSettings] = useState(false)
+  const [premiumSettings, setPremiumSettings] = useState({
+    is_premium_enabled: false,
+    daily_price: '',
+    weekly_price: '',
+    monthly_price: ''
+  })
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -49,7 +58,15 @@ const OrganizationDetailsPage: React.FC = () => {
       res = await getPublicOrganization(id as string)
     }
     if (res.ok) {
-      setOrganization(res.body.data.organization)
+      const org = res.body.data.organization
+      setOrganization(org)
+      // Initialize premium settings
+      setPremiumSettings({
+        is_premium_enabled: org.is_premium_enabled || false,
+        daily_price: org.daily_price?.toString() || '',
+        weekly_price: org.weekly_price?.toString() || '',
+        monthly_price: org.monthly_price?.toString() || '',
+      })
       // Check membership if authenticated
       if (user) {
         const membershipRes = await checkOrganizationMembership(id as string)
@@ -57,6 +74,8 @@ const OrganizationDetailsPage: React.FC = () => {
           setIsMember(membershipRes.body.data.is_member)
           setMemberRole(membershipRes.body.data.role)
         }
+        // Fetch user's subscriptions
+        fetchMySubscriptions()
       }
     } else {
       alert(res.body.message || t('failed_to_load_organization'))
@@ -264,6 +283,67 @@ const OrganizationDetailsPage: React.FC = () => {
     router.push(`/organizations/${organization.id}/donations/${campaign.id}`)
   }
 
+  const handleSubscribe = async (plan: 'daily' | 'weekly' | 'monthly') => {
+    if (!organization || subscribing) return
+    setSubscribing(true)
+
+    const res = await subscribeToOrganization(organization.id, plan)
+    if (res.ok) {
+      // Handle Midtrans payment
+      const { midtrans } = res.body.data
+      if (midtrans && midtrans.snap_token) {
+        // Redirect to Midtrans payment page
+        window.open(`https://app.sandbox.midtrans.com/snap/v2/vtweb/${midtrans.snap_token}`, '_blank')
+      }
+      // Refresh subscriptions
+      fetchMySubscriptions()
+    } else {
+      alert(res.body.message || t('failed_to_subscribe'))
+    }
+    setSubscribing(false)
+  }
+
+  const fetchMySubscriptions = async () => {
+    if (!user) return
+    const res = await getMySubscriptions()
+    if (res.ok) {
+      setMySubscriptions(res.body.data.subscriptions)
+    }
+  }
+
+  const handleCancelSubscription = async (subscriptionId: string) => {
+    if (!confirm(t('are_you_sure_cancel_subscription'))) return
+
+    const res = await cancelSubscription(subscriptionId)
+    if (res.ok) {
+      fetchMySubscriptions()
+    } else {
+      alert(res.body.message || t('failed_to_cancel_subscription'))
+    }
+  }
+
+  const handleUpdatePremiumSettings = async () => {
+    if (!organization) return
+
+    const data = {
+      is_premium_enabled: premiumSettings.is_premium_enabled,
+      daily_price: premiumSettings.daily_price ? parseFloat(premiumSettings.daily_price) : undefined,
+      weekly_price: premiumSettings.weekly_price ? parseFloat(premiumSettings.weekly_price) : undefined,
+      monthly_price: premiumSettings.monthly_price ? parseFloat(premiumSettings.monthly_price) : undefined,
+    }
+
+    const res = await updatePremiumSettings(organization.id, data)
+    if (res.ok) {
+      setOrganization(res.body.data.organization)
+      setShowPremiumSettings(false)
+    } else {
+      alert(res.body.message || t('failed_to_update_premium_settings'))
+    }
+  }
+
+  const currentSubscription = mySubscriptions.find(sub => sub.organization_id === organization?.id && sub.status === 'active')
+  const hasActiveSubscription = !!currentSubscription
+
   const currentUserRole = useMemo(() => {
     return memberRole
   }, [memberRole])
@@ -363,6 +443,166 @@ const OrganizationDetailsPage: React.FC = () => {
                 </button>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Premium Subscription Section */}
+      {organization && organization.is_premium_enabled && user && (
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">★</span>
+              </div>
+              <h3 className="text-lg font-semibold text-purple-800">{t('premium_subscription')}</h3>
+            </div>
+
+            {hasActiveSubscription ? (
+              <div className="bg-white rounded-lg p-4 border border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-green-600">{t('active_subscription')}</h4>
+                    <p className="text-sm text-gray-600">
+                      {t('plan')}: {currentSubscription.plan} • {t('expires')}: {new Date(currentSubscription.end_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleCancelSubscription(currentSubscription.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
+                  >
+                    {t('cancel_subscription')}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-purple-700 mb-4">{t('unlock_premium_features')}</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {organization.daily_price && (
+                    <div className="bg-white rounded-lg p-4 border border-purple-200">
+                      <h4 className="font-semibold text-purple-800">{t('daily_plan')}</h4>
+                      <p className="text-2xl font-bold text-purple-600">{formatCurrency(organization.daily_price)}</p>
+                      <button
+                        onClick={() => handleSubscribe('daily')}
+                        disabled={subscribing}
+                        className="w-full mt-3 bg-purple-500 text-white py-2 rounded hover:bg-purple-600 disabled:opacity-50"
+                      >
+                        {subscribing ? t('subscribing') : t('subscribe')}
+                      </button>
+                    </div>
+                  )}
+                  {organization.weekly_price && (
+                    <div className="bg-white rounded-lg p-4 border border-purple-200">
+                      <h4 className="font-semibold text-purple-800">{t('weekly_plan')}</h4>
+                      <p className="text-2xl font-bold text-purple-600">{formatCurrency(organization.weekly_price)}</p>
+                      <button
+                        onClick={() => handleSubscribe('weekly')}
+                        disabled={subscribing}
+                        className="w-full mt-3 bg-purple-500 text-white py-2 rounded hover:bg-purple-600 disabled:opacity-50"
+                      >
+                        {subscribing ? t('subscribing') : t('subscribe')}
+                      </button>
+                    </div>
+                  )}
+                  {organization.monthly_price && (
+                    <div className="bg-white rounded-lg p-4 border border-purple-200">
+                      <h4 className="font-semibold text-purple-800">{t('monthly_plan')}</h4>
+                      <p className="text-2xl font-bold text-purple-600">{formatCurrency(organization.monthly_price)}</p>
+                      <button
+                        onClick={() => handleSubscribe('monthly')}
+                        disabled={subscribing}
+                        className="w-full mt-3 bg-purple-500 text-white py-2 rounded hover:bg-purple-600 disabled:opacity-50"
+                      >
+                        {subscribing ? t('subscribing') : t('subscribe')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Premium Settings for Admins */}
+      {currentUserRole === 'admin' && (
+        <div className="mb-8">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">{t('premium_settings')}</h3>
+              <button
+                onClick={() => setShowPremiumSettings(!showPremiumSettings)}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                {showPremiumSettings ? t('cancel') : t('manage')}
+              </button>
+            </div>
+
+            {showPremiumSettings && (
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="premium_enabled"
+                    checked={premiumSettings.is_premium_enabled}
+                    onChange={(e) => setPremiumSettings(prev => ({ ...prev, is_premium_enabled: e.target.checked }))}
+                    className="mr-2"
+                  />
+                  <label htmlFor="premium_enabled" className="text-sm font-medium">{t('enable_premium_subscriptions')}</label>
+                </div>
+
+                {premiumSettings.is_premium_enabled && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">{t('daily_price')}</label>
+                      <input
+                        type="number"
+                        value={premiumSettings.daily_price}
+                        onChange={(e) => setPremiumSettings(prev => ({ ...prev, daily_price: e.target.value }))}
+                        placeholder="0"
+                        className="w-full p-2 border rounded"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">{t('weekly_price')}</label>
+                      <input
+                        type="number"
+                        value={premiumSettings.weekly_price}
+                        onChange={(e) => setPremiumSettings(prev => ({ ...prev, weekly_price: e.target.value }))}
+                        placeholder="0"
+                        className="w-full p-2 border rounded"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">{t('monthly_price')}</label>
+                      <input
+                        type="number"
+                        value={premiumSettings.monthly_price}
+                        onChange={(e) => setPremiumSettings(prev => ({ ...prev, monthly_price: e.target.value }))}
+                        placeholder="0"
+                        className="w-full p-2 border rounded"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleUpdatePremiumSettings}
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  >
+                    {t('save_settings')}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -276,6 +276,29 @@ type TranslationKeys = {
   no_withdrawal_requests: string
   withdrawal_management: string
   manage_withdrawals: string
+  // Premium subscription translations
+  premium_subscription: string
+  unlock_premium_features: string
+  daily_plan: string
+  weekly_plan: string
+  monthly_plan: string
+  subscribe: string
+  subscribing: string
+  active_subscription: string
+  plan: string
+  expires: string
+  cancel_subscription: string
+  are_you_sure_cancel_subscription: string
+  premium_settings: string
+  manage: string
+  enable_premium_subscriptions: string
+  daily_price: string
+  weekly_price: string
+  monthly_price: string
+  save_settings: string
+  failed_to_subscribe: string
+  failed_to_cancel_subscription: string
+  failed_to_update_premium_settings: string
 }
 
 type Translations = {
@@ -560,6 +583,29 @@ const translations: Translations = {
     no_withdrawal_requests: 'Belum ada permintaan penarikan.',
     withdrawal_management: 'Manajemen Penarikan',
     manage_withdrawals: 'Kelola Penarikan',
+    // Premium subscription translations
+    premium_subscription: 'Langganan Premium',
+    unlock_premium_features: 'Buka fitur premium untuk mengakses konten eksklusif dan manfaat tambahan.',
+    daily_plan: 'Paket Harian',
+    weekly_plan: 'Paket Mingguan',
+    monthly_plan: 'Paket Bulanan',
+    subscribe: 'Langganan',
+    subscribing: 'Berlangganan...',
+    active_subscription: 'Langganan Aktif',
+    plan: 'Paket',
+    expires: 'Kadaluarsa',
+    cancel_subscription: 'Batalkan Langganan',
+    are_you_sure_cancel_subscription: 'Apakah Anda yakin ingin membatalkan langganan ini?',
+    premium_settings: 'Pengaturan Premium',
+    manage: 'Kelola',
+    enable_premium_subscriptions: 'Aktifkan Langganan Premium',
+    daily_price: 'Harga Harian',
+    weekly_price: 'Harga Mingguan',
+    monthly_price: 'Harga Bulanan',
+    save_settings: 'Simpan Pengaturan',
+    failed_to_subscribe: 'Gagal berlangganan',
+    failed_to_cancel_subscription: 'Gagal membatalkan langganan',
+    failed_to_update_premium_settings: 'Gagal memperbarui pengaturan premium',
   },
   en: {
     comments: 'Comments',
@@ -837,6 +883,29 @@ const translations: Translations = {
     no_withdrawal_requests: 'No withdrawal requests yet.',
     withdrawal_management: 'Withdrawal Management',
     manage_withdrawals: 'Manage Withdrawals',
+    // Premium subscription translations
+    premium_subscription: 'Premium Subscription',
+    unlock_premium_features: 'Unlock premium features to access exclusive content and additional benefits.',
+    daily_plan: 'Daily Plan',
+    weekly_plan: 'Weekly Plan',
+    monthly_plan: 'Monthly Plan',
+    subscribe: 'Subscribe',
+    subscribing: 'Subscribing...',
+    active_subscription: 'Active Subscription',
+    plan: 'Plan',
+    expires: 'Expires',
+    cancel_subscription: 'Cancel Subscription',
+    are_you_sure_cancel_subscription: 'Are you sure you want to cancel this subscription?',
+    premium_settings: 'Premium Settings',
+    manage: 'Manage',
+    enable_premium_subscriptions: 'Enable Premium Subscriptions',
+    daily_price: 'Daily Price',
+    weekly_price: 'Weekly Price',
+    monthly_price: 'Monthly Price',
+    save_settings: 'Save Settings',
+    failed_to_subscribe: 'Failed to subscribe',
+    failed_to_cancel_subscription: 'Failed to cancel subscription',
+    failed_to_update_premium_settings: 'Failed to update premium settings',
   }
 }
 
