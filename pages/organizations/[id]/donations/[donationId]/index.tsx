@@ -244,7 +244,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                     <p className="text-gray-500">
                       {campaign.target_amount && (campaign.current_amount || 0) >= campaign.target_amount
                         ? t('target_reached')
-                        : t('campaign_not_active')
+                        : t('campaign_inactive')
                       }
                     </p>
                   )
@@ -398,7 +398,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                     <p className="text-gray-500">
                       {campaign.target_amount && (campaign.current_amount || 0) >= campaign.target_amount
                         ? t('target_reached')
-                        : t('campaign_not_active')
+                        : t('campaign_inactive')
                       }
                     </p>
                   )

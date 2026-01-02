@@ -231,6 +231,7 @@ type TranslationKeys = {
   no_donations_yet: string
   and_more: string
   campaign_status: string
+  campaign_inactive: string
   active: string
   inactive: string
   expired: string
@@ -513,6 +514,7 @@ const translations: Translations = {
     no_donations_yet: 'Belum ada donasi.',
     and_more: 'dan {count} lagi',
     campaign_status: 'Status Kampanye',
+    campaign_inactive: 'Kampanye Tidak Aktif',
     active: 'Aktif',
     inactive: 'Tidak Aktif',
     expired: 'Kadaluarsa',
@@ -789,6 +791,7 @@ const translations: Translations = {
     no_donations_yet: 'No donations yet.',
     and_more: 'and {count} more',
     campaign_status: 'Campaign Status',
+    campaign_inactive: 'Campaign Inactive',
     active: 'Active',
     inactive: 'Inactive',
     expired: 'Expired',
