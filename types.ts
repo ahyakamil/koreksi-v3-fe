@@ -167,6 +167,18 @@ export interface DonationTransaction {
   user?: User
 }
 
+export interface DonationAudit {
+  id: string
+  donation_transaction_id?: string
+  type: 'debit' | 'credit'
+  amount: number
+  description?: string
+  reference_transaction_id?: string
+  created_at: string
+  transaction?: DonationTransaction
+  referenceTransaction?: DonationTransaction
+}
+
 export interface ApiResponse {
   ok: boolean
   status: number

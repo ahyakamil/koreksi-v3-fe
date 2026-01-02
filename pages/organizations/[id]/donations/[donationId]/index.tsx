@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Script from 'next/script'
 import { Edit, Heart, DollarSign, Target, Calendar, Users, Clock, Share2 } from 'lucide-react'
-import { DonationCampaign, Organization } from '../../../../../types'
+import { DonationCampaign, Organization, DonationAudit } from '../../../../../types'
 import { getOrganization, getPublicOrganization, getDonationCampaign, donateToCampaign, getDonationTransactions, checkOrganizationMembership } from '../../../../../utils/api'
 import { formatCurrency, formatNumber } from '../../../../../utils/format'
 import { useAuth } from '../../../../../context/AuthContext'
@@ -17,7 +17,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
   const [donating, setDonating] = useState(false)
   const [donationAmount, setDonationAmount] = useState('')
   const [memberRole, setMemberRole] = useState<string | null>(null)
-  const [transactions, setTransactions] = useState<any[]>([])
+  const [transactions, setTransactions] = useState<DonationAudit[]>([])
   const [transactionsLoading, setTransactionsLoading] = useState(false)
   const { user } = useAuth()
   const { t } = useLocale()
@@ -346,8 +346,11 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                   <div key={transaction.id} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
                     <div>
                       <p className="font-medium">{transaction.transaction?.user?.name || 'Anonymous'}</p>
+                      <p className="text-xs text-gray-500">{transaction.description}</p>
                     </div>
-                    <p className="font-semibold text-green-600">{formatCurrency(transaction.amount)}</p>
+                    <p className={`font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                      {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                    </p>
                   </div>
                 ))}
                 {transactions.length > 5 && (
