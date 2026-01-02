@@ -44,8 +44,7 @@ const WithdrawalsPage: React.FC = () => {
     amount: '',
     bank_name: '',
     account_number: '',
-    account_holder_name: '',
-    notes: ''
+    account_holder_name: ''
   })
   const { user } = useAuth()
   const { t } = useLocale()
@@ -104,8 +103,8 @@ const WithdrawalsPage: React.FC = () => {
     if (!organization || !campaign) return
 
     const amount = parseFloat(withdrawalForm.amount)
-    if (isNaN(amount) || amount < 10000) {
-      alert(t('minimum_withdrawal_amount') + ' ' + formatCurrency(10000))
+    if (isNaN(amount) || amount < 50000) {
+      alert(t('minimum_withdrawal_amount') + ' ' + formatCurrency(50000))
       return
     }
 
@@ -121,8 +120,7 @@ const WithdrawalsPage: React.FC = () => {
         amount,
         bank_name: withdrawalForm.bank_name,
         account_number: withdrawalForm.account_number,
-        account_holder_name: withdrawalForm.account_holder_name,
-        notes: withdrawalForm.notes || undefined
+        account_holder_name: withdrawalForm.account_holder_name
       })
 
       if (res.ok) {
@@ -131,8 +129,7 @@ const WithdrawalsPage: React.FC = () => {
           amount: '',
           bank_name: '',
           account_number: '',
-          account_holder_name: '',
-          notes: ''
+          account_holder_name: ''
         })
         setShowCreateForm(false)
         await fetchWithdrawals()
@@ -213,12 +210,12 @@ const WithdrawalsPage: React.FC = () => {
                   type="number"
                   value={withdrawalForm.amount}
                   onChange={(e) => setWithdrawalForm(prev => ({ ...prev, amount: e.target.value }))}
-                  placeholder="10000"
-                  min="10000"
+                  placeholder="50000"
+                  min="50000"
                   step="1000"
                   className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <p className="text-xs text-gray-500 mt-1">{t('minimum_withdrawal')}: {formatCurrency(10000)}</p>
+                <p className="text-xs text-gray-500 mt-1">{t('minimum_withdrawal')}: {formatCurrency(50000)}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -256,18 +253,6 @@ const WithdrawalsPage: React.FC = () => {
                   className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-            </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('notes')} ({t('optional')})
-              </label>
-              <textarea
-                value={withdrawalForm.notes}
-                onChange={(e) => setWithdrawalForm(prev => ({ ...prev, notes: e.target.value }))}
-                placeholder={t('withdrawal_notes_placeholder')}
-                rows={3}
-                className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
             </div>
             <div className="flex gap-4 mt-6">
               <button

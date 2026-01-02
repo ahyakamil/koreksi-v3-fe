@@ -408,7 +408,7 @@ export async function getDonationTransactions(organizationId: string, campaignId
   return res
 }
 
-export async function requestWithdrawal(organizationId: string, campaignId: string, data: { amount: number; bank_name: string; account_number: string; account_holder_name: string; notes?: string }) {
+export async function requestWithdrawal(organizationId: string, campaignId: string, data: { amount: number; bank_name: string; account_number: string; account_holder_name: string }) {
   const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/request-withdrawal`, {
     method: 'POST',
     body: JSON.stringify(data)
