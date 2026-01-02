@@ -341,6 +341,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                       <div key={transaction.id} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
                         <div>
                           <p className="font-medium">{transaction.transaction?.user?.name || 'Anonymous'}</p>
+                          <p className="text-xs text-gray-500">{transaction.created_at && !isNaN(new Date(transaction.created_at).getTime()) ? new Date(transaction.created_at).toLocaleString() : 'N/A'}</p>
                         </div>
                         <p className={`font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
                           {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
