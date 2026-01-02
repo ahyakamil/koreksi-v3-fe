@@ -253,6 +253,32 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
             )}
           </div>
 
+          {/* Donation Transactions */}
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 className="text-xl font-semibold mb-4">{t('recent_donations')}</h2>
+            {transactionsLoading ? (
+              <p>{t('loading')}</p>
+            ) : transactions.length > 0 ? (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {transactions.slice(0, 5).map((transaction) => (
+                  <div key={transaction.id} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                    <div>
+                      <p className="font-medium">{transaction.transaction?.user?.name || 'Anonymous'}</p>
+                    </div>
+                    <p className={`font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                      {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                    </p>
+                  </div>
+                ))}
+                {transactions.length > 5 && (
+                  <p className="text-xs text-gray-500 text-center mt-2">And {transactions.length - 5} more...</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 italic text-sm">{t('no_donations_yet')}</p>
+            )}
+          </div>
+
         </div>
 
         {/* Sidebar */}
@@ -333,33 +359,6 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Donation Transactions */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">{t('recent_donations')}</h2>
-            {transactionsLoading ? (
-              <p>{t('loading')}</p>
-            ) : transactions.length > 0 ? (
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {transactions.slice(0, 5).map((transaction) => (
-                  <div key={transaction.id} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
-                    <div>
-                      <p className="font-medium">{transaction.transaction?.user?.name || 'Anonymous'}</p>
-                      <p className="text-xs text-gray-500">{transaction.description}</p>
-                    </div>
-                    <p className={`font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
-                      {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                    </p>
-                  </div>
-                ))}
-                {transactions.length > 5 && (
-                  <p className="text-xs text-gray-500 text-center mt-2">And {transactions.length - 5} more...</p>
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic text-sm">{t('no_donations_yet')}</p>
-            )}
           </div>
         </div>
       </div>
