@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { Newspaper, Users, Folder, Settings, Heart, Pencil } from 'lucide-react'
 import { Organization, User, Space, News, OrganizationUser, DonationCampaign } from '../../types'
 import { getOrganization, getPublicOrganization, getOrganizationMembers, checkOrganizationMembership, updateUserRole, removeMember, inviteUser, searchUsers, getSpaces, getNews, createSpace, updateSpace, deleteSpace, reviewNews, joinOrganization, getStickyDonationCampaign, donateToCampaign } from '../../utils/api'
+import { formatCurrency, formatNumber } from '../../utils/format'
 import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import SpaceForm from '../../components/SpaceForm'
@@ -325,7 +326,7 @@ const OrganizationDetailsPage: React.FC = () => {
               <div className="mb-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
                   <span>{t('progress')}</span>
-                  <span>Rp {(stickyCampaign.current_amount || 0).toLocaleString()} / Rp {(stickyCampaign.target_amount || 0).toLocaleString()}</span>
+                  <span>{formatCurrency(stickyCampaign.current_amount || 0)} / {formatCurrency(stickyCampaign.target_amount || 0)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -343,11 +344,11 @@ const OrganizationDetailsPage: React.FC = () => {
               <div>
                 <div className="text-sm text-gray-600">{t('total_raised')}</div>
                 <div className="text-2xl font-bold text-green-600">
-                  Rp {(stickyCampaign.current_amount || 0).toLocaleString()}
+                  {formatCurrency(stickyCampaign.current_amount || 0)}
                 </div>
                 {stickyCampaign.target_amount && (
                   <div className="text-sm text-gray-500">
-                    {t('target')}: Rp {(stickyCampaign.target_amount || 0).toLocaleString()}
+                    {t('target')}: {formatCurrency(stickyCampaign.target_amount || 0)}
                   </div>
                 )}
               </div>

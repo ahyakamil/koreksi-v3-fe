@@ -312,7 +312,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
               <div className="bg-white p-6 rounded-lg shadow-md mb-6">
                 <h2 className="text-xl font-semibold mb-4">{t('total_raised')}</h2>
                 <div className="text-2xl font-bold text-green-600 mb-2">
-                  Rp {formatNumber(campaign.current_amount || 0)}
+                  {formatCurrency(campaign.current_amount || 0)}
                 </div>
                 {campaign.target_amount && campaign.target_amount > 0 && (
                   <>
@@ -324,7 +324,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                     </div>
                     <div className="flex justify-between text-sm text-gray-600">
                       <span>{Math.round(Math.min(100, ((campaign.current_amount || 0) / campaign.target_amount) * 100))}% {t('completed')}</span>
-                      <span>Rp {formatNumber(campaign.target_amount)}</span>
+                      <span>{formatCurrency(campaign.target_amount)}</span>
                     </div>
                   </>
                 )}
@@ -344,7 +344,7 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
                           <p className="text-xs text-gray-500">{transaction.created_at && !isNaN(new Date(transaction.created_at).getTime()) ? new Date(transaction.created_at).toLocaleString() : 'N/A'}</p>
                         </div>
                         <p className={`font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
-                          {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                          {transaction.type === 'credit' ? '+' : '-'}{formatNumber(transaction.amount)}
                         </p>
                       </div>
                     ))}
