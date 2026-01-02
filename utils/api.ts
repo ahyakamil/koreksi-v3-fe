@@ -345,11 +345,10 @@ export async function resetPassword(email: string, token: string, password: stri
 }
 
 export async function pingWebSubHub(feedUrl: string) {
-  const hubUrl = 'https://pubsubhubbub.appspot.com/';
-  const res = await fetch(hubUrl, {
+  // Ping via backend to avoid CORS
+  const res = await apiFetch('/websub/ping', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ 'hub.mode': 'publish', 'hub.url': feedUrl })
+    body: JSON.stringify({ feed_url: feedUrl })
   });
   return res.ok;
 }
