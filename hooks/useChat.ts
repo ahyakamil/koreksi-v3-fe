@@ -226,6 +226,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
           auth: {
             token: token,
           },
+          forceNew: true,
         });
         socketRef.current = socket;
 
@@ -233,6 +234,10 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
           console.log('Connected to WebSocket server');
           // Broadcast online status when connected
           socket.emit('user.presence', { status: 'online' });
+        });
+
+        socket.on('connect_error', (error) => {
+          console.error('WebSocket connection error:', error);
         });
 
         socket.on('disconnect', () => {
