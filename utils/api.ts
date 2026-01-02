@@ -407,3 +407,17 @@ export async function getDonationTransactions(organizationId: string, campaignId
   const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/transactions?${params}`)
   return res
 }
+
+export async function requestWithdrawal(organizationId: string, campaignId: string, data: { amount: number; bank_name: string; account_number: string; account_holder_name: string; notes?: string }) {
+  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/request-withdrawal`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  return res
+}
+
+export async function getWithdrawalRequests(organizationId: string, campaignId: string, page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/withdrawal-requests?${params}`)
+  return res
+}

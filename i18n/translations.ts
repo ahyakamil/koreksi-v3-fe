@@ -245,6 +245,36 @@ type TranslationKeys = {
   donate: string
   ends: string
   created: string
+  request_withdrawal: string
+  withdrawal_amount: string
+  bank_name: string
+  account_number: string
+  account_holder_name: string
+  notes: string
+  optional: string
+  minimum_withdrawal: string
+  minimum_withdrawal_amount: string
+  available_balance: string
+  insufficient_balance: string
+  withdrawal_notes_placeholder: string
+  submitting: string
+  withdrawal_request_submitted: string
+  withdrawal_request_error: string
+  failed_to_request_withdrawal: string
+  withdrawal_requests: string
+  back_to_donation: string
+  campaign_balance: string
+  available_for_withdrawal: string
+  create_withdrawal_request: string
+  submit_request: string
+  withdrawal_request_list: string
+  requested_by: string
+  requested_on: string
+  approved_by: string
+  on: string
+  no_withdrawal_requests: string
+  withdrawal_management: string
+  manage_withdrawals: string
 }
 
 type Translations = {
@@ -498,6 +528,36 @@ const translations: Translations = {
     login_to_donate: 'Silakan masuk untuk melakukan donasi.',
     ends: 'Waktu berakhir',
     created: 'Waktu dibuat',
+    request_withdrawal: 'Permintaan Penarikan',
+    withdrawal_amount: 'Jumlah Penarikan',
+    bank_name: 'Nama Bank',
+    account_number: 'Nomor Rekening',
+    account_holder_name: 'Nama Pemilik Rekening',
+    notes: 'Catatan',
+    optional: 'Opsional',
+    minimum_withdrawal: 'Penarikan minimum',
+    minimum_withdrawal_amount: 'Jumlah penarikan minimum adalah',
+    available_balance: 'Saldo tersedia',
+    insufficient_balance: 'Saldo tidak mencukupi',
+    withdrawal_notes_placeholder: 'Catatan tambahan untuk permintaan penarikan...',
+    submitting: 'Mengirim...',
+    withdrawal_request_submitted: 'Permintaan penarikan berhasil dikirim',
+    withdrawal_request_error: 'Terjadi kesalahan saat mengirim permintaan penarikan',
+    failed_to_request_withdrawal: 'Gagal mengirim permintaan penarikan',
+    withdrawal_requests: 'Permintaan Penarikan',
+    back_to_donation: 'Kembali ke Donasi',
+    campaign_balance: 'Saldo Kampanye',
+    available_for_withdrawal: 'Tersedia untuk penarikan',
+    create_withdrawal_request: 'Buat Permintaan Penarikan',
+    submit_request: 'Kirim Permintaan',
+    withdrawal_request_list: 'Daftar Permintaan Penarikan',
+    requested_by: 'Diminta oleh',
+    requested_on: 'Diminta pada',
+    approved_by: 'Disetujui oleh',
+    on: 'pada',
+    no_withdrawal_requests: 'Belum ada permintaan penarikan.',
+    withdrawal_management: 'Manajemen Penarikan',
+    manage_withdrawals: 'Kelola Penarikan',
   },
   en: {
     comments: 'Comments',
@@ -744,6 +804,36 @@ const translations: Translations = {
     login_to_donate: 'Please login to make a donation.',
     ends: 'Ends',
     created: 'Created',
+    request_withdrawal: 'Request Withdrawal',
+    withdrawal_amount: 'Withdrawal Amount',
+    bank_name: 'Bank Name',
+    account_number: 'Account Number',
+    account_holder_name: 'Account Holder Name',
+    notes: 'Notes',
+    optional: 'Optional',
+    minimum_withdrawal: 'Minimum withdrawal',
+    minimum_withdrawal_amount: 'Minimum withdrawal amount is',
+    available_balance: 'Available balance',
+    insufficient_balance: 'Insufficient balance',
+    withdrawal_notes_placeholder: 'Additional notes for withdrawal request...',
+    submitting: 'Submitting...',
+    withdrawal_request_submitted: 'Withdrawal request submitted successfully',
+    withdrawal_request_error: 'Error occurred while submitting withdrawal request',
+    failed_to_request_withdrawal: 'Failed to request withdrawal',
+    withdrawal_requests: 'Withdrawal Requests',
+    back_to_donation: 'Back to Donation',
+    campaign_balance: 'Campaign Balance',
+    available_for_withdrawal: 'Available for withdrawal',
+    create_withdrawal_request: 'Create Withdrawal Request',
+    submit_request: 'Submit Request',
+    withdrawal_request_list: 'Withdrawal Request List',
+    requested_by: 'Requested by',
+    requested_on: 'Requested on',
+    approved_by: 'Approved by',
+    on: 'on',
+    no_withdrawal_requests: 'No withdrawal requests yet.',
+    withdrawal_management: 'Withdrawal Management',
+    manage_withdrawals: 'Manage Withdrawals',
   }
 }
 
