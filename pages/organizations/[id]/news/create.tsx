@@ -95,9 +95,6 @@ const CreateNewsPage: React.FC = () => {
     setSubmitting(false)
 
     if (res.ok) {
-      // Ping WebSub hub for real-time updates
-      const feedUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/rss.xml`;
-      pingWebSubHub(feedUrl).catch(err => console.error('WebSub ping failed:', err));
       router.push(`/organizations/${id}/news`)
     } else {
       alert(res.body.message || t('failed_to_create_news'))
