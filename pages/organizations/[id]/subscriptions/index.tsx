@@ -150,6 +150,40 @@ const SubscriptionsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Withdrawal Summary */}
+      {activeTab === 'withdrawals' && (
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-xl font-semibold mb-4">Withdrawal Summary</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">Total Pending Requests</p>
+              <div className="text-xl font-bold text-orange-600">
+                {withdrawalRequests.filter(r => r.status === 'pending').length}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Total Pending Amount</p>
+              <div className="text-xl font-bold text-orange-600">
+                Rp {formatNumber(withdrawalRequests.filter(r => r.status === 'pending').reduce((sum, r) => sum + r.amount, 0))}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Total Fees</p>
+              <div className="text-xl font-bold text-red-600">
+                Rp {formatNumber(withdrawalRequests.reduce((sum, r) =>
+                  sum + (r.withdrawal_details?.reduce((detailSum, d) => detailSum + d.fee_amount, 0) || 0), 0))}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Available for Withdrawal</p>
+              <div className="text-xl font-bold text-green-600">
+                Rp {formatNumber(currentAmount - withdrawalRequests.filter(r => r.status === 'pending').reduce((sum, r) => sum + r.amount, 0))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="mb-8">
         <div className="border-b border-gray-200 mb-6">
@@ -321,46 +355,66 @@ const SubscriptionsPage: React.FC = () => {
               </div>
             ) : (
               withdrawalRequests.map(request => (
-                <div key={request.id} className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                        <span className="text-lg sm:text-xl font-semibold">{request.requester?.name}</span>
-                        <span className="text-sm text-gray-500">({request.requester?.email})</span>
-                        {request.status === 'pending' && (
-                          <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs sm:text-sm self-start sm:self-auto flex items-center">
-                            <Clock className="w-3 h-3 mr-1" />
-                            Pending
-                          </span>
-                        )}
-                        {request.status === 'approved' && (
-                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs sm:text-sm self-start sm:self-auto flex items-center">
-                            <Check className="w-3 h-3 mr-1" />
-                            Approved
-                          </span>
-                        )}
-                        {request.status === 'rejected' && (
-                          <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs sm:text-sm self-start sm:self-auto flex items-center">
-                            <X className="w-3 h-3 mr-1" />
-                            Rejected
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
-                        <span className="flex items-center">
-                          <DollarSign className="w-4 h-4 mr-1 flex-shrink-0" />
-                          Amount: Rp {formatNumber(request.amount)}
-                        </span>
-                        <span>Bank: {request.bank_name}</span>
-                        <span>Account: {request.account_number} ({request.account_holder_name})</span>
-                      </div>
-                      {request.amount < 50000 && (
-                        <div className="mt-2 text-red-600 text-sm">
-                          Amount below minimum (Rp 50,000)
-                        </div>
-                      )}
+                <div key={request.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="font-semibold text-lg">Rp {formatNumber(request.amount)}</p>
+                      <p className="text-sm text-gray-600">
+                        Requested by: {request.requester?.name} ({request.requester?.email})
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Requested on: {new Date(request.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className={`px-2 py-1 rounded text-sm font-medium ${
+                        request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        request.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        request.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                      </span>
                     </div>
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p><strong>Bank Name:</strong> {request.bank_name}</p>
+                      <p><strong>Account Number:</strong> {request.account_number}</p>
+                      <p><strong>Account Holder Name:</strong> {request.account_holder_name}</p>
+                    </div>
+                  </div>
+                  {request.approved_at && request.approver && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      <p>Approved by: {request.approver.name} (on {new Date(request.approved_at).toLocaleDateString()})</p>
+                    </div>
+                  )}
+                  {request.withdrawal_details && request.withdrawal_details.length > 0 && (
+                    <div className="mt-4 border-t pt-4">
+                      <h4 className="font-semibold text-sm mb-2">Withdrawal Details</h4>
+                      <div className="space-y-2">
+                        {request.withdrawal_details.map((detail) => (
+                          <div key={detail.id} className="bg-gray-50 p-3 rounded text-sm">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p><strong>Fee Type:</strong> {detail.fee_type}</p>
+                                <p><strong>Requested Amount:</strong> Rp {formatNumber(detail.requested_amount)}</p>
+                              </div>
+                              <div>
+                                <p><strong>Fee Amount:</strong> Rp {formatNumber(detail.fee_amount)}</p>
+                                <p><strong>Received Amount:</strong> Rp {formatNumber(detail.received_amount)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {request.amount < 50000 && (
+                    <div className="mt-2 text-red-600 text-sm">
+                      Amount below minimum (Rp 50,000)
+                    </div>
+                  )}
                 </div>
               ))
             )}

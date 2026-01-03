@@ -212,6 +212,16 @@ export interface Payment {
   subscription?: Subscription
 }
 
+export interface WithdrawalDetail {
+  id: number
+  fee_type: string
+  requested_amount: number
+  fee_amount: number
+  received_amount: number
+  created_at: string
+  updated_at: string
+}
+
 export interface SubscriptionWithdrawalRequest {
   id: string
   organization_id: string
@@ -227,6 +237,7 @@ export interface SubscriptionWithdrawalRequest {
   updated_at: string
   requester?: User
   approver?: User
+  withdrawal_details?: WithdrawalDetail[]
 }
 
 export interface ApiResponse {
