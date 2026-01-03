@@ -268,7 +268,7 @@ export function Header() {
           }`}
         >
           <Newspaper className="w-6 h-6" />
-          <span className="text-xs mt-1">News</span>
+          <span className="text-xs mt-1">Content</span>
         </button>
         <button
           onClick={() => router.push('/organizations')}
