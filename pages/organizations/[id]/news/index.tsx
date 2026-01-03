@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { List, FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { Organization, Space, News } from '../../../../types'
-import { getOrganization, getSpaces, getNews, reviewNews, deleteNews } from '../../../../utils/api'
+import { getOrganization, getSpaces, getNews, reviewNews, deleteNews, checkOrganizationMembership } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 
@@ -15,6 +15,7 @@ const NewsManagementPage: React.FC = () => {
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(false)
   const [activeTab, setActiveTab] = useState<'need_review' | 'draft' | 'published' | 'rejected'>('need_review')
+  const [userRole, setUserRole] = useState<string | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastNewsElementRef = useCallback((node: HTMLDivElement | null) => {
     if (loadingMore) return
@@ -26,6 +27,13 @@ const NewsManagementPage: React.FC = () => {
     })
     if (node) observerRef.current.observe(node)
   }, [loadingMore, hasMore])
+  const fetchCurrentUserRole = async () => {
+    if (!id) return
+    const res = await checkOrganizationMembership(id as string)
+    if (res.ok) {
+      setUserRole(res.body.data.role)
+    }
+  }
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -45,6 +53,7 @@ const NewsManagementPage: React.FC = () => {
 
   const fetchData = async () => {
     if (!id) return
+    setUserRole(null)
     try {
       const [orgRes, spacesRes] = await Promise.all([
         getOrganization(id as string),
@@ -60,6 +69,7 @@ const NewsManagementPage: React.FC = () => {
       console.error('Failed to fetch data:', error)
     }
     setLoading(false)
+    await fetchCurrentUserRole()
   }
 
   const loadNewsForTab = async (status: string) => {
@@ -118,7 +128,7 @@ const NewsManagementPage: React.FC = () => {
   }
 
   const getCurrentUserRole = () => {
-    return organization?.users?.find(u => u.id === user?.id)?.pivot?.role
+    return userRole
   }
 
   const filteredNews = news
