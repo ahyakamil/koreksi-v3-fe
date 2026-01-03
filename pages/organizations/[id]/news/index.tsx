@@ -14,7 +14,7 @@ const NewsManagementPage: React.FC = () => {
   const [loadingMore, setLoadingMore] = useState(false)
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(false)
-  const [activeTab, setActiveTab] = useState<'all' | 'draft' | 'need_review' | 'published' | 'rejected'>('all')
+  const [activeTab, setActiveTab] = useState<'need_review' | 'draft' | 'published' | 'rejected'>('need_review')
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastNewsElementRef = useCallback((node: HTMLDivElement | null) => {
     if (loadingMore) return
@@ -154,9 +154,8 @@ const NewsManagementPage: React.FC = () => {
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8">
             {[
-              { key: 'all', icon: List },
-              { key: 'draft', icon: FileText },
               { key: 'need_review', icon: Clock },
+              { key: 'draft', icon: FileText },
               { key: 'published', icon: CheckCircle },
               { key: 'rejected', icon: XCircle }
             ].map(tab => {
