@@ -299,6 +299,8 @@ type TranslationKeys = {
   failed_to_subscribe: string
   failed_to_cancel_subscription: string
   failed_to_update_premium_settings: string
+  pending_subscription: string
+  processing_payment: string
 }
 
 type Translations = {
@@ -606,6 +608,8 @@ const translations: Translations = {
     failed_to_subscribe: 'Gagal berlangganan',
     failed_to_cancel_subscription: 'Gagal membatalkan langganan',
     failed_to_update_premium_settings: 'Gagal memperbarui pengaturan premium',
+    pending_subscription: 'Langganan Tertunda',
+    processing_payment: 'Memproses pembayaran',
   },
   en: {
     comments: 'Comments',
@@ -906,6 +910,8 @@ const translations: Translations = {
     failed_to_subscribe: 'Failed to subscribe',
     failed_to_cancel_subscription: 'Failed to cancel subscription',
     failed_to_update_premium_settings: 'Failed to update premium settings',
+    pending_subscription: 'Pending Subscription',
+    processing_payment: 'Processing payment',
   }
 }
 

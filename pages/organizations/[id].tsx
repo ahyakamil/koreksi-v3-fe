@@ -342,7 +342,9 @@ const OrganizationDetailsPage: React.FC = () => {
   }
 
   const currentSubscription = mySubscriptions.find(sub => sub.organization_id === organization?.id && sub.status === 'active')
+  const pendingSubscription = mySubscriptions.find(sub => sub.organization_id === organization?.id && sub.status === 'pending')
   const hasActiveSubscription = !!currentSubscription
+  const hasPendingSubscription = !!pendingSubscription
 
   const currentUserRole = useMemo(() => {
     return memberRole
@@ -473,6 +475,17 @@ const OrganizationDetailsPage: React.FC = () => {
                   >
                     {t('cancel_subscription')}
                   </button>
+                </div>
+              </div>
+            ) : hasPendingSubscription ? (
+              <div className="bg-white rounded-lg p-4 border border-yellow-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-yellow-600">{t('pending_subscription')}</h4>
+                    <p className="text-sm text-gray-600">
+                      {t('plan')}: {pendingSubscription.plan} • {t('processing_payment')}
+                    </p>
+                  </div>
                 </div>
               </div>
             ) : (

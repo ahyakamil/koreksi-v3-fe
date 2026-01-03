@@ -190,7 +190,7 @@ export interface Subscription {
   plan: 'daily' | 'weekly' | 'monthly'
   start_date: string
   end_date: string
-  status: 'active' | 'cancelled' | 'expired'
+  status: 'active' | 'pending' | 'cancelled' | 'expired'
   created_at: string
   updated_at: string
   organization?: Organization
