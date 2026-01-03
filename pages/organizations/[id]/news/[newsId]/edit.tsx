@@ -22,6 +22,7 @@ const EditNewsPage: React.FC = () => {
   })
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [roleLoading, setRoleLoading] = useState(true)
   const { user } = useAuth()
   const router = useRouter()
   const { id, newsId } = router.query
@@ -69,6 +70,7 @@ const EditNewsPage: React.FC = () => {
     if (res.ok) {
       setUserRole(res.body.data.role)
     }
+    setRoleLoading(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,6 +134,8 @@ const EditNewsPage: React.FC = () => {
 
   if (loading) return <div>Loading...</div>
   if (!organization || !news) return <div>Not found</div>
+
+  if (roleLoading) return <div>Loading...</div>
 
   if (!canEditNews()) {
     return <div>You don't have permission to edit this news.</div>

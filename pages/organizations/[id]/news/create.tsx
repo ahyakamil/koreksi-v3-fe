@@ -25,6 +25,7 @@ const CreateNewsPage: React.FC = () => {
   })
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [roleLoading, setRoleLoading] = useState(true)
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -60,6 +61,7 @@ const CreateNewsPage: React.FC = () => {
     if (res.ok) {
       setUserRole(res.body.data.role)
     }
+    setRoleLoading(false)
   }
 
   const handleCreateSpace = async (data: { name: string; description?: string; image?: string }) => {
@@ -123,6 +125,8 @@ const CreateNewsPage: React.FC = () => {
 
   if (loading) return <div>{t('loading')}</div>
   if (!organization) return <div>{t('organization_not_found')}</div>
+
+  if (roleLoading) return <div>{t('loading')}</div>
 
   const currentUserRole = getCurrentUserRole()
 
