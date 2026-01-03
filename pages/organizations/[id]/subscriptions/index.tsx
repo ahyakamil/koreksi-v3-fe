@@ -115,6 +115,11 @@ const SubscriptionsPage: React.FC = () => {
       return
     }
 
+    if (amount > currentAmount) {
+      alert('Insufficient balance. Current amount is Rp ' + formatNumber(currentAmount))
+      return
+    }
+
     const res = await adminCreateWithdrawalRequest(organization.id, {
       amount,
       bank_name: withdrawalForm.bank_name,
