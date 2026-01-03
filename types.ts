@@ -120,6 +120,7 @@ export interface News {
   publisher?: User
   comments_count?: number
   youtube_video?: string
+  can_access?: boolean
 }
 
 export interface Message {

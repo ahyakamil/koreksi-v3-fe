@@ -310,6 +310,8 @@ type TranslationKeys = {
   processing_payment: string
   subscription_required: string
   go_to_organization_details: string
+  subscribe_to_see_content: string
+  go_to_organization: string
 }
 
 type Translations = {
@@ -628,6 +630,8 @@ const translations: Translations = {
     processing_payment: 'Memproses pembayaran',
     subscription_required: 'Langganan Diperlukan',
     go_to_organization_details: 'Ke Detail Organisasi',
+    subscribe_to_see_content: 'Berlangganan untuk melihat konten',
+    go_to_organization: 'Ke Organisasi',
   },
   en: {
     comments: 'Comments',
@@ -939,6 +943,8 @@ const translations: Translations = {
     processing_payment: 'Processing payment',
     subscription_required: 'Subscription Required',
     go_to_organization_details: 'Go to Organization Details',
+    subscribe_to_see_content: 'Subscribe to see content',
+    go_to_organization: 'Go to Organization',
   }
 }
 

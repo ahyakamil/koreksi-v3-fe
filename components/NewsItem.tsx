@@ -175,7 +175,16 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
 
 
         <div className="text-gray-700 leading-relaxed mb-3">
-          {isDetail || isExpanded ? (
+          {isDetail && news.can_access === false ? (
+            <div className="text-center py-8">
+              <p className="text-lg text-gray-600 mb-4">{t('subscribe_to_see_content')}</p>
+              <Link href={`/organizations/${news.organization_id}`}>
+                <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  {t('go_to_organization')}
+                </button>
+              </Link>
+            </div>
+          ) : isDetail || isExpanded ? (
             <div
               className="prose max-w-none"
               dangerouslySetInnerHTML={{ __html: displayContent }}
