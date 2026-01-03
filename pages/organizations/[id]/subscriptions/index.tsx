@@ -154,7 +154,7 @@ const SubscriptionsPage: React.FC = () => {
       {activeTab === 'withdrawals' && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-xl font-semibold mb-4">Withdrawal Summary</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-gray-600">Total Pending Requests</p>
               <div className="text-xl font-bold text-orange-600">
@@ -165,13 +165,6 @@ const SubscriptionsPage: React.FC = () => {
               <p className="text-sm text-gray-600">Total Pending Amount</p>
               <div className="text-xl font-bold text-orange-600">
                 Rp {formatNumber(withdrawalRequests.filter(r => r.status === 'pending').reduce((sum, r) => sum + r.amount, 0))}
-              </div>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Fees</p>
-              <div className="text-xl font-bold text-red-600">
-                Rp {formatNumber(withdrawalRequests.reduce((sum, r) =>
-                  sum + (r.withdrawal_details?.reduce((detailSum, d) => detailSum + d.fee_amount, 0) || 0), 0))}
               </div>
             </div>
             <div>
@@ -355,7 +348,7 @@ const SubscriptionsPage: React.FC = () => {
               </div>
             ) : (
               withdrawalRequests.map(request => (
-                <div key={request.id} className="border border-gray-200 rounded-lg p-4">
+                <div key={request.id} className="bg-white border border-gray-200 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <p className="font-semibold text-lg">Rp {formatNumber(request.amount)}</p>
