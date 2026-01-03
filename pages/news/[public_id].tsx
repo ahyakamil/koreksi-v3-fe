@@ -159,9 +159,16 @@ export const getServerSideProps: GetServerSideProps<NewsDetailPageProps> = async
   const fullUrl = `${protocol}://${host}${context.req.url}`
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
+  // Extract auth token from cookies
+  const cookies = context.req.headers.cookie || ''
+  const tokenMatch = cookies.match(/s_user=([^;]+)/)
+  const token = tokenMatch ? tokenMatch[1] : null
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
   try {
     // Fetch news
-    const newsRes = await fetch(`${API_BASE}/news/${public_id}`)
+    const newsRes = await fetch(`${API_BASE}/news/${public_id}`, { headers })
 
     if (!newsRes.ok) {
       return {
@@ -198,7 +205,7 @@ export const getServerSideProps: GetServerSideProps<NewsDetailPageProps> = async
 
     if (commentId) {
       // Fetch specific comment tree
-      const commentRes = await fetch(`${API_BASE}/news/${public_id}/comments/${commentId}?page=0&size=10`)
+      const commentRes = await fetch(`${API_BASE}/news/${public_id}/comments/${commentId}?page=0&size=10`, { headers })
       if (commentRes.ok) {
         const commentData = await commentRes.json()
         if (commentData.statusCode === 2000) {
@@ -214,7 +221,7 @@ export const getServerSideProps: GetServerSideProps<NewsDetailPageProps> = async
       }
     } else {
       // Fetch all comments
-      const commentsRes = await fetch(`${API_BASE}/news/${public_id}/comments?page=0&size=10`)
+      const commentsRes = await fetch(`${API_BASE}/news/${public_id}/comments?page=0&size=10`, { headers })
       const commentsData = commentsRes.ok ? await commentsRes.json() : { data: { content: [] } }
       comments = commentsData.data?.content || []
       pageable = commentsData.data?.pageable || null
