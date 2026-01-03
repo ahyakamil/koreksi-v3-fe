@@ -462,19 +462,11 @@ const OrganizationDetailsPage: React.FC = () => {
 
             {hasActiveSubscription ? (
               <div className="bg-white rounded-lg p-4 border border-purple-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-semibold text-green-600">{t('active_subscription')}</h4>
-                    <p className="text-sm text-gray-600">
-                      {t('plan')}: {currentSubscription.plan} • {t('expires')}: {new Date(currentSubscription.end_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleCancelSubscription(currentSubscription.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
-                  >
-                    {t('cancel_subscription')}
-                  </button>
+                <div>
+                  <h4 className="font-semibold text-green-600">{t('active_subscription')}</h4>
+                  <p className="text-sm text-gray-600">
+                    {t('plan')}: {currentSubscription.plan} • {t('expires')}: {new Date(currentSubscription.end_date).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
             ) : hasPendingSubscription ? (
