@@ -308,6 +308,8 @@ type TranslationKeys = {
   failed_to_update_premium_settings: string
   pending_subscription: string
   processing_payment: string
+  subscription_required: string
+  go_to_organization_details: string
 }
 
 type Translations = {
@@ -624,6 +626,8 @@ const translations: Translations = {
     failed_to_update_premium_settings: 'Gagal memperbarui pengaturan premium',
     pending_subscription: 'Langganan Tertunda',
     processing_payment: 'Memproses pembayaran',
+    subscription_required: 'Langganan Diperlukan',
+    go_to_organization_details: 'Ke Detail Organisasi',
   },
   en: {
     comments: 'Comments',
@@ -933,6 +937,8 @@ const translations: Translations = {
     failed_to_update_premium_settings: 'Failed to update premium settings',
     pending_subscription: 'Pending Subscription',
     processing_payment: 'Processing payment',
+    subscription_required: 'Subscription Required',
+    go_to_organization_details: 'Go to Organization Details',
   }
 }
 

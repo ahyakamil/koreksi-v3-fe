@@ -16,6 +16,7 @@ const SpaceDetailPage: React.FC = () => {
   const [loadingMore, setLoadingMore] = useState(false)
   const [isMember, setIsMember] = useState<boolean | null>(null)
   const [joining, setJoining] = useState(false)
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null)
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -55,9 +56,13 @@ const SpaceDetailPage: React.FC = () => {
     if (newsRes.ok && newsRes.body && newsRes.body.data) {
       setNews(newsRes.body.data.content || [])
       setPageable(newsRes.body.data.pageable)
+      setSubscriptionError(null)
     } else {
       setNews([])
       setPageable(null)
+      if (newsRes.body && newsRes.body.errCode === 'SUBSCRIPTION_REQUIRED') {
+        setSubscriptionError(newsRes.body.message)
+      }
     }
 
     setLoading(false)
@@ -136,6 +141,18 @@ const SpaceDetailPage: React.FC = () => {
             >
               {joining ? t('joining') : t('join_organization')}
             </button>
+          </div>
+        </div>
+      ) : subscriptionError ? (
+        <div className="mb-8">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-semibold text-yellow-800 mb-2">{t('subscription_required')}</h3>
+            <p className="text-yellow-700 mb-4">
+              {subscriptionError}
+            </p>
+            <Link href={`/organizations/${id}`} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              {t('go_to_organization_details')}
+            </Link>
           </div>
         </div>
       ) : (
