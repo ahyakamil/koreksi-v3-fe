@@ -63,9 +63,9 @@ const OrganizationDetailsPage: React.FC = () => {
       // Initialize premium settings
       setPremiumSettings({
         is_premium_enabled: org.is_premium_enabled || false,
-        daily_price: org.daily_price?.toString() || '',
-        weekly_price: org.weekly_price?.toString() || '',
-        monthly_price: org.monthly_price?.toString() || '',
+        daily_price: org.daily_price ? Math.floor(org.daily_price).toString() : '',
+        weekly_price: org.weekly_price ? Math.floor(org.weekly_price).toString() : '',
+        monthly_price: org.monthly_price ? Math.floor(org.monthly_price).toString() : '',
       })
       // Check membership if authenticated
       if (user) {
@@ -582,7 +582,7 @@ const OrganizationDetailsPage: React.FC = () => {
                         placeholder="0"
                         className="w-full p-2 border rounded"
                         min="0"
-                        step="0.01"
+                        step="1"
                       />
                     </div>
                     <div>
@@ -594,7 +594,7 @@ const OrganizationDetailsPage: React.FC = () => {
                         placeholder="0"
                         className="w-full p-2 border rounded"
                         min="0"
-                        step="0.01"
+                        step="1"
                       />
                     </div>
                     <div>
@@ -606,7 +606,7 @@ const OrganizationDetailsPage: React.FC = () => {
                         placeholder="0"
                         className="w-full p-2 border rounded"
                         min="0"
-                        step="0.01"
+                        step="1"
                       />
                     </div>
                   </div>
