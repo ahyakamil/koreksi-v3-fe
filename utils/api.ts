@@ -449,3 +449,38 @@ export async function updatePremiumSettings(organizationId: string, data: { is_p
   })
   return res
 }
+
+export async function getOrganizationSubscriptions(organizationId: string, page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/organizations/${organizationId}/subscriptions?${params}`)
+  return res
+}
+
+export async function getOrganizationSubscriptionWithdrawalRequests(organizationId: string, page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/organizations/${organizationId}/subscription-withdrawal-requests?${params}`)
+  return res
+}
+
+export async function adminCancelSubscription(organizationId: string, subscriptionId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/subscriptions/${subscriptionId}/admin-cancel`, {
+    method: 'POST'
+  })
+  return res
+}
+
+export async function handleSubscriptionWithdrawalRequest(organizationId: string, withdrawalRequestId: string, action: 'approve' | 'reject') {
+  const res = await apiFetch(`/organizations/${organizationId}/subscription-withdrawal-requests/${withdrawalRequestId}/handle`, {
+    method: 'POST',
+    body: JSON.stringify({ action })
+  })
+  return res
+}
+
+export async function adminCreateWithdrawalRequest(organizationId: string, data: { amount: number; bank_name: string; account_number: string; account_holder_name: string }) {
+  const res = await apiFetch(`/organizations/${organizationId}/admin-create-withdrawal-request`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  return res
+}

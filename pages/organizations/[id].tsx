@@ -550,12 +550,20 @@ const OrganizationDetailsPage: React.FC = () => {
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-800">{t('premium_settings')}</h3>
-              <button
-                onClick={() => setShowPremiumSettings(!showPremiumSettings)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                {showPremiumSettings ? t('cancel') : t('manage')}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => router.push(`/organizations/${id}/subscriptions`)}
+                  className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                >
+                  Manage Subscriptions
+                </button>
+                <button
+                  onClick={() => setShowPremiumSettings(!showPremiumSettings)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  {showPremiumSettings ? t('cancel') : t('manage')}
+                </button>
+              </div>
             </div>
 
             {showPremiumSettings && (

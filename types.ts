@@ -194,6 +194,8 @@ export interface Subscription {
   created_at: string
   updated_at: string
   organization?: Organization
+  user?: User
+  amount?: number
 }
 
 export interface Payment {
@@ -208,6 +210,23 @@ export interface Payment {
   created_at: string
   updated_at: string
   subscription?: Subscription
+}
+
+export interface SubscriptionWithdrawalRequest {
+  id: string
+  organization_id: string
+  requested_by: string
+  amount: number
+  bank_name: string
+  account_number: string
+  account_holder_name: string
+  status: 'pending' | 'approved' | 'rejected'
+  approved_by?: string
+  approved_at?: string
+  created_at: string
+  updated_at: string
+  requester?: User
+  approver?: User
 }
 
 export interface ApiResponse {
