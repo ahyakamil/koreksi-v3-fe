@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { MessageCircle, Share2, ChevronDown } from 'lucide-react'
+import { MessageCircle, Share2, ChevronDown, Crown } from 'lucide-react'
 import CommentsList from './CommentsList'
 import CommentForm from './CommentForm'
 import { News, Comment } from '../types'
@@ -243,6 +243,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
           {!isDetail && news.can_access === false && (
             <Link href={`/organizations/${news.organization_id}`}>
               <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg flex-1 justify-center hover:bg-blue-700">
+                <Crown className="w-5 h-5" />
                 <span className="hidden md:inline">{t('subscribe')}</span>
               </button>
             </Link>
