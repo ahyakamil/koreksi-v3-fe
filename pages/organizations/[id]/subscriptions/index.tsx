@@ -98,8 +98,12 @@ const SubscriptionsPage: React.FC = () => {
       return
     }
 
-    if (amount > currentAmount) {
-      alert('Insufficient balance. Current amount is Rp ' + formatNumber(currentAmount))
+    const totalPendingAmount = withdrawalRequests
+      .filter(r => r.status === 'pending')
+      .reduce((sum, r) => sum + r.amount, 0)
+
+    if (amount + totalPendingAmount > currentAmount) {
+      alert('Insufficient balance. Current amount is Rp ' + formatNumber(currentAmount) + ', pending withdrawals: Rp ' + formatNumber(totalPendingAmount))
       return
     }
 
@@ -312,7 +316,7 @@ const SubscriptionsPage: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Account Number</label>
                   <input
-                    type="text"
+                    type="number"
                     value={withdrawalForm.account_number}
                     onChange={(e) => setWithdrawalForm(prev => ({ ...prev, account_number: e.target.value }))}
                     placeholder="Account Number"
