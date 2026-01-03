@@ -281,6 +281,8 @@ type TranslationKeys = {
   requested_amount: string
   fee_amount: string
   received_amount: string
+  total_balance: string
+  pending_withdrawals: string
   // Premium subscription translations
   premium_subscription: string
   unlock_premium_features: string
@@ -595,6 +597,8 @@ const translations: Translations = {
     requested_amount: 'Jumlah Diminta',
     fee_amount: 'Jumlah Biaya',
     received_amount: 'Jumlah Diterima',
+    total_balance: 'Total Saldo',
+    pending_withdrawals: 'Penarikan Tertunda',
     // Premium subscription translations
     premium_subscription: 'Langganan Premium',
     unlock_premium_features: 'Buka fitur premium untuk mengakses konten eksklusif dan manfaat tambahan.',
@@ -902,6 +906,8 @@ const translations: Translations = {
     requested_amount: 'Requested Amount',
     fee_amount: 'Fee Amount',
     received_amount: 'Received Amount',
+    total_balance: 'Total Balance',
+    pending_withdrawals: 'Pending Withdrawals',
     // Premium subscription translations
     premium_subscription: 'Premium Subscription',
     unlock_premium_features: 'Unlock premium features to access exclusive content and additional benefits.',

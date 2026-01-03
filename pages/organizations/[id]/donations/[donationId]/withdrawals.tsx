@@ -49,6 +49,8 @@ const WithdrawalsPage: React.FC = () => {
   const [memberRole, setMemberRole] = useState<string | null>(null)
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([])
   const [withdrawalsLoading, setWithdrawalsLoading] = useState(false)
+  const [availableBalance, setAvailableBalance] = useState(0)
+  const [totalPendingAmount, setTotalPendingAmount] = useState(0)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [requestingWithdrawal, setRequestingWithdrawal] = useState(false)
   const [withdrawalForm, setWithdrawalForm] = useState({
@@ -106,6 +108,8 @@ const WithdrawalsPage: React.FC = () => {
     const withdrawalsRes = await getWithdrawalRequests(id as string, donationId as string, 0, 20)
     if (withdrawalsRes.ok) {
       setWithdrawals(withdrawalsRes.body.data.content || [])
+      setAvailableBalance(withdrawalsRes.body.data.available_balance || 0)
+      setTotalPendingAmount(withdrawalsRes.body.data.total_pending_amount || 0)
     }
     setWithdrawalsLoading(false)
   }
@@ -119,7 +123,7 @@ const WithdrawalsPage: React.FC = () => {
       return
     }
 
-    if (amount > (campaign.current_amount || 0)) {
+    if (amount > availableBalance) {
       alert(t('insufficient_balance'))
       return
     }
@@ -199,10 +203,26 @@ const WithdrawalsPage: React.FC = () => {
         {/* Campaign Balance Summary */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-xl font-semibold mb-4">{t('campaign_balance')}</h2>
-          <div className="text-2xl font-bold text-green-600 mb-2">
-            Rp {formatNumber(campaign.current_amount || 0)}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">{t('total_balance')}</p>
+              <div className="text-xl font-bold text-blue-600">
+                Rp {formatNumber(campaign.current_amount || 0)}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">{t('pending_withdrawals')}</p>
+              <div className="text-xl font-bold text-orange-600">
+                Rp {formatNumber(totalPendingAmount)}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">{t('available_for_withdrawal')}</p>
+              <div className="text-xl font-bold text-green-600">
+                Rp {formatNumber(availableBalance)}
+              </div>
+            </div>
           </div>
-          <p className="text-gray-600">{t('available_for_withdrawal')}</p>
         </div>
 
         {/* Create Withdrawal Request Form */}
