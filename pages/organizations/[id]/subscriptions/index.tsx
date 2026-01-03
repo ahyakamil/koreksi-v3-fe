@@ -89,23 +89,6 @@ const SubscriptionsPage: React.FC = () => {
     }
   }
 
-  const handleWithdrawalRequest = async (withdrawalRequestId: string, action: 'approve' | 'reject') => {
-    if (!organization) return
-    const confirmMessage = action === 'approve'
-      ? 'Are you sure you want to approve this withdrawal request? This will cancel the subscription.'
-      : 'Are you sure you want to reject this withdrawal request?'
-    if (!confirm(confirmMessage)) return
-
-    const res = await handleSubscriptionWithdrawalRequest(organization.id, withdrawalRequestId, action)
-    if (res.ok) {
-      setWithdrawalRequests(withdrawalRequests.map(wr =>
-        wr.id === withdrawalRequestId ? { ...wr, status: action === 'approve' ? 'approved' : 'rejected' } : wr
-      ))
-    } else {
-      alert(res.body.message || `Failed to ${action} withdrawal request`)
-    }
-  }
-
   const handleCreateWithdrawalRequest = async () => {
     if (!organization) return
 
@@ -377,25 +360,6 @@ const SubscriptionsPage: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    {request.status === 'pending' && (
-                      <div className="flex gap-2 self-start sm:self-auto">
-                        <button
-                          onClick={() => handleWithdrawalRequest(request.id, 'approve')}
-                          className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-sm flex items-center justify-center min-w-[80px]"
-                          disabled={request.amount < 50000}
-                        >
-                          <Check className="w-4 h-4 mr-1" />
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleWithdrawalRequest(request.id, 'reject')}
-                          className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 text-sm flex items-center justify-center min-w-[80px]"
-                        >
-                          <X className="w-4 h-4 mr-1" />
-                          Reject
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))
