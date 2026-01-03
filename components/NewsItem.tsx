@@ -231,7 +231,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
 
         {/* Action Buttons */}
         <div className="px-4 py-2 flex items-center justify-around gap-2">
-          {!isDetail && shouldTruncate && (
+          {!isDetail && shouldTruncate && news.can_access !== false && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-lg flex-1 justify-center text-gray-600"
@@ -239,6 +239,13 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
               <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
               <span className="hidden md:inline">{isExpanded ? t('hide') : t('show_all')}</span>
             </button>
+          )}
+          {!isDetail && shouldTruncate && news.can_access === false && (
+            <Link href={`/organizations/${news.organization_id}`}>
+              <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg flex-1 justify-center hover:bg-blue-700">
+                <span className="hidden md:inline">{t('subscribe')}</span>
+              </button>
+            </Link>
           )}
           <button
             onClick={() => setShowComments(!showComments)}
