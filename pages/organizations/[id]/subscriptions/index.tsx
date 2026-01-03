@@ -242,7 +242,7 @@ const SubscriptionsPage: React.FC = () => {
                         <span>Plan: {subscription.plan}</span>
                       </div>
                     </div>
-                    {subscription.status === 'active' && (
+                    {subscription.status === 'pending' && (
                       <div className="flex gap-2 self-start sm:self-auto">
                         <button
                           onClick={() => handleCancelSubscription(subscription.id)}
