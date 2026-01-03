@@ -478,7 +478,7 @@ export async function handleSubscriptionWithdrawalRequest(organizationId: string
 }
 
 export async function adminCreateWithdrawalRequest(organizationId: string, data: { amount: number; bank_name: string; account_number: string; account_holder_name: string }) {
-  const res = await apiFetch(`/organizations/${organizationId}/admin-create-withdrawal-request`, {
+  const res = await apiFetch(`/organizations/${organizationId}/subscription-withdrawal-requests`, {
     method: 'POST',
     body: JSON.stringify(data)
   })
