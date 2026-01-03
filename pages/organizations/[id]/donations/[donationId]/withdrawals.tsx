@@ -9,6 +9,16 @@ import { formatCurrency, formatNumber } from '../../../../../utils/format'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
 
+interface WithdrawalDetail {
+  id: number
+  fee_type: string
+  requested_amount: number
+  fee_amount: number
+  received_amount: number
+  created_at: string
+  updated_at: string
+}
+
 interface WithdrawalRequest {
   id: number
   amount: number
@@ -29,6 +39,7 @@ interface WithdrawalRequest {
     name: string
     email: string
   }
+  withdrawal_details: WithdrawalDetail[]
 }
 
 const WithdrawalsPage: React.FC = () => {
@@ -318,6 +329,27 @@ const WithdrawalsPage: React.FC = () => {
                   {withdrawal.approved_at && withdrawal.approver && (
                     <div className="mt-2 text-sm text-gray-600">
                       <p>{t('approved_by')}: {withdrawal.approver.name} ({t('on')} {new Date(withdrawal.approved_at).toLocaleDateString()})</p>
+                    </div>
+                  )}
+                  {withdrawal.withdrawal_details && withdrawal.withdrawal_details.length > 0 && (
+                    <div className="mt-4 border-t pt-4">
+                      <h4 className="font-semibold text-sm mb-2">{t('withdrawal_details')}</h4>
+                      <div className="space-y-2">
+                        {withdrawal.withdrawal_details.map((detail) => (
+                          <div key={detail.id} className="bg-gray-50 p-3 rounded text-sm">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p><strong>{t('fee_type')}:</strong> {detail.fee_type}</p>
+                                <p><strong>{t('requested_amount')}:</strong> {formatCurrency(detail.requested_amount)}</p>
+                              </div>
+                              <div>
+                                <p><strong>{t('fee_amount')}:</strong> {formatCurrency(detail.fee_amount)}</p>
+                                <p><strong>{t('received_amount')}:</strong> {formatCurrency(detail.received_amount)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

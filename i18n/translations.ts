@@ -276,6 +276,11 @@ type TranslationKeys = {
   no_withdrawal_requests: string
   withdrawal_management: string
   manage_withdrawals: string
+  withdrawal_details: string
+  fee_type: string
+  requested_amount: string
+  fee_amount: string
+  received_amount: string
   // Premium subscription translations
   premium_subscription: string
   unlock_premium_features: string
@@ -585,6 +590,11 @@ const translations: Translations = {
     no_withdrawal_requests: 'Belum ada permintaan penarikan.',
     withdrawal_management: 'Manajemen Penarikan',
     manage_withdrawals: 'Kelola Penarikan',
+    withdrawal_details: 'Detail Penarikan',
+    fee_type: 'Jenis Biaya',
+    requested_amount: 'Jumlah Diminta',
+    fee_amount: 'Jumlah Biaya',
+    received_amount: 'Jumlah Diterima',
     // Premium subscription translations
     premium_subscription: 'Langganan Premium',
     unlock_premium_features: 'Buka fitur premium untuk mengakses konten eksklusif dan manfaat tambahan.',
@@ -887,6 +897,11 @@ const translations: Translations = {
     no_withdrawal_requests: 'No withdrawal requests yet.',
     withdrawal_management: 'Withdrawal Management',
     manage_withdrawals: 'Manage Withdrawals',
+    withdrawal_details: 'Withdrawal Details',
+    fee_type: 'Fee Type',
+    requested_amount: 'Requested Amount',
+    fee_amount: 'Fee Amount',
+    received_amount: 'Received Amount',
     // Premium subscription translations
     premium_subscription: 'Premium Subscription',
     unlock_premium_features: 'Unlock premium features to access exclusive content and additional benefits.',

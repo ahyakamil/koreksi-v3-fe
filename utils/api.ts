@@ -417,7 +417,7 @@ export async function requestWithdrawal(organizationId: string, campaignId: stri
 
 export async function getWithdrawalRequests(organizationId: string, campaignId: string, page: number = 0, size: number = 10) {
   const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
-  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/withdrawal-requests?${params}`)
+  const res = await apiFetch(`/organizations/${organizationId}/donations/${campaignId}/withdrawals?${params}`)
   return res
 }
 
