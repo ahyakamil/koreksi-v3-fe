@@ -486,6 +486,12 @@ const OrganizationDetailsPage: React.FC = () => {
                       {t('plan')}: {pendingSubscription.plan} • {t('processing_payment')}
                     </p>
                   </div>
+                  <button
+                    onClick={() => handleCancelSubscription(pendingSubscription.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
+                  >
+                    {t('cancel_subscription')}
+                  </button>
                 </div>
               </div>
             ) : (
