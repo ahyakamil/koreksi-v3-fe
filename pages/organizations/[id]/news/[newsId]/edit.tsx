@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../../types'
-import { getOrganization, getSpaces, getSingleNews, updateNews, uploadImage } from '../../../../../utils/api'
+import { getOrganization, getSpaces, getSingleNews, updateNews, uploadImage, checkOrganizationMembership } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
 import RichTextEditor from '../../../../../components/RichTextEditor'
 import ImageUpload from '../../../../../components/ImageUpload'
@@ -21,6 +21,7 @@ const EditNewsPage: React.FC = () => {
     status: 'draft' as 'draft' | 'need_review' | 'published'
   })
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
   const { user } = useAuth()
   const router = useRouter()
   const { id, newsId } = router.query
@@ -33,6 +34,7 @@ const EditNewsPage: React.FC = () => {
 
   const fetchData = async () => {
     if (!id || !newsId) return
+    setUserRole(null)
     try {
       const [orgRes, spacesRes, newsRes] = await Promise.all([
         getOrganization(id as string),
@@ -58,6 +60,15 @@ const EditNewsPage: React.FC = () => {
       console.error('Failed to fetch data:', error)
     }
     setLoading(false)
+    await fetchCurrentUserRole()
+  }
+
+  const fetchCurrentUserRole = async () => {
+    if (!id) return
+    const res = await checkOrganizationMembership(id as string)
+    if (res.ok) {
+      setUserRole(res.body.data.role)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -105,7 +116,7 @@ const EditNewsPage: React.FC = () => {
   }
 
   const getCurrentUserRole = () => {
-    return organization?.users?.find(u => u.id === user?.id)?.pivot?.role
+    return userRole
   }
 
   const canEditNews = () => {

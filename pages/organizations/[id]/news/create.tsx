@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Space } from '../../../../types'
-import { getOrganization, getSpaces, createNews, uploadImage, createSpace, pingWebSubHub } from '../../../../utils/api'
+import { getOrganization, getSpaces, createNews, uploadImage, createSpace, pingWebSubHub, checkOrganizationMembership } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 import RichTextEditor from '../../../../components/RichTextEditor'
@@ -24,6 +24,7 @@ const CreateNewsPage: React.FC = () => {
     status: 'draft' as 'draft' | 'need_review'
   })
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
   const { user } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
@@ -37,6 +38,7 @@ const CreateNewsPage: React.FC = () => {
 
   const fetchData = async () => {
     if (!id) return
+    setUserRole(null)
     try {
       const [orgRes, spacesRes] = await Promise.all([
         getOrganization(id as string),
@@ -49,6 +51,15 @@ const CreateNewsPage: React.FC = () => {
       console.error('Failed to fetch data:', error)
     }
     setLoading(false)
+    await fetchCurrentUserRole()
+  }
+
+  const fetchCurrentUserRole = async () => {
+    if (!id) return
+    const res = await checkOrganizationMembership(id as string)
+    if (res.ok) {
+      setUserRole(res.body.data.role)
+    }
   }
 
   const handleCreateSpace = async (data: { name: string; description?: string; image?: string }) => {
@@ -107,7 +118,7 @@ const CreateNewsPage: React.FC = () => {
   }
 
   const getCurrentUserRole = () => {
-    return organization?.users?.find(u => u.id === user?.id)?.pivot?.role
+    return userRole
   }
 
   if (loading) return <div>{t('loading')}</div>
