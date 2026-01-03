@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { X, Check, Clock, User, DollarSign, Calendar, CreditCard, Receipt } from 'lucide-react'
 import { Subscription, SubscriptionWithdrawalRequest, Organization } from '../../../../types'
-import { getOrganization, getOrganizationSubscriptions, getOrganizationSubscriptionWithdrawalRequests, adminCancelSubscription, handleSubscriptionWithdrawalRequest, adminCreateWithdrawalRequest } from '../../../../utils/api'
+import { getOrganization, getOrganizationSubscriptions, getOrganizationSubscriptionWithdrawalRequests, adminCancelSubscription, handleSubscriptionWithdrawalRequest, adminCreateWithdrawalRequest, getOrganizationCurrentAmount } from '../../../../utils/api'
 import { formatNumber } from '../../../../utils/format'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
@@ -12,6 +12,7 @@ const SubscriptionsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [withdrawalRequests, setWithdrawalRequests] = useState<SubscriptionWithdrawalRequest[]>([])
+  const [currentAmount, setCurrentAmount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [memberRole, setMemberRole] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('subscriptions')
@@ -57,6 +58,12 @@ const SubscriptionsPage: React.FC = () => {
     const subsRes = await getOrganizationSubscriptions(id as string)
     if (subsRes.ok) {
       setSubscriptions(subsRes.body.data.content)
+    }
+
+    // Fetch current amount
+    const amountRes = await getOrganizationCurrentAmount(id as string)
+    if (amountRes.ok) {
+      setCurrentAmount(amountRes.body.data.current_amount || 0)
     }
 
     // Fetch withdrawal requests
@@ -145,6 +152,14 @@ const SubscriptionsPage: React.FC = () => {
           {t('back_to_organization')}
         </button>
         <h1 className="text-2xl sm:text-3xl font-bold">Manage Subscriptions - {organization.title}</h1>
+      </div>
+
+      {/* Current Amount */}
+      <div className="bg-blue-50 p-4 rounded-lg mb-6">
+        <div className="flex items-center">
+          <DollarSign className="w-5 h-5 text-blue-600 mr-2" />
+          <span className="text-lg font-semibold text-blue-800">Current Amount: Rp {formatNumber(currentAmount)}</span>
+        </div>
       </div>
 
       {/* Tabs */}

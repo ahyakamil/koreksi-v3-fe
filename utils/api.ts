@@ -456,6 +456,11 @@ export async function getOrganizationSubscriptions(organizationId: string, page:
   return res
 }
 
+export async function getOrganizationCurrentAmount(organizationId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/subscription-current-amount`)
+  return res
+}
+
 export async function getOrganizationSubscriptionWithdrawalRequests(organizationId: string, page: number = 0, size: number = 10) {
   const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
   const res = await apiFetch(`/organizations/${organizationId}/subscription-withdrawal-requests?${params}`)
