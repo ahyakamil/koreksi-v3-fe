@@ -147,6 +147,12 @@ export async function searchUsers(query: string) {
 }
 
 // Space API functions
+export async function getAllSpaces(page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/spaces?${params}`)
+  return res
+}
+
 export async function getSpaces(organizationId: string, page: number = 0, size: number = 10) {
   const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
   const res = await apiFetch(`/organizations/${organizationId}/spaces?${params}`)

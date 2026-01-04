@@ -96,6 +96,7 @@ export interface Space {
   description?: string
   image?: string
   created_at: string
+  organization?: Organization
 }
 
 export interface News {
