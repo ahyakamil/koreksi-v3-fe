@@ -1,18 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
+import { Share2 } from 'lucide-react'
 import { Organization, Space, News } from '../../../../types'
 import { getOrganization, getSpace, getSpaceNews, checkOrganizationMembership, joinOrganization } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 import NewsItem from '../../../../components/NewsItem'
 
-const SpaceDetailPage: React.FC = () => {
-  const [organization, setOrganization] = useState<Organization | null>(null)
-  const [space, setSpace] = useState<Space | null>(null)
+interface SpaceDetailPageProps {
+  organization: Organization | null
+  space: Space | null
+}
+
+const SpaceDetailPage: React.FC<SpaceDetailPageProps> = ({ organization: initialOrganization, space: initialSpace }) => {
+  const [organization, setOrganization] = useState<Organization | null>(initialOrganization)
+  const [space, setSpace] = useState<Space | null>(initialSpace)
   const [news, setNews] = useState<News[]>([])
   const [pageable, setPageable] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!initialOrganization || !initialSpace)
   const [loadingMore, setLoadingMore] = useState(false)
   const [isMember, setIsMember] = useState<boolean | null>(null)
   const [joining, setJoining] = useState(false)
@@ -24,10 +31,10 @@ const SpaceDetailPage: React.FC = () => {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (id && spaceId && user) {
+    if (id && spaceId && user && (!organization || !space)) {
       fetchData()
     }
-  }, [id, spaceId, user])
+  }, [id, spaceId, user, organization, space])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -128,20 +135,63 @@ const SpaceDetailPage: React.FC = () => {
   if (loading) return <div>{t('loading')}</div>
   if (!organization || !space) return <div>{t('not_found')}</div>
 
+  const handleShare = () => {
+    const url = window.location.href
+    const title = `${space.name} - ${organization?.title}`
+    if (navigator.share) {
+      navigator.share({
+        title,
+        url
+      }).catch(() => {
+      })
+    }
+  }
+
+  const ogImage = space?.image || '/icon-512x512.png'
+  const ogTitle = `${space?.name || 'Space'} - ${organization?.title || 'Koreksi.org'}`
+  const ogDescription = space?.description || `Explore content in ${space?.name} space on Koreksi.org`
+  const ogUrl = `https://koreksi.org/organizations/${id}/spaces/${spaceId}`
+
   return (
-    <div>
-      <div className="mb-8">
-        <Link href={`/organizations/${id}`}>
-          <h1 className="text-3xl font-bold text-blue-600 hover:text-blue-800 cursor-pointer">{organization?.title}</h1>
-        </Link>
-        <h2 className="text-2xl font-semibold mt-2">{space.name}</h2>
-        {space.description && (
-          <p className="text-gray-600 mt-2">{space.description}</p>
-        )}
-        {space.image && (
-          <img src={space.image} alt={space.name} className="w-full h-48 object-contain rounded-lg mt-4" />
-        )}
-      </div>
+    <>
+      <Head>
+        <title>{ogTitle}</title>
+        <meta name="description" content={ogDescription} />
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
+        <meta property="og:url" content={ogUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Koreksi.org" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={ogTitle} />
+        <meta name="twitter:description" content={ogDescription} />
+        <meta name="twitter:image" content={ogImage} />
+      </Head>
+      <div>
+        <div className="mb-8">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <Link href={`/organizations/${id}`}>
+                <h1 className="text-3xl font-bold text-blue-600 hover:text-blue-800 cursor-pointer">{organization?.title}</h1>
+              </Link>
+              <h2 className="text-2xl font-semibold mt-2">{space.name}</h2>
+              {space.description && (
+                <p className="text-gray-600 mt-2">{space.description}</p>
+              )}
+            </div>
+            <button
+              onClick={handleShare}
+              className="ml-4 p-2 hover:bg-gray-100 rounded-lg"
+              title="Share"
+            >
+              <Share2 className="w-6 h-6" />
+            </button>
+          </div>
+          {space.image && (
+            <img src={space.image} alt={space.name} className="w-full h-48 object-contain rounded-lg mt-4" />
+          )}
+        </div>
 
       {isMember === false ? (
         <div className="mb-8">
@@ -194,7 +244,36 @@ const SpaceDetailPage: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   )
+}
+
+export async function getServerSideProps(context: any) {
+  const { id, spaceId } = context.params
+
+  try {
+    // Fetch organization (public)
+    const orgRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/organizations/${id}`)
+    const orgData = orgRes.ok ? await orgRes.json() : null
+
+    // Fetch space (public)
+    const spaceRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/organizations/${id}/spaces/${spaceId}`)
+    const spaceData = spaceRes.ok ? await spaceRes.json() : null
+
+    return {
+      props: {
+        organization: orgData?.data?.organization || null,
+        space: spaceData?.data?.space || null,
+      },
+    }
+  } catch (error) {
+    return {
+      props: {
+        organization: null,
+        space: null,
+      },
+    }
+  }
 }
 
 export default SpaceDetailPage
