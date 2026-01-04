@@ -36,7 +36,7 @@ ${news.map(item => `
 <title><![CDATA[${decodeHtmlEntities(item.title)}]]></title>
 <link>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${encodeURIComponent(item.public_id)}</link>
 <guid>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/news/${encodeURIComponent(item.public_id)}</guid>
-<description><![CDATA[${stripHtml(decodeHtmlEntities(item.content))}]]></description>
+<description><![CDATA[${trimDescription(stripHtml(decodeHtmlEntities(item.content)))}]]></description>
 <pubDate>${new Date(item.published_at).toUTCString()}</pubDate>
 ${item.user ? `<author><![CDATA[${item.user.name}]]></author>` : ''}
 </item>
@@ -87,4 +87,9 @@ function decodeHtmlEntities(text: string): string {
     '&#x3D;': '='
   };
   return text.replace(/&[a-zA-Z0-9#]+;/g, (entity) => entities[entity] || entity);
+}
+
+function trimDescription(text: string, maxLength: number = 300): string {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength).trim() + '...';
 }
