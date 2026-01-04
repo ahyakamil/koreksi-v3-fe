@@ -31,10 +31,10 @@ const SpaceDetailPage: React.FC<SpaceDetailPageProps> = ({ organization: initial
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (id && spaceId && user && (!organization || !space)) {
+    if (id && spaceId && user) {
       fetchData()
     }
-  }, [id, spaceId, user, organization, space])
+  }, [id, spaceId, user])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
