@@ -253,11 +253,11 @@ export async function getServerSideProps(context: any) {
 
   try {
     // Fetch organization (public)
-    const orgRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/organizations/${id}`)
+    const orgRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/organizations/${id}/public`)
     const orgData = orgRes.ok ? await orgRes.json() : null
 
     // Fetch space (public)
-    const spaceRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/organizations/${id}/spaces/${spaceId}`)
+    const spaceRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/organizations/${id}/spaces/${spaceId}/public`)
     const spaceData = spaceRes.ok ? await spaceRes.json() : null
 
     return {
