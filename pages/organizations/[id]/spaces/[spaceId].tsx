@@ -250,14 +250,15 @@ const SpaceDetailPage: React.FC<SpaceDetailPageProps> = ({ organization: initial
 
 export async function getServerSideProps(context: any) {
   const { id, spaceId } = context.params
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
   try {
     // Fetch organization (public)
-    const orgRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/organizations/${id}/public`)
+    const orgRes = await fetch(`${API_BASE}/organizations/${id}/public`)
     const orgData = orgRes.ok ? await orgRes.json() : null
 
     // Fetch space (public)
-    const spaceRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/organizations/${id}/spaces/${spaceId}/public`)
+    const spaceRes = await fetch(`${API_BASE}/organizations/${id}/spaces/${spaceId}/public`)
     const spaceData = spaceRes.ok ? await spaceRes.json() : null
 
     return {
