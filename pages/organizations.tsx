@@ -17,9 +17,16 @@ const OrganizationsPage: React.FC = () => {
   const [myPageable, setMyPageable] = useState<Pageable | null>(null)
   const [worldPageable, setWorldPageable] = useState<Pageable | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [deletedOrgIds, setDeletedOrgIds] = useState<Set<string>>(new Set())
   const { user, loading: authLoading } = useAuth()
   const { t } = useLocale()
   const router = useRouter()
+
+  const showSuccessMessage = (message: string) => {
+    setSuccessMessage(message)
+    setTimeout(() => setSuccessMessage(null), 3000) // Hide after 3 seconds
+  }
 
   useEffect(() => {
     if (authLoading) return
@@ -50,6 +57,15 @@ const OrganizationsPage: React.FC = () => {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [myPageable, worldPageable, loadingMore, activeTab])
+
+  // Reload data when switching tabs
+  useEffect(() => {
+    if (activeTab === 'my') {
+      fetchOrganizations(0)
+    } else {
+      fetchPublicOrganizations(0)
+    }
+  }, [activeTab])
 
   const fetchOrganizations = async (pageToLoad = 0) => {
     if (pageToLoad > 0) { setLoadingMore(true) }
@@ -107,7 +123,9 @@ const OrganizationsPage: React.FC = () => {
     if (!confirm(t('are_you_sure_delete_organization'))) return
     const res = await deleteOrganization(id)
     if (res.ok) {
-      setOrganizations(organizations.filter(org => org.id !== id))
+      // Hide the card immediately
+      setDeletedOrgIds(prev => new Set(prev).add(id))
+      showSuccessMessage('Organization deleted successfully!')
     } else {
       alert(res.body.message || t('failed_to_delete_organization'))
     }
@@ -116,11 +134,12 @@ const OrganizationsPage: React.FC = () => {
   const handleJoin = async (id: string) => {
     const res = await joinOrganization(id)
     if (res.ok) {
-      await fetchOrganizations()
-      // Update public organizations to reflect the join
+      // Update public organizations immediately to show Leave button
       setPublicOrganizations(publicOrganizations.map(org =>
-        org.id === id ? { ...org, users: [...(org.users || []), { id: user!.id, name: user!.name, email: user!.email, pivot: { role: 'user' } }] } : org
+        org.id === id ? { ...org, my_role: 'user' } : org
       ))
+      await fetchOrganizations() // Refresh personal organizations
+      showSuccessMessage('Successfully joined the organization!')
     } else {
       alert(res.body.message || t('failed_to_join_organization'))
     }
@@ -129,11 +148,12 @@ const OrganizationsPage: React.FC = () => {
   const handleLeave = async (id: string) => {
     const res = await leaveOrganization(id)
     if (res.ok) {
-      await fetchOrganizations()
-      // Update public organizations to reflect the leave
+      // Update public organizations immediately to show Join button
       setPublicOrganizations(publicOrganizations.map(org =>
-        org.id === id ? { ...org, users: (org.users || []).filter(u => u.id !== user!.id) } : org
+        org.id === id ? { ...org, my_role: null } : org
       ))
+      await fetchOrganizations() // Refresh personal organizations
+      showSuccessMessage('Successfully left the organization!')
     } else {
       alert(res.body.message || t('failed_to_leave_organization'))
     }
@@ -148,11 +168,17 @@ const OrganizationsPage: React.FC = () => {
 
   if (loading) return <div>{t('loading')}</div>
 
-  const currentOrganizations = activeTab === 'my' ? organizations : publicOrganizations
+  const currentOrganizations = (activeTab === 'my' ? organizations : publicOrganizations)
+    .filter(org => !deletedOrgIds.has(org.id))
   const currentPageable = activeTab === 'my' ? myPageable : worldPageable
 
   return (
     <div>
+      {successMessage && (
+        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+          {successMessage}
+        </div>
+      )}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">{t('organizations')}</h1>
         {activeTab === 'my' && (
