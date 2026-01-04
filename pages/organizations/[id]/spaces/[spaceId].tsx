@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../types'
@@ -21,12 +21,28 @@ const SpaceDetailPage: React.FC = () => {
   const { t } = useLocale()
   const router = useRouter()
   const { id, spaceId } = router.query
+  const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (id && spaceId && user) {
       fetchData()
     }
   }, [id, spaceId, user])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loadingMore && pageable && pageable.pageNumber + 1 < pageable.totalPages) {
+          loadMoreNews()
+        }
+      },
+      { threshold: 1.0 }
+    )
+    if (bottomRef.current) {
+      observer.observe(bottomRef.current)
+    }
+    return () => observer.disconnect()
+  }, [loadingMore, pageable, id, spaceId])
 
   const fetchData = async () => {
     if (!id || !spaceId) return
@@ -167,17 +183,12 @@ const SpaceDetailPage: React.FC = () => {
                   <NewsItem key={item.public_id} news={item} hideOrganization={false} />
                 ))}
               </ul>
-              {pageable && pageable.pageNumber + 1 < pageable.totalPages && (
+              {loadingMore && (
                 <div className="text-center mt-4">
-                  <button
-                    onClick={loadMoreNews}
-                    disabled={loadingMore}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {loadingMore ? t('loading') : t('load_more')}
-                  </button>
+                  <p>{t('loading_more')}</p>
                 </div>
               )}
+              <div ref={bottomRef} />
             </>
           )}
         </div>
