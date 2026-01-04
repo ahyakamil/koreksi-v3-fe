@@ -97,7 +97,7 @@ const SpaceDetailPage: React.FC = () => {
   }
 
   if (!user) return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('login_required')}</h3>
         <p className="text-blue-700 mb-4">
@@ -113,7 +113,7 @@ const SpaceDetailPage: React.FC = () => {
   if (!organization || !space) return <div>{t('not_found')}</div>
 
   return (
-    <div className="container mx-auto px-4">
+    <div>
       <div className="mb-8">
         <Link href={`/organizations/${id}`}>
           <h1 className="text-3xl font-bold text-blue-600 hover:text-blue-800 cursor-pointer">{organization?.title}</h1>

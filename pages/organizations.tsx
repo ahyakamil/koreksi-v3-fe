@@ -155,13 +155,13 @@ const OrganizationsPage: React.FC = () => {
   const currentPageable = activeTab === 'my' ? myPageable : worldPageable
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">{t('organizations')}</h1>
         {activeTab === 'my' && (
           <button
             onClick={() => { setShowForm(true); setEditingOrg(null); }}
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 sm:px-4 sm:py-2"
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 sm:py-2"
             aria-label={t('create_organization')}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
