@@ -157,7 +157,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
           </Link>
           {news.page_number && (
             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-              Page {news.page_number}
+              {t('page')} {news.page_number}
             </span>
           )}
         </div>

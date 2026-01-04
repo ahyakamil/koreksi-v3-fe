@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../../types'
 import { getOrganization, getSpaces, getSingleNews, updateNews, uploadImage, checkOrganizationMembership, getSpaceMaxPageNumber } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
+import { useLocale } from '../../../../../context/LocaleContext'
 import RichTextEditor from '../../../../../components/RichTextEditor'
 import ImageUpload from '../../../../../components/ImageUpload'
 
@@ -26,6 +27,7 @@ const EditNewsPage: React.FC = () => {
   const [roleLoading, setRoleLoading] = useState(true)
   const [maxPageNumber, setMaxPageNumber] = useState<number>(0)
   const { user } = useAuth()
+  const { t } = useLocale()
   const router = useRouter()
   const { id, newsId } = router.query
 
@@ -221,7 +223,7 @@ const EditNewsPage: React.FC = () => {
             />
             {maxPageNumber > 0 && (
               <p className="text-sm text-gray-500 mt-1">
-                Latest page number used: {maxPageNumber}
+                {t('latest_page_number_used')}: {maxPageNumber}
               </p>
             )}
           </div>

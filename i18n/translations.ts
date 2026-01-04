@@ -69,6 +69,9 @@ type TranslationKeys = {
   post_not_found: string
   failed_to_load: string
   organizations: string
+  page: string
+  page_number: string
+  latest_page_number_used: string
   show_all: string
   hide: string
   back_to_organizations: string
@@ -391,6 +394,9 @@ const translations: Translations = {
     post_not_found: 'Postingan tidak ditemukan',
     failed_to_load: 'Gagal memuat',
     organizations: 'Organisasi',
+    page: 'Halaman',
+    page_number: 'Nomor Halaman',
+    latest_page_number_used: 'Nomor halaman terakhir yang digunakan',
     show_all: 'Tampilkan semua',
     hide: 'Sembunyikan',
     back_to_organizations: 'Kembali ke Organisasi',
@@ -704,6 +710,9 @@ const translations: Translations = {
     post_not_found: 'Post not found',
     failed_to_load: 'Failed to load',
     organizations: 'Organizations',
+    page: 'Page',
+    page_number: 'Page Number',
+    latest_page_number_used: 'Latest page number used',
     show_all: 'Show all',
     hide: 'Hide',
     back_to_organizations: 'Back to Organizations',

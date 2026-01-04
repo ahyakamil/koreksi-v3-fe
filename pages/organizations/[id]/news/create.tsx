@@ -213,7 +213,7 @@ const CreateNewsPage: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Page Number
+              {t('page_number')}
             </label>
             <input
               type="number"
@@ -226,7 +226,7 @@ const CreateNewsPage: React.FC = () => {
             />
             {maxPageNumber > 0 && (
               <p className="text-sm text-gray-500 mt-1">
-                Latest page number used: {maxPageNumber}
+                {t('latest_page_number_used')}: {maxPageNumber}
               </p>
             )}
           </div>
