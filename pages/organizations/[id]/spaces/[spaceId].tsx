@@ -140,23 +140,23 @@ const SpaceDetailPage: React.FC<SpaceDetailPageProps> = ({ organization: initial
         <meta name="twitter:description" content={ogDescription} />
         <meta name="twitter:image" content={ogImage} />
       </Head>
-      {!user ? (
-        <div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('login_required')}</h3>
-            <p className="text-blue-700 mb-4">
-              {t('please_login_to_view_this_page')}
-            </p>
-            <Link href="/login" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-              {t('login')}
-            </Link>
+      {(() => {
+        if (!user) return (
+          <div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('login_required')}</h3>
+              <p className="text-blue-700 mb-4">
+                {t('please_login_to_view_this_page')}
+              </p>
+              <Link href="/login" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                {t('login')}
+              </Link>
+            </div>
           </div>
-        </div>
-      ) : loading ? (
-        <div>{t('loading')}</div>
-      ) : !organization || !space ? (
-        <div>{t('not_found')}</div>
-      ) : (() => {
+        )
+        if (loading) return <div>{t('loading')}</div>
+        if (!organization || !space) return <div>{t('not_found')}</div>
+
         const handleShare = () => {
           const url = window.location.href
           const title = `${space.name} - ${organization?.title}`
@@ -168,7 +168,8 @@ const SpaceDetailPage: React.FC<SpaceDetailPageProps> = ({ organization: initial
             })
           }
         }
-      <div>
+        return (
+          <div>
         <div className="mb-8">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -244,6 +245,7 @@ const SpaceDetailPage: React.FC<SpaceDetailPageProps> = ({ organization: initial
         </div>
       )}
       </div>
+        )
       })()}
     </>
   )
