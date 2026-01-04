@@ -149,12 +149,17 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
           {formatDate(news.published_at || news.created_at)}
         </div>
 
-        <div className="mb-3 flex justify-center">
+        <div className="mb-3 flex justify-center items-center gap-2">
           <Link href={`/organizations/${news.organization_id}/spaces/${news.space_id}`}>
             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full cursor-pointer hover:bg-green-200">
               {news.space?.name || 'Space'}
             </span>
           </Link>
+          {news.page_number && (
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+              Page {news.page_number}
+            </span>
+          )}
         </div>
 
         {news.image && (

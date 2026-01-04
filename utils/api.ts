@@ -204,6 +204,11 @@ export async function getSpaceNews(organizationId: string, spaceId: string, page
   return apiFetch(`/organizations/${organizationId}/spaces/${spaceId}/news?${params}`)
 }
 
+export async function getSpaceMaxPageNumber(organizationId: string, spaceId: string) {
+  const res = await apiFetch(`/organizations/${organizationId}/spaces/${spaceId}/max-page-number`)
+  return res
+}
+
 export async function getSingleNews(organizationId: string, newsId: string) {
   const res = await apiFetch(`/organizations/${organizationId}/news/${newsId}`)
   return res

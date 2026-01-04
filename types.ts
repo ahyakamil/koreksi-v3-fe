@@ -121,6 +121,7 @@ export interface News {
   comments_count?: number
   youtube_video?: string
   can_access?: boolean
+  page_number?: number
 }
 
 export interface Message {

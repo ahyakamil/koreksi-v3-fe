@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Space, News } from '../../../../../types'
-import { getOrganization, getSpaces, getSingleNews, updateNews, uploadImage, checkOrganizationMembership } from '../../../../../utils/api'
+import { getOrganization, getSpaces, getSingleNews, updateNews, uploadImage, checkOrganizationMembership, getSpaceMaxPageNumber } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
 import RichTextEditor from '../../../../../components/RichTextEditor'
 import ImageUpload from '../../../../../components/ImageUpload'
@@ -18,11 +18,13 @@ const EditNewsPage: React.FC = () => {
     image: '',
     caption: '',
     space_id: '',
+    page_number: '',
     status: 'draft' as 'draft' | 'need_review' | 'published'
   })
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
   const [roleLoading, setRoleLoading] = useState(true)
+  const [maxPageNumber, setMaxPageNumber] = useState<number>(0)
   const { user } = useAuth()
   const router = useRouter()
   const { id, newsId } = router.query
@@ -54,8 +56,10 @@ const EditNewsPage: React.FC = () => {
           image: newsData.image || '',
           caption: newsData.caption || '',
           space_id: newsData.space_id,
+          page_number: newsData.page_number ? newsData.page_number.toString() : '',
           status: newsData.status === 'rejected' ? 'draft' : newsData.status
         })
+        fetchMaxPageNumber(newsData.space_id)
       }
     } catch (error) {
       console.error('Failed to fetch data:', error)
@@ -99,7 +103,8 @@ const EditNewsPage: React.FC = () => {
     const newsData = {
       ...formData,
       content: formData.content.replace(/&nbsp;/g, ' '),
-      image: imageUrl
+      image: imageUrl,
+      page_number: formData.page_number ? parseInt(formData.page_number) : undefined
     }
 
     const res = await updateNews(organization.id, news.public_id, newsData)
@@ -115,6 +120,18 @@ const EditNewsPage: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+
+    if (name === 'space_id' && value) {
+      fetchMaxPageNumber(value)
+    }
+  }
+
+  const fetchMaxPageNumber = async (spaceId: string) => {
+    if (!id) return
+    const res = await getSpaceMaxPageNumber(id as string, spaceId)
+    if (res.ok) {
+      setMaxPageNumber(res.body.data.max_page_number)
+    }
   }
 
   const getCurrentUserRole = () => {
@@ -187,6 +204,26 @@ const EditNewsPage: React.FC = () => {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Page Number
+            </label>
+            <input
+              type="number"
+              name="page_number"
+              value={formData.page_number}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Optional page number for ordering"
+              min="1"
+            />
+            {maxPageNumber > 0 && (
+              <p className="text-sm text-gray-500 mt-1">
+                Latest page number used: {maxPageNumber}
+              </p>
+            )}
           </div>
 
           <ImageUpload
