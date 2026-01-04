@@ -9,7 +9,6 @@ interface OrganizationItemProps {
   onJoin?: (id: string) => void
   onLeave?: (id: string) => void
   onUpdate?: (org: Organization) => void
-  currentUserRole?: string
 }
 
 const OrganizationItem: React.FC<OrganizationItemProps> = ({
@@ -18,11 +17,11 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
   onDelete,
   onJoin,
   onLeave,
-  onUpdate,
-  currentUserRole
+  onUpdate
 }) => {
   const router = useRouter()
-  const isMember = !!currentUserRole
+  const myRole = organization.my_role
+  const isMember = !!myRole
 
   const handleCardClick = () => {
     router.push(`/organizations/${organization.id}`)
@@ -57,7 +56,7 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
       </div>
 
       <div className="flex gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
-        {currentUserRole === 'admin' && (
+        {myRole === 'admin' && (
           <>
             <button
               onClick={() => onEdit?.(organization)}
@@ -81,18 +80,13 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
             Join
           </button>
         )}
-        {isMember && currentUserRole !== 'admin' && (
+        {isMember && myRole !== 'admin' && (
           <button
             onClick={() => onLeave?.(organization.id)}
             className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
           >
             Leave
           </button>
-        )}
-        {currentUserRole && (
-          <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
-            Role: {currentUserRole}
-          </span>
         )}
       </div>
     </div>

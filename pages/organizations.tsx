@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization, Pageable } from '../types'
-import { getOrganizations, getPublicOrganizations, createOrganization, updateOrganization, deleteOrganization, joinOrganization, leaveOrganization } from '../utils/api'
+import { getOrganizations, getAllOrganizations, createOrganization, updateOrganization, deleteOrganization, joinOrganization, leaveOrganization } from '../utils/api'
 import OrganizationItem from '../components/OrganizationItem'
 import OrganizationForm from '../components/OrganizationForm'
 import { useAuth } from '../context/AuthContext'
@@ -68,7 +68,7 @@ const OrganizationsPage: React.FC = () => {
 
   const fetchPublicOrganizations = async (pageToLoad = 0) => {
     if (pageToLoad > 0) { setLoadingMore(true) }
-    const res = await getPublicOrganizations(pageToLoad, 10)
+    const res = await getAllOrganizations(pageToLoad, 10)
     if (res.ok && res.body.data.content) {
       if (pageToLoad === 0) {
         setPublicOrganizations(res.body.data.content)
@@ -139,9 +139,6 @@ const OrganizationsPage: React.FC = () => {
     }
   }
 
-  const getCurrentUserRole = (org: Organization) => {
-    return org.users?.find(u => u.id === user?.id)?.pivot?.role
-  }
 
   const handleUpdateOrg = (updatedOrg: Organization) => {
     setOrganizations(organizations.map(org =>
@@ -220,7 +217,6 @@ const OrganizationsPage: React.FC = () => {
               onJoin={handleJoin}
               onLeave={handleLeave}
               onUpdate={handleUpdateOrg}
-              currentUserRole={getCurrentUserRole(org)}
             />
           ))
         )}

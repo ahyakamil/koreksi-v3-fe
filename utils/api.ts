@@ -56,8 +56,8 @@ export async function getOrganizations(page: number = 0, size: number = 10) {
   return res
 }
 
-export async function getPublicOrganizations(page: number = 0, size: number = 10) {
-  const res = await apiFetch(`/organizations/public?page=${page}&size=${size}`)
+export async function getAllOrganizations(page: number = 0, size: number = 10) {
+  const res = await apiFetch(`/organizations/all?page=${page}&size=${size}`)
   return res
 }
 

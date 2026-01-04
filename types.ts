@@ -78,6 +78,7 @@ export interface Organization {
   daily_price?: number
   weekly_price?: number
   monthly_price?: number
+  my_role?: string | null
 }
 
 export interface OrganizationUser {

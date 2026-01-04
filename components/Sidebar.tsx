@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Home, TrendingUp, Users, Bookmark, Clock, Settings } from 'lucide-react';
-import { getPublicOrganizations, getTrendingNews } from '../utils/api';
+import { getAllOrganizations, getTrendingNews } from '../utils/api';
 import { Organization, News } from '../types';
 
 export function Sidebar() {
@@ -23,7 +23,7 @@ export function Sidebar() {
     const fetchData = async () => {
       try {
         // Fetch organizations
-        const orgRes = await getPublicOrganizations(0, 5);
+        const orgRes = await getAllOrganizations(0, 5);
         if (orgRes.ok && orgRes.body?.data?.content) {
           setOrganizations(orgRes.body.data.content);
         }
