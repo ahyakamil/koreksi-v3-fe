@@ -51,7 +51,7 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
             )}
           </div>
           <div className="text-sm text-gray-500">
-            Members: {organization.users?.length || 0}
+            Members: {organization.users_count ?? organization.users?.length ?? 0}
           </div>
         </div>
       </div>
