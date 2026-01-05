@@ -218,7 +218,7 @@ export default function SearchPage() {
                 <div key={news.public_id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
                   <Link href={`/news/${news.public_id}`} className="block">
                     <h4 className="font-medium text-gray-900 mb-1">{news.title}</h4>
-                    <p className="text-sm text-gray-600 line-clamp-2">{news.content?.substring(0, 150)}...</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{news.content?.replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
                     <div className="text-xs text-gray-500 mt-2">{news.organization?.title}</div>
                   </Link>
                 </div>
@@ -291,8 +291,7 @@ export default function SearchPage() {
   };
 
   return (
-    <Layout>
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div>
         <div className="mb-8">
           <div className="flex gap-4 mb-6">
             <div className="flex-1 relative">
@@ -352,6 +351,5 @@ export default function SearchPage() {
           </>
         )}
       </div>
-    </Layout>
   );
 }
