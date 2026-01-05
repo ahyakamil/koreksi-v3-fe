@@ -20,7 +20,7 @@ function getCookie(name: string): string | null {
   return null
 }
 
-function setCookie(name: string, value: string, days: number = 7) {
+function setCookie(name: string, value: string, days: number = 365) {
   if (typeof document === 'undefined') return
   const expires = new Date()
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000)
