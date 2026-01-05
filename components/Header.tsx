@@ -478,7 +478,13 @@ export function Header() {
                   {isAvatarDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                       <div className="px-4 py-3 border-b border-gray-200">
-                        <p className="text-sm font-medium text-gray-900 break-all">{user.name}</p>
+                        {user.username ? (
+                          <Link href={`/${user.username}`} className="text-sm font-medium text-gray-900 break-all hover:text-blue-600">
+                            {user.name}
+                          </Link>
+                        ) : (
+                          <p className="text-sm font-medium text-gray-900 break-all">{user.name}</p>
+                        )}
                         <p className="text-sm text-gray-500 break-all">{user.email}</p>
                       </div>
                       <div className="py-1">
