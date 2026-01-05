@@ -1,19 +1,26 @@
-import { useState } from 'react'
-import Router from 'next/router'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 import { updatePassword } from '../utils/api'
 import { Layout } from '../components/Layout'
 
 export default function Settings() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const { t } = useLocale()
+  const router = useRouter()
   const [currentPassword, setCurrentPassword] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -37,9 +44,14 @@ export default function Settings() {
     setSubmitting(false)
   }
 
-  if (!user) {
-    Router.push('/login')
-    return null
+  if (loading || !user) {
+    return (
+      <Layout showSidebar={false} showRightSidebar={false}>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-gray-500">{t('loading')}</div>
+        </div>
+      </Layout>
+    )
   }
 
   return (
