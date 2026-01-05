@@ -485,7 +485,6 @@ export function Header() {
                         ) : (
                           <p className="text-sm font-medium text-gray-900 break-all">{user.name}</p>
                         )}
-                        <p className="text-sm text-gray-500 break-all">{user.email}</p>
                       </div>
                       <div className="py-1">
                         <button

@@ -2,7 +2,6 @@ export interface User {
   id: string
   name: string
   username: string
-  email: string
   username_changed_at?: string
 }
 
@@ -86,7 +85,6 @@ export interface Organization {
 export interface OrganizationUser {
   id: string
   name: string
-  email: string
   pivot: {
     role: 'admin' | 'editor' | 'author' | 'user'
   }
