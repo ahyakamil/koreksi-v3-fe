@@ -86,6 +86,11 @@ type TranslationKeys = {
   passwords_do_not_match: string
   failed_to_update_profile: string
   failed_to_update_password: string
+  manage_your_organizations: string
+  discover_organizations_worldwide: string
+  get_started_create_first_organization: string
+  no_organizations_available: string
+  members_count: string
   page_number: string
   latest_page_number_used: string
   show_all: string
@@ -364,6 +369,11 @@ const translations: Translations = {
     passwords_do_not_match: 'Kata sandi tidak cocok',
     failed_to_update_profile: 'Gagal memperbarui profil',
     failed_to_update_password: 'Gagal memperbarui kata sandi',
+    manage_your_organizations: 'Kelola organisasi Anda',
+    discover_organizations_worldwide: 'Temukan organisasi di seluruh dunia',
+    get_started_create_first_organization: 'Mulai dengan membuat organisasi pertama Anda.',
+    no_organizations_available: 'Tidak ada organisasi tersedia saat ini.',
+    members_count: '{count} anggota',
     login: 'Masuk',
     register: 'Daftar',
     logout: 'Keluar',
@@ -696,6 +706,11 @@ const translations: Translations = {
     passwords_do_not_match: 'Passwords do not match',
     failed_to_update_profile: 'Failed to update profile',
     failed_to_update_password: 'Failed to update password',
+    manage_your_organizations: 'Manage your organizations',
+    discover_organizations_worldwide: 'Discover organizations around the world',
+    get_started_create_first_organization: 'Get started by creating your first organization.',
+    no_organizations_available: 'No organizations available at the moment.',
+    members_count: '{count} members',
     login: 'Login',
     register: 'Register',
     logout: 'Logout',

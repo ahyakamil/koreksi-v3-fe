@@ -181,7 +181,7 @@ const OrganizationsPage: React.FC = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{t('organizations')}</h1>
               <p className="mt-1 text-sm text-gray-600">
-                {activeTab === 'my' ? 'Manage your organizations' : 'Discover organizations around the world'}
+                {activeTab === 'my' ? t('manage_your_organizations') : t('discover_organizations_worldwide')}
               </p>
             </div>
             {activeTab === 'my' && (
@@ -274,7 +274,7 @@ const OrganizationsPage: React.FC = () => {
               </svg>
               <h3 className="mt-2 text-sm font-medium text-gray-900">{t('no_organizations_found')}</h3>
               <p className="mt-1 text-sm text-gray-500">
-                {activeTab === 'my' ? 'Get started by creating your first organization.' : 'No organizations available at the moment.'}
+                {activeTab === 'my' ? t('get_started_create_first_organization') : t('no_organizations_available')}
               </p>
             </div>
           ) : (

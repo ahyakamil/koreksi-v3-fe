@@ -1,6 +1,7 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import { Organization } from '../types'
+import { useLocale } from '../context/LocaleContext'
 
 interface OrganizationItemProps {
   organization: Organization
@@ -20,6 +21,7 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
   onUpdate
 }) => {
   const router = useRouter()
+  const { t } = useLocale()
   const myRole = organization.my_role
   const isMember = !!myRole
 
@@ -50,7 +52,7 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
             )}
           </div>
           <div className="text-sm text-gray-500">
-            Members: {organization.users_count ?? 0}
+            {t('members_count').replace('{count}', (organization.users_count ?? 0).toString())}
           </div>
         </div>
       </div>
