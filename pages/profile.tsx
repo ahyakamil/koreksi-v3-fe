@@ -5,6 +5,19 @@ import { useLocale } from '../context/LocaleContext'
 import { updateProfile } from '../utils/api'
 import { Layout } from '../components/Layout'
 
+function getNextUsernameChangeDate(changedAt: string | undefined): Date | null {
+  if (!changedAt) return null
+  const changedDate = new Date(changedAt)
+  changedDate.setMonth(changedDate.getMonth() + 1)
+  return changedDate
+}
+
+function canChangeUsername(changedAt: string | undefined): boolean {
+  if (!changedAt) return true
+  const nextChangeDate = getNextUsernameChangeDate(changedAt)
+  return nextChangeDate ? nextChangeDate <= new Date() : true
+}
+
 export default function Profile() {
   const { user, setUser, loading } = useAuth()
   const { t } = useLocale()
@@ -33,11 +46,18 @@ export default function Profile() {
     if (submitting) return
     setErrors(null)
     setSuccess(null)
+
+    // Check if username is being changed and if it's allowed
+    if (username !== user?.username && !canChangeUsername(user?.username_changed_at)) {
+      setErrors({ username: 'Username can only be changed once every month.' })
+      return
+    }
+
     setSubmitting(true)
     const res = await updateProfile(name, username)
     if (res.ok) {
       setSuccess(t('profile_updated_successfully'))
-      if (setUser && user) setUser({ ...user, name, username })
+      if (setUser && user) setUser({ ...user, name, username, username_changed_at: username !== user.username ? new Date().toISOString() : user.username_changed_at })
     } else {
       if (res.body?.errors) {
         setErrors(res.body.errors)
@@ -88,11 +108,19 @@ export default function Profile() {
               <input
                 type="text"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                disabled={!canChangeUsername(user?.username_changed_at)}
+                className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  !canChangeUsername(user?.username_changed_at) ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''
+                }`}
                 placeholder="Enter your username"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
               />
+              {!canChangeUsername(user?.username_changed_at) && user?.username_changed_at && (
+                <p className="text-sm text-gray-500 mt-1">
+                  You can change your username next on {getNextUsernameChangeDate(user.username_changed_at)?.toLocaleDateString()}
+                </p>
+              )}
             </div>
 
             <div>
@@ -123,6 +151,11 @@ export default function Profile() {
                 {errors.name && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
                     Name: {Array.isArray(errors.name) ? errors.name[0] : errors.name}
+                  </div>
+                )}
+                {errors.username && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                    Username: {Array.isArray(errors.username) ? errors.username[0] : errors.username}
                   </div>
                 )}
               </div>
