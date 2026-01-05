@@ -8,7 +8,7 @@ import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from './Avatar';
 import { searchEntities } from '../utils/api';
-import { Post, Organization, Space, News, User } from '../types';
+import { Post, Organization, Space, News } from '../types';
 
 export function Header() {
   const { locale, changeLocale } = useLocale();
@@ -29,13 +29,11 @@ export function Header() {
     organizations: Organization[];
     spaces: Space[];
     news: News[];
-    users: User[];
   }>({
     posts: [],
     organizations: [],
     spaces: [],
     news: [],
-    users: [],
   });
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
@@ -50,14 +48,14 @@ export function Header() {
 
   const performSearch = useCallback(async (query: string) => {
     if (!query.trim() || query.trim().length < 2) {
-      setSearchResults({ posts: [], organizations: [], spaces: [], news: [], users: [] });
+      setSearchResults({ posts: [], organizations: [], spaces: [], news: [] });
       setShowSearchDropdown(false);
       return;
     }
 
     setIsSearching(true);
     try {
-      const types: ('user' | 'organization' | 'news' | 'post' | 'space')[] = ['post', 'organization', 'space', 'news', 'user'];
+      const types: ('organization' | 'news' | 'post' | 'space')[] = ['post', 'organization', 'space', 'news'];
       const results = await Promise.allSettled(
         types.map(type => searchEntities(query, type))
       );
@@ -67,14 +65,13 @@ export function Header() {
         organizations: results[1].status === 'fulfilled' ? results[1].value.body?.data?.content || [] : [],
         spaces: results[2].status === 'fulfilled' ? results[2].value.body?.data?.content || [] : [],
         news: results[3].status === 'fulfilled' ? results[3].value.body?.data?.content || [] : [],
-        users: results[4].status === 'fulfilled' ? results[4].value.body?.data?.content || [] : [],
       };
 
       setSearchResults(newResults);
       setShowSearchDropdown(true);
     } catch (error) {
       console.error('Search error:', error);
-      setSearchResults({ posts: [], organizations: [], spaces: [], news: [], users: [] });
+      setSearchResults({ posts: [], organizations: [], spaces: [], news: [] });
     } finally {
       setIsSearching(false);
     }
@@ -107,7 +104,6 @@ export function Header() {
       searchResults.organizations.length > 0 ||
       searchResults.spaces.length > 0 ||
       searchResults.news.length > 0 ||
-      searchResults.users.length > 0 ||
       isSearching
     )) {
       setShowSearchDropdown(true);
@@ -330,32 +326,7 @@ export function Header() {
                         </div>
                       )}
 
-                      {searchResults.users.length > 0 && (
-                        <div className="p-3">
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Users</div>
-                          {searchResults.users.slice(0, 3).map((user) => (
-                            <div
-                              key={user.id}
-                              className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                              onClick={() => handleResultClick(() => router.push(`/users/${user.id}`))}
-                            >
-                              <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <Users className="w-4 h-4 text-indigo-600" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-gray-900 truncate">
-                                  {user.name}
-                                </div>
-                                <div className="text-xs text-gray-500 truncate">
-                                  {user.email}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {searchResults.posts.length === 0 && searchResults.organizations.length === 0 && searchResults.spaces.length === 0 && searchResults.news.length === 0 && searchResults.users.length === 0 && searchQuery.trim() && (
+                      {searchResults.posts.length === 0 && searchResults.organizations.length === 0 && searchResults.spaces.length === 0 && searchResults.news.length === 0 && searchQuery.trim() && (
                         <div className="p-4 text-center text-gray-500">No results found</div>
                       )}
                     </>

@@ -146,7 +146,7 @@ export async function searchUsers(query: string) {
   return res
 }
 
-export async function searchEntities(query: string, type: 'user' | 'organization' | 'news' | 'post' | 'space', page: number = 0, size: number = 10) {
+export async function searchEntities(query: string, type: 'organization' | 'news' | 'post' | 'space', page: number = 0, size: number = 10) {
   const params = new URLSearchParams({
     query: query,
     type: type,
