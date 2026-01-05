@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Home, Users, Newspaper, Bell, Building2, ChevronDown, LogOut, FolderOpen } from 'lucide-react';
+import { Search, Home, Users, Newspaper, Bell, Building2, ChevronDown, LogOut, FolderOpen, User as UserIcon } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from './Avatar';
 import { searchEntities } from '../utils/api';
-import { Post, Organization, Space, News } from '../types';
+import { Post, Organization, Space, News, User } from '../types';
 
 export function Header() {
   const { locale, changeLocale } = useLocale();
@@ -29,11 +29,13 @@ export function Header() {
     organizations: Organization[];
     spaces: Space[];
     news: News[];
+    users: User[];
   }>({
     posts: [],
     organizations: [],
     spaces: [],
     news: [],
+    users: [],
   });
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
@@ -48,14 +50,14 @@ export function Header() {
 
   const performSearch = useCallback(async (query: string) => {
     if (!query.trim() || query.trim().length < 2) {
-      setSearchResults({ posts: [], organizations: [], spaces: [], news: [] });
+      setSearchResults({ posts: [], organizations: [], spaces: [], news: [], users: [] });
       setShowSearchDropdown(false);
       return;
     }
 
     setIsSearching(true);
     try {
-      const types: ('organization' | 'news' | 'post' | 'space')[] = ['post', 'organization', 'space', 'news'];
+      const types: ('organization' | 'news' | 'post' | 'space' | 'user')[] = ['post', 'organization', 'space', 'news', 'user'];
       const results = await Promise.allSettled(
         types.map(type => searchEntities(query, type))
       );
@@ -65,13 +67,14 @@ export function Header() {
         organizations: results[1].status === 'fulfilled' ? results[1].value.body?.data?.content || [] : [],
         spaces: results[2].status === 'fulfilled' ? results[2].value.body?.data?.content || [] : [],
         news: results[3].status === 'fulfilled' ? results[3].value.body?.data?.content || [] : [],
+        users: results[4].status === 'fulfilled' ? results[4].value.body?.data?.content || [] : [],
       };
 
       setSearchResults(newResults);
       setShowSearchDropdown(true);
     } catch (error) {
       console.error('Search error:', error);
-      setSearchResults({ posts: [], organizations: [], spaces: [], news: [] });
+      setSearchResults({ posts: [], organizations: [], spaces: [], news: [], users: [] });
     } finally {
       setIsSearching(false);
     }
@@ -104,6 +107,7 @@ export function Header() {
       searchResults.organizations.length > 0 ||
       searchResults.spaces.length > 0 ||
       searchResults.news.length > 0 ||
+      searchResults.users.length > 0 ||
       isSearching
     )) {
       setShowSearchDropdown(true);
@@ -226,24 +230,24 @@ export function Header() {
                     <div className="p-4 text-center text-gray-500">Searching...</div>
                   ) : (
                     <>
-                      {searchResults.posts.length > 0 && (
+                      {searchResults.users.length > 0 && (
                         <div className="p-3 border-b border-gray-100">
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Posts</div>
-                          {searchResults.posts.slice(0, 3).map((post) => (
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Users</div>
+                          {searchResults.users.slice(0, 3).map((user) => (
                             <div
-                              key={post.public_id}
+                              key={user.id}
                               className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                              onClick={() => handleResultClick(() => router.push(`/posts/${post.public_id}`))}
+                              onClick={() => handleResultClick(() => router.push(`/${user.username}`))}
                             >
-                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                <Newspaper className="w-4 h-4 text-blue-600" />
+                              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                <UserIcon className="w-4 h-4 text-purple-600" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-sm font-medium text-gray-900 truncate">
-                                  {post.title || 'Untitled Post'}
+                                  {user.name}
                                 </div>
                                 <div className="text-xs text-gray-500 truncate">
-                                  by {post.user?.name}
+                                  @{user.username}
                                 </div>
                               </div>
                             </div>
@@ -301,8 +305,33 @@ export function Header() {
                         </div>
                       )}
 
-                      {searchResults.news.length > 0 && (
+                      {searchResults.posts.length > 0 && (
                         <div className="p-3 border-b border-gray-100">
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Posts</div>
+                          {searchResults.posts.slice(0, 3).map((post) => (
+                            <div
+                              key={post.public_id}
+                              className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                              onClick={() => handleResultClick(() => router.push(`/posts/${post.public_id}`))}
+                            >
+                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <Newspaper className="w-4 h-4 text-blue-600" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-gray-900 truncate">
+                                  {post.title || 'Untitled Post'}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate">
+                                  by {post.user?.name}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {searchResults.news.length > 0 && (
+                        <div className="p-3">
                           <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">News</div>
                           {searchResults.news.slice(0, 3).map((news) => (
                             <div
@@ -318,7 +347,7 @@ export function Header() {
                                   {news.title}
                                 </div>
                                 <div className="text-xs text-gray-500 truncate">
-                                  {news.organization?.title}
+                                  by {news.user?.name}
                                 </div>
                               </div>
                             </div>
@@ -326,7 +355,7 @@ export function Header() {
                         </div>
                       )}
 
-                      {searchResults.posts.length === 0 && searchResults.organizations.length === 0 && searchResults.spaces.length === 0 && searchResults.news.length === 0 && searchQuery.trim() && (
+                      {searchResults.posts.length === 0 && searchResults.organizations.length === 0 && searchResults.spaces.length === 0 && searchResults.news.length === 0 && searchResults.users.length === 0 && searchQuery.trim() && (
                         <div className="p-4 text-center text-gray-500">No results found</div>
                       )}
                     </>
