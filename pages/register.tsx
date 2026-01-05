@@ -12,13 +12,13 @@ export default function Register(){
   const [username,setUsername]=useState('')
   const [email,setEmail]=useState('')
   const [password,setPassword]=useState('')
-  const [error,setError]=useState<string | null>(null)
+  const [errors,setErrors]=useState<{[key: string]: string} | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   async function submit(e: React.FormEvent<HTMLFormElement>){
     e.preventDefault()
     if (submitting) return
-    setError(null)
+    setErrors(null)
     setSubmitting(true)
     const res = await register(name, username, email, password)
     if(res.ok && res.body && res.body.accessToken){
@@ -27,7 +27,11 @@ export default function Register(){
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {
-      setError(res.body?.message || (res.body?.errCode ? res.body.errCode : 'Register failed'))
+      if (res.body?.errors) {
+        setErrors(res.body.errors)
+      } else {
+        setErrors({ general: res.body?.message || (res.body?.errCode ? res.body.errCode : 'Register failed') })
+      }
     }
     setSubmitting(false)
   }
@@ -100,9 +104,33 @@ export default function Register(){
             />
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-              {error}
+          {errors && (
+            <div className="space-y-2">
+              {errors.general && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                  {errors.general}
+                </div>
+              )}
+              {errors.username && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                  Username: {Array.isArray(errors.username) ? errors.username[0] : errors.username}
+                </div>
+              )}
+              {errors.email && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                  Email: {Array.isArray(errors.email) ? errors.email[0] : errors.email}
+                </div>
+              )}
+              {errors.name && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                  Name: {Array.isArray(errors.name) ? errors.name[0] : errors.name}
+                </div>
+              )}
+              {errors.password && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                  Password: {Array.isArray(errors.password) ? errors.password[0] : errors.password}
+                </div>
+              )}
             </div>
           )}
 

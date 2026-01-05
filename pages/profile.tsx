@@ -11,7 +11,7 @@ export default function Profile() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<{[key: string]: string} | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -31,7 +31,7 @@ export default function Profile() {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (submitting) return
-    setError(null)
+    setErrors(null)
     setSuccess(null)
     setSubmitting(true)
     const res = await updateProfile(name, username)
@@ -39,7 +39,11 @@ export default function Profile() {
       setSuccess(t('profile_updated_successfully'))
       if (setUser && user) setUser({ ...user, name, username })
     } else {
-      setError(res.body?.message || t('failed_to_update_profile'))
+      if (res.body?.errors) {
+        setErrors(res.body.errors)
+      } else {
+        setErrors({ general: res.body?.message || t('failed_to_update_profile') })
+      }
     }
     setSubmitting(false)
   }
@@ -104,9 +108,23 @@ export default function Profile() {
               <p className="text-sm text-gray-500 mt-1">{t('email_cannot_be_changed')}</p>
             </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                {error}
+            {errors && (
+              <div className="space-y-2">
+                {errors.general && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                    {errors.general}
+                  </div>
+                )}
+                {errors.username && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                    Username: {Array.isArray(errors.username) ? errors.username[0] : errors.username}
+                  </div>
+                )}
+                {errors.name && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                    Name: {Array.isArray(errors.name) ? errors.name[0] : errors.name}
+                  </div>
+                )}
               </div>
             )}
 
