@@ -64,13 +64,13 @@ export default function Register(){
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Username
+              {t('username')}
             </label>
             <input
               type="text"
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              placeholder="Enter your username"
+              placeholder={t('enter_your_username')}
               value={username}
               onChange={e => setUsername(e.target.value)}
             />
@@ -113,22 +113,22 @@ export default function Register(){
               )}
               {errors.username && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                  Username: {Array.isArray(errors.username) ? errors.username[0] : errors.username}
+                  {t('username_label')}: {Array.isArray(errors.username) ? errors.username[0] : errors.username}
                 </div>
               )}
               {errors.email && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                  Email: {Array.isArray(errors.email) ? errors.email[0] : errors.email}
+                  {t('email_label')}: {Array.isArray(errors.email) ? errors.email[0] : errors.email}
                 </div>
               )}
               {errors.name && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                  Name: {Array.isArray(errors.name) ? errors.name[0] : errors.name}
+                  {t('name_label')}: {Array.isArray(errors.name) ? errors.name[0] : errors.name}
                 </div>
               )}
               {errors.password && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                  Password: {Array.isArray(errors.password) ? errors.password[0] : errors.password}
+                  {t('password_label')}: {Array.isArray(errors.password) ? errors.password[0] : errors.password}
                 </div>
               )}
             </div>

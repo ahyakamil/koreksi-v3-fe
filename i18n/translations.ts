@@ -5,7 +5,13 @@ type TranslationKeys = {
   showing: string
   showing_range: string
   name: string
+  username: string
   email: string
+  email_or_username: string
+  username_label: string
+  email_label: string
+  name_label: string
+  password_label: string
   password: string
   login: string
   register: string
@@ -201,6 +207,8 @@ type TranslationKeys = {
   sign_up: string
   create_your_account: string
   enter_your_name: string
+  enter_your_username: string
+  enter_your_email_or_username: string
   already_have_account: string
   sign_in: string
   forgot_password: string
@@ -351,7 +359,13 @@ const translations: Translations = {
     showing: 'Menampilkan',
     showing_range: 'Menampilkan {count} dari {total}',
     name: 'Nama',
+    username: 'Nama pengguna',
     email: 'Email',
+    username_label: 'Nama pengguna',
+    email_label: 'Email',
+    name_label: 'Nama',
+    password_label: 'Kata sandi',
+    email_or_username: 'Email atau nama pengguna',
     password: 'Kata sandi',
     profile: 'Profil',
     settings: 'Pengaturan',
@@ -544,6 +558,8 @@ const translations: Translations = {
     sign_up: 'Daftar',
     create_your_account: 'Buat akun Anda',
     enter_your_name: 'Masukkan nama Anda',
+    enter_your_username: 'Masukkan nama pengguna Anda',
+    enter_your_email_or_username: 'Masukkan email atau nama pengguna Anda',
     already_have_account: 'Sudah punya akun?',
     sign_in: 'Masuk',
     forgot_password: 'Lupa Kata Sandi',
@@ -688,7 +704,13 @@ const translations: Translations = {
     showing: 'Showing',
     showing_range: 'Showing {count} of {total}',
     name: 'Name',
+    username: 'Username',
     email: 'Email',
+    username_label: 'Username',
+    email_label: 'Email',
+    name_label: 'Name',
+    password_label: 'Password',
+    email_or_username: 'Email or username',
     password: 'Password',
     profile: 'Profile',
     settings: 'Settings',
@@ -881,6 +903,8 @@ const translations: Translations = {
     sign_up: 'Sign up',
     create_your_account: 'Create your account',
     enter_your_name: 'Enter your name',
+    enter_your_username: 'Enter your username',
+    enter_your_email_or_username: 'Enter your email or username',
     already_have_account: 'Already have an account?',
     sign_in: 'Sign in',
     forgot_password: 'Forgot Password',
