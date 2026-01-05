@@ -3,38 +3,38 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Search, Newspaper, Building2, FolderOpen } from 'lucide-react';
+import { Search, Newspaper, Building2, FolderOpen, Users } from 'lucide-react';
 import { searchEntities } from '../utils/api';
-import { Post, Organization, Space, News } from '../types';
-import { Header } from '../components/Header';
-import { Layout } from '../components/Layout';
+import { Post, Organization, Space, News, User } from '../types';
 
 export default function SearchPage() {
   const router = useRouter();
   const { q: query, type: searchType } = router.query;
   const [searchQuery, setSearchQuery] = useState(query as string || '');
-  const [selectedType, setSelectedType] = useState<'all' | 'post' | 'organization' | 'space' | 'news'>('all');
+  const [selectedType, setSelectedType] = useState<'all' | 'post' | 'organization' | 'space' | 'news' | 'user'>('all');
   const [results, setResults] = useState<{
     posts: Post[];
     organizations: Organization[];
     spaces: Space[];
     news: News[];
+    users: User[];
   }>({
     posts: [],
     organizations: [],
     spaces: [],
     news: [],
+    users: [],
   });
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
 
-  const types: ('organization' | 'news' | 'post' | 'space')[] = ['post', 'organization', 'space', 'news'];
+  const types: ('organization' | 'news' | 'post' | 'space' | 'user')[] = ['user', 'organization', 'post', 'news', 'space'];
 
-  const performSearch = async (query: string, type: 'all' | 'post' | 'organization' | 'space' | 'news', page: number = 0) => {
+  const performSearch = async (query: string, type: 'all' | 'post' | 'organization' | 'space' | 'news' | 'user', page: number = 0) => {
     if (!query.trim() || query.trim().length < 2) {
-      setResults({ posts: [], organizations: [], spaces: [], news: [] });
+      setResults({ posts: [], organizations: [], spaces: [], news: [], users: [] });
       return;
     }
 
@@ -46,10 +46,11 @@ export default function SearchPage() {
         );
 
         const newResults = {
-          posts: results[0].status === 'fulfilled' ? results[0].value.body?.data?.content || [] : [],
+          users: results[0].status === 'fulfilled' ? results[0].value.body?.data?.content || [] : [],
           organizations: results[1].status === 'fulfilled' ? results[1].value.body?.data?.content || [] : [],
-          spaces: results[2].status === 'fulfilled' ? results[2].value.body?.data?.content || [] : [],
+          posts: results[2].status === 'fulfilled' ? results[2].value.body?.data?.content || [] : [],
           news: results[3].status === 'fulfilled' ? results[3].value.body?.data?.content || [] : [],
+          spaces: results[4].status === 'fulfilled' ? results[4].value.body?.data?.content || [] : [],
         };
 
         setResults(newResults);
@@ -66,6 +67,7 @@ export default function SearchPage() {
           organizations: type === 'organization' ? content : [],
           spaces: type === 'space' ? content : [],
           news: type === 'news' ? content : [],
+          users: type === 'user' ? content : [],
         });
 
         setTotalPages(pageable?.totalPages || 1);
@@ -73,7 +75,7 @@ export default function SearchPage() {
       }
     } catch (error) {
       console.error('Search error:', error);
-      setResults({ posts: [], organizations: [], spaces: [], news: [] });
+      setResults({ posts: [], organizations: [], spaces: [], news: [], users: [] });
     } finally {
       setIsSearching(false);
     }
@@ -128,6 +130,7 @@ export default function SearchPage() {
       ...results.organizations.map(item => ({ ...item, type: 'organization' })),
       ...results.spaces.map(item => ({ ...item, type: 'space' })),
       ...results.news.map(item => ({ ...item, type: 'news' })),
+      ...results.users.map(item => ({ ...item, type: 'user' })),
     ];
 
     if (allResults.length === 0 && !isSearching) {
@@ -142,19 +145,18 @@ export default function SearchPage() {
 
     return (
       <div className="space-y-6">
-        {results.posts.length > 0 && (
+        {results.users.length > 0 && (
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Newspaper className="w-5 h-5" />
-              Posts ({results.posts.length})
+              <Users className="w-5 h-5" />
+              Users ({results.users.length})
             </h3>
             <div className="space-y-3">
-              {results.posts.map((post) => (
-                <div key={post.public_id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-                  <Link href={`/posts/${post.public_id}`} className="block">
-                    <h4 className="font-medium text-gray-900 mb-1">{post.title || 'Untitled Post'}</h4>
-                    <p className="text-sm text-gray-600 line-clamp-2">{post.content?.substring(0, 150)}...</p>
-                    <div className="text-xs text-gray-500 mt-2">by {post.user?.name}</div>
+              {results.users.map((user) => (
+                <div key={user.id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                  <Link href={`/${user.username}`} className="block">
+                    <h4 className="font-medium text-gray-900 mb-1">{user.name}</h4>
+                    <p className="text-sm text-gray-600">@{user.username}</p>
                   </Link>
                 </div>
               ))}
@@ -195,6 +197,26 @@ export default function SearchPage() {
                     <h4 className="font-medium text-gray-900 mb-1">{space.name}</h4>
                     <p className="text-sm text-gray-600 line-clamp-2">{space.description}</p>
                     <div className="text-xs text-gray-500 mt-2">{space.organization?.title}</div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {results.posts.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Newspaper className="w-5 h-5" />
+              Posts ({results.posts.length})
+            </h3>
+            <div className="space-y-3">
+              {results.posts.map((post) => (
+                <div key={post.public_id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                  <Link href={`/posts/${post.public_id}`} className="block">
+                    <h4 className="font-medium text-gray-900 mb-1">{post.title || 'Untitled Post'}</h4>
+                    <p className="text-sm text-gray-600 line-clamp-2">{post.content?.substring(0, 150)}...</p>
+                    <div className="text-xs text-gray-500 mt-2">by {post.user?.name}</div>
                   </Link>
                 </div>
               ))}
@@ -293,6 +315,7 @@ export default function SearchPage() {
               <option value="organization">Organizations</option>
               <option value="space">Spaces</option>
               <option value="news">News</option>
+              <option value="user">Users</option>
             </select>
             <button
               onClick={handleSearch}
