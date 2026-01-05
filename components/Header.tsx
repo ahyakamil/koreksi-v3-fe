@@ -228,10 +228,22 @@ export function Header() {
                         <p className="text-sm text-gray-500 break-all">{user.email}</p>
                       </div>
                       <div className="py-1">
-                        <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <button
+                          onClick={() => {
+                            setIsAvatarDropdownOpen(false);
+                            router.push('/profile');
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
                           Profile
                         </button>
-                        <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <button
+                          onClick={() => {
+                            setIsAvatarDropdownOpen(false);
+                            router.push('/settings');
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
                           Settings
                         </button>
                         <button

@@ -355,6 +355,22 @@ export async function resetPassword(email: string, token: string, password: stri
   return { ok: res.ok, status: res.status, body: json }
 }
 
+export async function updateProfile(name: string) {
+  const res = await apiFetch('/auth/profile', {
+    method: 'PUT',
+    body: JSON.stringify({ name })
+  })
+  return res
+}
+
+export async function updatePassword(current_password: string, password: string, password_confirmation: string) {
+  const res = await apiFetch('/auth/password', {
+    method: 'PUT',
+    body: JSON.stringify({ current_password, password, password_confirmation })
+  })
+  return res
+}
+
 export async function pingWebSubHub(feedUrl: string) {
   // Ping via backend to avoid CORS
   const res = await apiFetch('/websub/ping', {

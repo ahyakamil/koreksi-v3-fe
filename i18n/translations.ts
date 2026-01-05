@@ -70,6 +70,22 @@ type TranslationKeys = {
   failed_to_load: string
   organizations: string
   page: string
+  profile: string
+  settings: string
+  update_profile: string
+  update_password: string
+  current_password: string
+  new_password: string
+  confirm_new_password: string
+  email_cannot_be_changed: string
+  enter_your_current_password: string
+  enter_your_new_password: string
+  confirm_your_new_password: string
+  profile_updated_successfully: string
+  password_updated_successfully: string
+  passwords_do_not_match: string
+  failed_to_update_profile: string
+  failed_to_update_password: string
   page_number: string
   latest_page_number_used: string
   show_all: string
@@ -332,6 +348,22 @@ const translations: Translations = {
     name: 'Nama',
     email: 'Email',
     password: 'Kata sandi',
+    profile: 'Profil',
+    settings: 'Pengaturan',
+    update_profile: 'Perbarui Profil',
+    update_password: 'Perbarui Kata Sandi',
+    current_password: 'Kata Sandi Saat Ini',
+    new_password: 'Kata Sandi Baru',
+    confirm_new_password: 'Konfirmasi Kata Sandi Baru',
+    email_cannot_be_changed: 'Email tidak dapat diubah',
+    enter_your_current_password: 'Masukkan kata sandi saat ini',
+    enter_your_new_password: 'Masukkan kata sandi baru',
+    confirm_your_new_password: 'Konfirmasi kata sandi baru',
+    profile_updated_successfully: 'Profil berhasil diperbarui',
+    password_updated_successfully: 'Kata sandi berhasil diperbarui',
+    passwords_do_not_match: 'Kata sandi tidak cocok',
+    failed_to_update_profile: 'Gagal memperbarui profil',
+    failed_to_update_password: 'Gagal memperbarui kata sandi',
     login: 'Masuk',
     register: 'Daftar',
     logout: 'Keluar',
@@ -648,6 +680,22 @@ const translations: Translations = {
     name: 'Name',
     email: 'Email',
     password: 'Password',
+    profile: 'Profile',
+    settings: 'Settings',
+    update_profile: 'Update Profile',
+    update_password: 'Update Password',
+    current_password: 'Current Password',
+    new_password: 'New Password',
+    confirm_new_password: 'Confirm New Password',
+    email_cannot_be_changed: 'Email cannot be changed',
+    enter_your_current_password: 'Enter your current password',
+    enter_your_new_password: 'Enter your new password',
+    confirm_your_new_password: 'Confirm your new password',
+    profile_updated_successfully: 'Profile updated successfully',
+    password_updated_successfully: 'Password updated successfully',
+    passwords_do_not_match: 'Passwords do not match',
+    failed_to_update_profile: 'Failed to update profile',
+    failed_to_update_password: 'Failed to update password',
     login: 'Login',
     register: 'Register',
     logout: 'Logout',
