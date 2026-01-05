@@ -262,6 +262,12 @@ export async function deletePost(postId: string) {
   return res
 }
 
+export async function getPostsByUsername(username: string, page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/users/${username}/posts?${params}`)
+  return res
+}
+
 export async function reviewNews(organizationId: string, newsId: string, data: { action: string; review_notes?: string }) {
   const res = await apiFetch(`/organizations/${organizationId}/news/${newsId}/review`, {
     method: 'POST',

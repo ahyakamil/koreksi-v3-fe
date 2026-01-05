@@ -167,7 +167,16 @@ export function Post({ post, onDelete, onUpdate, alwaysShowComments = false, ini
             />
             <div>
               <div className="flex items-center gap-2">
-                <span>{post.user?.name || t('unknown')}</span>
+                {post.user?.username ? (
+                  <Link
+                    href={`/${post.user.username}`}
+                    className="hover:text-blue-600 transition-colors"
+                  >
+                    {post.user.name || t('unknown')}
+                  </Link>
+                ) : (
+                  <span>{post.user?.name || t('unknown')}</span>
+                )}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <TimeAgo date={post.created_at} className="text-xs text-gray-400" />
