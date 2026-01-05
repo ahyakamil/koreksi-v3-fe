@@ -333,11 +333,11 @@ export async function login(email: string, password: string) {
   return { ok: res.ok, status: res.status, body: json }
 }
 
-export async function register(name: string, email: string, password: string) {
+export async function register(name: string, username: string, email: string, password: string) {
   const res = await fetch(`${API_BASE}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, password })
+    body: JSON.stringify({ name, username, email, password })
   })
   let json = null
   try { json = await res.json() } catch (e) { /* ignore */ }
@@ -366,10 +366,10 @@ export async function resetPassword(email: string, token: string, password: stri
   return { ok: res.ok, status: res.status, body: json }
 }
 
-export async function updateProfile(name: string) {
+export async function updateProfile(name: string, username: string) {
   const res = await apiFetch('/auth/profile', {
     method: 'PUT',
-    body: JSON.stringify({ name })
+    body: JSON.stringify({ name, username })
   })
   return res
 }

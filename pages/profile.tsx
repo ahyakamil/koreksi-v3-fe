@@ -10,6 +10,7 @@ export default function Profile() {
   const { t } = useLocale()
   const router = useRouter()
   const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -17,6 +18,7 @@ export default function Profile() {
   useEffect(() => {
     if (!loading && user) {
       setName(user.name)
+      setUsername(user.username)
     }
   }, [user, loading])
 
@@ -32,10 +34,10 @@ export default function Profile() {
     setError(null)
     setSuccess(null)
     setSubmitting(true)
-    const res = await updateProfile(name)
+    const res = await updateProfile(name, username)
     if (res.ok) {
       setSuccess(t('profile_updated_successfully'))
-      if (setUser && user) setUser({ ...user, name })
+      if (setUser && user) setUser({ ...user, name, username })
     } else {
       setError(res.body?.message || t('failed_to_update_profile'))
     }
@@ -72,6 +74,20 @@ export default function Profile() {
                 placeholder={t('enter_your_name')}
                 value={name}
                 onChange={e => setName(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Username
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                placeholder="Enter your username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
               />
             </div>
 
