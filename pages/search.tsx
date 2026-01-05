@@ -106,7 +106,7 @@ export default function SearchPage() {
       key={page}
       onClick={() => !disabled && handlePageChange(page)}
       disabled={disabled || isSearching}
-      className={`px-3 py-2 text-sm font-medium rounded-md ${
+      className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md ${
         page === currentPage && !isSearching
           ? 'text-blue-600 bg-blue-50 border border-blue-500'
           : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
@@ -153,7 +153,7 @@ export default function SearchPage() {
             </h3>
             <div className="space-y-3">
               {results.users.map((user) => (
-                <div key={user.id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                <div key={user.id} className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
                   <Link href={`/${user.username}`} className="block">
                     <h4 className="font-medium text-gray-900 mb-1">{user.name}</h4>
                     <p className="text-sm text-gray-600">@{user.username}</p>
@@ -172,7 +172,7 @@ export default function SearchPage() {
             </h3>
             <div className="space-y-3">
               {results.organizations.map((org) => (
-                <div key={org.id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                <div key={org.id} className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
                   <Link href={`/organizations/${org.id}`} className="block">
                     <h4 className="font-medium text-gray-900 mb-1">{org.title}</h4>
                     <p className="text-sm text-gray-600 line-clamp-2">{org.description}</p>
@@ -192,7 +192,7 @@ export default function SearchPage() {
             </h3>
             <div className="space-y-3">
               {results.spaces.map((space) => (
-                <div key={space.id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                <div key={space.id} className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
                   <Link href={`/organizations/${space.organization_id}/spaces/${space.id}`} className="block">
                     <h4 className="font-medium text-gray-900 mb-1">{space.name}</h4>
                     <p className="text-sm text-gray-600 line-clamp-2">{space.description}</p>
@@ -212,7 +212,7 @@ export default function SearchPage() {
             </h3>
             <div className="space-y-3">
               {results.posts.map((post) => (
-                <div key={post.public_id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                <div key={post.public_id} className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
                   <Link href={`/posts/${post.public_id}`} className="block">
                     <h4 className="font-medium text-gray-900 mb-1">{post.title || 'Untitled Post'}</h4>
                     <p className="text-sm text-gray-600 line-clamp-2">{post.content?.substring(0, 150)}...</p>
@@ -232,7 +232,7 @@ export default function SearchPage() {
             </h3>
             <div className="space-y-3">
               {results.news.map((news) => (
-                <div key={news.public_id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                <div key={news.public_id} className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
                   <Link href={`/news/${news.public_id}`} className="block">
                     <h4 className="font-medium text-gray-900 mb-1">{news.title}</h4>
                     <p className="text-sm text-gray-600 line-clamp-2">{news.content?.replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
@@ -264,13 +264,13 @@ export default function SearchPage() {
     }
 
     return (
-      <div className="flex items-center justify-center gap-2 mt-8">
+      <div className="flex items-center justify-center gap-1 sm:gap-2 mt-8 flex-wrap">
         {renderPaginationButton(currentPage - 1, 'Previous', currentPage === 0)}
 
         {startPage > 0 && (
           <>
             {renderPaginationButton(0, 1)}
-            {startPage > 1 && <span className="px-2 text-gray-500">...</span>}
+            {startPage > 1 && <span className="px-1 sm:px-2 text-gray-500">...</span>}
           </>
         )}
 
@@ -278,7 +278,7 @@ export default function SearchPage() {
 
         {endPage < totalPages - 1 && (
           <>
-            {endPage < totalPages - 2 && <span className="px-2 text-gray-500">...</span>}
+            {endPage < totalPages - 2 && <span className="px-1 sm:px-2 text-gray-500">...</span>}
             {renderPaginationButton(totalPages - 1, totalPages)}
           </>
         )}
@@ -291,7 +291,7 @@ export default function SearchPage() {
   return (
       <div>
         <div className="mb-8">
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -304,27 +304,30 @@ export default function SearchPage() {
                 className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value as any)}
-              disabled={isSearching}
-              className="px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="all">All</option>
-              <option value="post">Posts</option>
-              <option value="organization">Organizations</option>
-              <option value="space">Spaces</option>
-              <option value="news">News</option>
-              <option value="user">Users</option>
-            </select>
-            <button
-              onClick={handleSearch}
-              disabled={isSearching}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {isSearching && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
-              Search
-            </button>
+            <div className="flex gap-2 sm:gap-4">
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value as any)}
+                disabled={isSearching}
+                className="flex-1 sm:flex-none px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed min-w-0"
+              >
+                <option value="all">All</option>
+                <option value="post">Posts</option>
+                <option value="organization">Organizations</option>
+                <option value="space">Spaces</option>
+                <option value="news">News</option>
+                <option value="user">Users</option>
+              </select>
+              <button
+                onClick={handleSearch}
+                disabled={isSearching}
+                className="px-4 sm:px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+              >
+                {isSearching && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
+                <span className="hidden sm:inline">Search</span>
+                <Search className="w-5 h-5 sm:hidden" />
+              </button>
+            </div>
           </div>
 
           {query && (

@@ -210,6 +210,7 @@ export function Header() {
             <div className="w-10 h-10 rounded-full flex items-center justify-center">
               <img src="/icon-512x512.png" alt="Koreksi Logo" className="w-10 h-10 rounded-full object-cover" />
             </div>
+            {/* Desktop Search */}
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -363,6 +364,14 @@ export function Header() {
                 </div>
               )}
             </div>
+
+            {/* Mobile Search Icon */}
+            <button
+              onClick={() => router.push('/search')}
+              className="sm:hidden w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+            >
+              <Search className="w-6 h-6 text-gray-600" />
+            </button>
           </div>
 
           {/* Center Navigation */}
