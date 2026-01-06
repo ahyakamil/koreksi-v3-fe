@@ -62,7 +62,7 @@ export default function PostForm({ onCreated }: { onCreated?: (post: any) => voi
 
   return (
     <form onSubmit={submit} className="mb-6 bg-white p-4 rounded shadow">
-      <div className="text-sm text-gray-600">{t('posting_as')} {user.name || user.email}</div>
+      <div className="text-sm text-gray-600">{t('posting_as')} {user.name}</div>
       <input disabled={submitting} className="w-full border rounded p-2 mt-2" placeholder={t('title')} value={title} onChange={e=>setTitle(e.target.value)} />
       <textarea disabled={submitting} rows={4} className="w-full border rounded p-2 mt-2" value={content} onChange={e=>setContent(e.target.value)} placeholder={t('content_placeholder')} />
       <input disabled={submitting} className="w-full border rounded p-2 mt-2" placeholder="YouTube Video ID" value={youtubeVideo} onChange={e=>setYoutubeVideo(e.target.value)} />
