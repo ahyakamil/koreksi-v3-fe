@@ -26,6 +26,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
    const { t, locale } = useLocale()
    const [isExpanded, setIsExpanded] = useState(false)
    const itemRef = useRef<HTMLElement>(null)
+   const prevIsExpandedRef = useRef(false)
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [showComments, setShowComments] = useState(alwaysShowComments || initialComments.length > 0)
   const [commentsLoaded, setCommentsLoaded] = useState(initialComments.length > 0)
@@ -66,9 +67,10 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
   }, [showComments, commentsLoaded])
 
   useEffect(() => {
-    if (!isExpanded && itemRef.current) {
+    if (!isExpanded && prevIsExpandedRef.current && itemRef.current) {
       itemRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
+    prevIsExpandedRef.current = isExpanded
   }, [isExpanded])
 
   const loadComments = async (page: number = 0, size: number = 10) => {
