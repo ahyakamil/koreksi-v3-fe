@@ -136,7 +136,7 @@ export function Post({ post, onDelete, onUpdate, alwaysShowComments = false, ini
   }
 
   const handleShare = () => {
-    const url = window.location.origin + '/post/' + post.public_id
+    const url = window.location.origin + '/posts/' + post.public_id
     const title = post.title || post.content.substring(0, 50) + '...'
     if (navigator.share) {
       navigator.share({

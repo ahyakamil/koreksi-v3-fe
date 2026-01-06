@@ -63,7 +63,7 @@ export default function CommentsList({ comments = [], onReply, currentUser, comm
               <button
                 onClick={(e) => {
                   e.preventDefault()
-                  const path = commentableType === 'posts' ? '/post/' : commentableType === 'news' ? '/news/' : '/post/'
+                  const path = commentableType === 'posts' ? '/posts/' : commentableType === 'news' ? '/news/' : '/posts/'
                   const url = window.location.origin + path + commentableId + '?commentId=' + comment.id
                   const title = 'Comment by ' + (comment.user?.name || 'Anonymous')
                   if (navigator.share) {

@@ -57,7 +57,7 @@ export default function Notifications(){
     if (notification.data.type === 'comment' || notification.data.type === 'reply') {
       const { commentable_type, commentable_id, comment_id } = notification.data
       if (commentable_type === 'post') {
-        Router.push(`/post/${commentable_id}?commentId=${comment_id}`)
+        Router.push(`/posts/${commentable_id}?commentId=${comment_id}`)
       } else if (commentable_type === 'news') {
         Router.push(`/news/${commentable_id}?commentId=${comment_id}`)
       }
