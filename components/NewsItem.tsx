@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { MessageCircle, Share2, ChevronDown, Crown } from 'lucide-react'
 import CommentsList from './CommentsList'
 import CommentForm from './CommentForm'
@@ -22,9 +22,10 @@ interface NewsItemProps {
 }
 
 export default function NewsItem({ news, hideOrganization = false, isDetail = false, alwaysShowComments = false, initialComments = [], initialPageable = null, initialReplies = {}, initialShowReplies = {}, initialRepliesPageable = {}, highlightedCommentId }: NewsItemProps) {
-  const { user } = useAuth()
-  const { t, locale } = useLocale()
-  const [isExpanded, setIsExpanded] = useState(false)
+   const { user } = useAuth()
+   const { t, locale } = useLocale()
+   const [isExpanded, setIsExpanded] = useState(false)
+   const itemRef = useRef<HTMLElement>(null)
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [showComments, setShowComments] = useState(alwaysShowComments || initialComments.length > 0)
   const [commentsLoaded, setCommentsLoaded] = useState(initialComments.length > 0)
@@ -63,6 +64,12 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
       loadComments()
     }
   }, [showComments, commentsLoaded])
+
+  useEffect(() => {
+    if (!isExpanded && itemRef.current) {
+      itemRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [isExpanded])
 
   const loadComments = async (page: number = 0, size: number = 10) => {
     const res = await getComments('news', news.public_id, page, size)
@@ -131,7 +138,7 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
   const Container = isDetail ? 'div' : 'li'
 
   return (
-    <Container className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow mb-4">
+    <Container ref={itemRef as any} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow mb-4">
       <div className="p-2">
         <h3 className="font-bold text-xl text-gray-900 mb-3 leading-tight text-center">
           {news.title}
