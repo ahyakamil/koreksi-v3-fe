@@ -736,7 +736,7 @@ const OrganizationDetailsPage: React.FC = () => {
                     <div className="mt-3 max-h-40 overflow-y-auto">
                       {searchResults.map((u) => (
                         <div key={u.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 bg-white rounded mb-1">
-                          <span className="mb-1 sm:mb-0">{u.name} ({u.email})</span>
+                          <span className="mb-1 sm:mb-0">{u.name}</span>
                           <button
                             onClick={() => handleInvite(u.id)}
                             className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 self-start sm:self-auto"
@@ -754,7 +754,7 @@ const OrganizationDetailsPage: React.FC = () => {
                 {members.map((member) => (
                   <div key={member.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-4 rounded-lg shadow mb-2">
                     <div className="mb-2 sm:mb-0">
-                      <span className="font-semibold">{member.name}</span> ({member.email})
+                      <span className="font-semibold">{member.name}</span>
                       <span className="ml-2 bg-gray-200 px-2 py-1 rounded text-sm">
                         {member.pivot?.role}
                       </span>

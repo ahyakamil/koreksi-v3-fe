@@ -3,6 +3,7 @@ export interface User {
   name: string
   username: string
   username_changed_at?: string
+  email?: string
 }
 
 export interface Media {

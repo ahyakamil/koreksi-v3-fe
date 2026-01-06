@@ -131,7 +131,7 @@ export default function Profile() {
                 type="email"
                 disabled
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
-                value={user.email}
+                value={user.name}
               />
               <p className="text-sm text-gray-500 mt-1">{t('email_cannot_be_changed')}</p>
             </div>

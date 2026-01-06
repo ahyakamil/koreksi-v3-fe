@@ -227,7 +227,6 @@ const SubscriptionsPage: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                         <span className="text-lg sm:text-xl font-semibold">{subscription.user?.name}</span>
-                        <span className="text-sm text-gray-500">({subscription.user?.email})</span>
                         {subscription.status === 'active' && (
                           <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs sm:text-sm self-start sm:self-auto">
                             Active
@@ -357,7 +356,7 @@ const SubscriptionsPage: React.FC = () => {
                     <div>
                       <p className="font-semibold text-lg">Rp {formatNumber(request.amount)}</p>
                       <p className="text-sm text-gray-600">
-                        Requested by: {request.requester?.name} ({request.requester?.email})
+                        Requested by: {request.requester?.name}
                       </p>
                       <p className="text-sm text-gray-600">
                         Requested on: {new Date(request.created_at).toLocaleDateString()}

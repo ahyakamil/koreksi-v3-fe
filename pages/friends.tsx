@@ -225,7 +225,6 @@ export default function Friends() {
                           <Avatar name={u.name} size={32} />
                           <div>
                             <div className="font-medium text-gray-900 break-all">{u.name}</div>
-                            <div className="text-sm text-gray-600 break-all">{u.email}</div>
                           </div>
                         </div>
                       </div>
@@ -355,7 +354,6 @@ export default function Friends() {
                           <Avatar name={f.user.name} size={40} />
                           <div>
                             <div className="font-medium text-gray-900 break-all">{f.user.name}</div>
-                            <div className="text-sm text-gray-600 break-all">{f.user.email}</div>
                           </div>
                         </div>
                         <button
@@ -400,7 +398,6 @@ export default function Friends() {
                           <Avatar name={b.user.name} size={40} />
                           <div>
                             <div className="font-medium text-gray-900 break-all">{b.user.name}</div>
-                            <div className="text-sm text-gray-600 break-all">{b.user.email}</div>
                           </div>
                         </div>
                         <button
