@@ -28,6 +28,10 @@ export default function Login(){
         return
       }
       const recaptchaToken = await executeV3('login')
+      if (!recaptchaToken) {
+        setError(t('recaptcha_required'))
+        return
+      }
       const res = await login(email, password, recaptchaToken)
       if(res.ok && res.body && res.body.accessToken){
         const j = res.body
