@@ -73,7 +73,7 @@ export default function NewsDetailPage({ news, comments: initialComments, pageab
     )
   }
 
-  const title = `${news.title} - Koreksi`
+  const title = `${news.title} - ${news.organization?.title || 'Organization'}`
   const description = news.content.length > 160 ? news.content.substring(0, 157) + '...' : news.content
 
   const handleCommentSubmit = async (content: string, parentId?: string) => {
