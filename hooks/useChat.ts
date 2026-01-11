@@ -62,7 +62,7 @@ const playNotificationSound = async () => {
   }
 };
 
-export const useChat = (apiUrl: string, token: string, userId?: string, isWidgetExpanded?: boolean) => {
+export const useChat = (apiUrl: string, userId?: string, isWidgetExpanded?: boolean) => {
   const { unreadCounts: globalUnreadCounts, refreshUnreadCounts } = useAuth();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [unreadCounts, setUnreadCounts] = useState<UnreadCounts>(globalUnreadCounts);
@@ -80,7 +80,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
 
   // Load friends on initialization
   useEffect(() => {
-    if (userId && token) {
+    if (userId) {
       const loadFriends = async () => {
         setLoadingFriends(true);
         setErrorFriends(null);
@@ -92,7 +92,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
 
           while (true) {
             const response = await fetch(`${apiUrl}/friends?page=${page}&size=${size}`, {
-              headers: { Authorization: `Bearer ${token}` },
+              credentials: 'include',
             })
             if (!response.ok) {
               throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -119,7 +119,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
 
       loadFriends()
     }
-  }, [userId, token, apiUrl])
+  }, [userId, apiUrl])
 
 
 
@@ -131,8 +131,8 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           friend_id: friendId,
           content: content,
@@ -149,15 +149,13 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
       console.error('Error sending message:', error);
       throw error;
     }
-  }, [apiUrl, token]);
+  }, [apiUrl]);
 
   const markAsRead = useCallback(async (friendId: string) => {
     try {
       const response = await fetch(`${apiUrl}/chat/mark-read/${friendId}`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -176,13 +174,13 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     } catch (error) {
       console.error('Error marking as read:', error);
     }
-  }, [apiUrl, token, refreshUnreadCounts]);
+  }, [apiUrl, refreshUnreadCounts]);
 
   const fetchMessages = useCallback(async (friendId: string) => {
     try {
       setLoading(true);
       const response = await fetch(`${apiUrl}/chat/messages/${friendId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       const data = await response.json();
       if (data.statusCode === 2000) {
@@ -200,7 +198,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
     } finally {
       setLoading(false);
     }
-  }, [apiUrl, token]);
+  }, [apiUrl]);
 
 
 
@@ -219,13 +217,10 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
 
   // Socket.IO connection setup
   useEffect(() => {
-    if (userId && token) {
+    if (userId) {
       const websocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001';
       try {
         const socket = io(websocketUrl, {
-          auth: {
-            token: token,
-          },
           forceNew: true,
         });
         socketRef.current = socket;
@@ -260,7 +255,7 @@ export const useChat = (apiUrl: string, token: string, userId?: string, isWidget
         console.error('Error initializing Socket.IO:', error);
       }
     }
-  }, [userId, token]);
+  }, [userId]);
 
   // Socket.IO event bindings
   useEffect(() => {

@@ -6,13 +6,12 @@ import ChatPanel from './ChatPanel';
 interface ChatWindowProps {
   onClose: () => void;
   apiUrl: string;
-  token: string;
   userId?: string;
   initialSelectedFriendId?: string;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, apiUrl, token, userId, initialSelectedFriendId }) => {
-  const { friends, unreadCounts, selectedFriend, setSelectedFriend, messages, sendMessage, markAsRead, loading, loadingFriends, errorFriends, encryptionLoaded } = useChat(apiUrl, token, userId);
+const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, apiUrl, userId, initialSelectedFriendId }) => {
+  const { friends, unreadCounts, selectedFriend, setSelectedFriend, messages, sendMessage, markAsRead, loading, loadingFriends, errorFriends, encryptionLoaded } = useChat(apiUrl, userId);
   const selectedFriendId = selectedFriend?.user.id || null;
   const [isModalOpen, setIsModalOpen] = useState(false);
 

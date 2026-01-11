@@ -5,15 +5,14 @@ import { useChat } from '../hooks/useChat';
 
 interface ChatWidgetProps {
   apiUrl: string;
-  token: string;
   userId?: string;
   openWithFriend?: string | null;
 }
 
-const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, token, userId, openWithFriend }) => {
+const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, userId, openWithFriend }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [initialSelected, setInitialSelected] = useState<string | null>(null);
-  const { unreadCounts } = useChat(apiUrl, token, userId, isExpanded);
+  const { unreadCounts } = useChat(apiUrl, userId, isExpanded);
   const hasInitialized = useRef(false);
 
   useEffect(() => {
@@ -46,7 +45,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ apiUrl, token, userId, openWith
   return (
     <div className={containerClass}>
       {isExpanded ? (
-        <ChatWindow onClose={toggleExpanded} userId={userId} apiUrl={apiUrl} token={token} initialSelectedFriendId={initialSelected || undefined} />
+        <ChatWindow onClose={toggleExpanded} userId={userId} apiUrl={apiUrl} initialSelectedFriendId={initialSelected || undefined} />
       ) : (
         <ChatIcon onClick={toggleExpanded} unreadCount={unreadCounts.total_unread} />
       )}
