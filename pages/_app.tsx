@@ -6,6 +6,7 @@ import { Layout } from '../components/Layout'
 import { AuthProvider, useAuth } from '../context/AuthContext'
 import { LocaleProvider } from '../context/LocaleContext'
 import { FullscreenProvider } from '../context/FullscreenContext'
+import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
 import { AppProps } from 'next/app'
 
 function AppContent({ Component, pageProps, router }: AppProps & { router: any }) {
@@ -65,12 +66,18 @@ function AppContent({ Component, pageProps, router }: AppProps & { router: any }
 
 export default function App(props: AppProps) {
   return (
-    <AuthProvider>
-      <LocaleProvider>
-        <FullscreenProvider>
-          <AppContent {...props} />
-        </FullscreenProvider>
-      </LocaleProvider>
-    </AuthProvider>
+    <GoogleReCaptchaProvider
+      siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+      language="en"
+      type="v3"
+    >
+      <AuthProvider>
+        <LocaleProvider>
+          <FullscreenProvider>
+            <AppContent {...props} />
+          </FullscreenProvider>
+        </LocaleProvider>
+      </AuthProvider>
+    </GoogleReCaptchaProvider>
   )
 }

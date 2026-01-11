@@ -106,3 +106,8 @@ html, body {
   overflow-y: auto !important;
   pointer-events: auto !important;
 }
+
+/* Hide reCAPTCHA badge */
+.grecaptcha-badge {
+  display: none !important;
+}

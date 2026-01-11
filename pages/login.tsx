@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Router from 'next/router'
 import Link from 'next/link'
-import ReCAPTCHA from 'react-google-recaptcha'
+import { GoogleReCaptchaBadge, useGoogleReCaptcha } from '@google-recaptcha/react'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 import { login } from '../utils/api'
@@ -14,24 +14,30 @@ export default function Login(){
   const [password,setPassword]=useState('')
   const [error,setError]=useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
+  const { executeV3 } = useGoogleReCaptcha()
 
   async function submit(e: React.FormEvent<HTMLFormElement>){
     e.preventDefault()
     if (submitting) return
-    if (!recaptchaToken) {
-      setError(t('recaptcha_required'))
-      return
-    }
     setError(null)
     setSubmitting(true)
-    const res = await login(email, password, recaptchaToken)
-    if(res.ok && res.body && res.body.accessToken){
-      const j = res.body
-      if (setUser && j.user) setUser(j.user)
-      Router.push('/')
-    } else {
-      setError(res.body?.message || (res.body?.errCode ? res.body.errCode : t('login_failed')))
+
+    try {
+      if (!executeV3) {
+        setError(t('recaptcha_required'))
+        return
+      }
+      const recaptchaToken = await executeV3('login')
+      const res = await login(email, password, recaptchaToken)
+      if(res.ok && res.body && res.body.accessToken){
+        const j = res.body
+        if (setUser && j.user) setUser(j.user)
+        Router.push('/')
+      } else {
+        setError(res.body?.message || (res.body?.errCode ? res.body.errCode : t('login_failed')))
+      }
+    } catch (error) {
+      setError(t('recaptcha_required'))
     }
     setSubmitting(false)
   }
@@ -82,13 +88,7 @@ export default function Login(){
             </div>
           )}
 
-          <div className="flex justify-center">
-            <ReCAPTCHA
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
-              onChange={(token) => setRecaptchaToken(token)}
-              onExpired={() => setRecaptchaToken(null)}
-            />
-          </div>
+          <GoogleReCaptchaBadge />
 
           <button
             type="submit"
