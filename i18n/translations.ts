@@ -221,6 +221,7 @@ type TranslationKeys = {
   reset_link_sent: string
   invalid_reset_link: string
   password_reset_success: string
+  recaptcha_required: string
   // Donation translations
   donation_campaigns: string
   create_campaign: string
@@ -572,6 +573,7 @@ const translations: Translations = {
     reset_link_sent: 'Tautan atur ulang telah dikirim ke email Anda',
     invalid_reset_link: 'Tautan atur ulang tidak valid',
     password_reset_success: 'Kata sandi berhasil diatur ulang',
+    recaptcha_required: 'Harap lengkapi verifikasi reCAPTCHA',
     // Donation translations
     donation_campaigns: 'Kampanye Donasi',
     create_campaign: 'Buat Kampanye',
@@ -917,6 +919,7 @@ const translations: Translations = {
     reset_link_sent: 'Reset link has been sent to your email',
     invalid_reset_link: 'Invalid reset link',
     password_reset_success: 'Password reset successfully',
+    recaptcha_required: 'Please complete the reCAPTCHA verification',
     // Donation translations
     donation_campaigns: 'Donation Campaigns',
     create_campaign: 'Create Campaign',

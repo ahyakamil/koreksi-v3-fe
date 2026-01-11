@@ -298,24 +298,24 @@ export async function refreshToken(refreshToken: string) {
   return { ok: res.ok, status: res.status, body: json }
 }
 
-export async function login(email: string, password: string) {
+export async function login(email: string, password: string, recaptchaToken: string) {
   const res = await fetch(`${API_BASE}/auth/login-web`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ email, password, recaptcha_token: recaptchaToken })
   })
   let json = null
   try { json = await res.json() } catch (e) { /* ignore */ }
   return { ok: res.ok, status: res.status, body: json }
 }
 
-export async function register(name: string, username: string, email: string, password: string) {
+export async function register(name: string, username: string, email: string, password: string, recaptchaToken: string) {
   const res = await fetch(`${API_BASE}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ name, username, email, password })
+    body: JSON.stringify({ name, username, email, password, recaptcha_token: recaptchaToken })
   })
   let json = null
   try { json = await res.json() } catch (e) { /* ignore */ }

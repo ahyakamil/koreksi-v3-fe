@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Router from 'next/router'
+import ReCAPTCHA from 'react-google-recaptcha'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 import { register } from '../utils/api'
@@ -14,13 +15,18 @@ export default function Register(){
   const [password,setPassword]=useState('')
   const [errors,setErrors]=useState<{[key: string]: string} | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
 
   async function submit(e: React.FormEvent<HTMLFormElement>){
     e.preventDefault()
     if (submitting) return
+    if (!recaptchaToken) {
+      setErrors({ general: t('recaptcha_required') })
+      return
+    }
     setErrors(null)
     setSubmitting(true)
-    const res = await register(name, username, email, password)
+    const res = await register(name, username, email, password, recaptchaToken)
     if(res.ok && res.body && res.body.accessToken){
       const j = res.body
       if (setUser && j.user) setUser(j.user)
@@ -132,6 +138,14 @@ export default function Register(){
               )}
             </div>
           )}
+
+          <div className="flex justify-center">
+            <ReCAPTCHA
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+              onChange={(token) => setRecaptchaToken(token)}
+              onExpired={() => setRecaptchaToken(null)}
+            />
+          </div>
 
           <button
             type="submit"
