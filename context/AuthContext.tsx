@@ -2,16 +2,6 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef, Re
 import { apiFetch, refreshToken } from '../utils/api'
 import { User } from '../types'
 
-const ACCESS_COOKIE_NAME = 's_user'
-
-function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || null
-  return null
-}
-
 type Notification = {
   id: string
   read_at: string | null
@@ -67,10 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }){
     if (initDoneRef.current) return
     initDoneRef.current = true
     async function init(){
-      const token = getCookie(ACCESS_COOKIE_NAME)
-      if (!token) { setLoading(false); return }
       const res = await apiFetch('/auth/me')
-      if (res.body && res.body.user) {
+      if (res.ok && res.body && res.body.user) {
         setUser(res.body.user)
         // Fetch counts after user is set
         try {
