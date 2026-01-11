@@ -38,14 +38,14 @@ export function RightSidebar() {
             <div className="text-sm text-gray-500">Loading...</div>
           ) : trendingNews.length > 0 ? (
             trendingNews.map((news) => (
-              <Link
+              <a
                 key={news.public_id}
                 href={`/news/${news.public_id}`}
                 className="block w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
               >
                 <div className="text-blue-600 font-medium line-clamp-2">{news.title}</div>
                 <div className="text-sm text-gray-500">{news.comments_count || 0} comments</div>
-              </Link>
+              </a>
             ))
           ) : (
             <div className="text-sm text-gray-500">No trending topics</div>
