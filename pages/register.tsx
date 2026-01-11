@@ -23,7 +23,6 @@ export default function Register(){
     const res = await register(name, username, email, password)
     if(res.ok && res.body && res.body.accessToken){
       const j = res.body
-      setCookie('s_user', j.accessToken)
       if (setUser && j.user) setUser(j.user)
       Router.push('/')
     } else {

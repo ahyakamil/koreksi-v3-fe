@@ -7,7 +7,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from './Avatar';
-import { searchEntities } from '../utils/api';
+import { searchEntities, logout as logoutApi } from '../utils/api';
 import { Post, Organization, Space, News, User } from '../types';
 
 export function Header() {
@@ -42,8 +42,12 @@ export function Header() {
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const logout = () => {
-    document.cookie = 's_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  const logout = async () => {
+    try {
+      await logoutApi();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     setUser(null);
     router.push('/login');
   };

@@ -33,9 +33,7 @@ function clearCookie(name: string) {
 }
 
 export async function apiFetch(path: string, options: ApiOptions = {}, _retry = false): Promise<ApiResponse> {
-  const token = getCookie(ACCESS_COOKIE_NAME)
   const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {})
-  if (token) headers['Authorization'] = `Bearer ${token}`
 
   const res = await fetch(`${API_BASE}${path}`, Object.assign({}, options, { headers, credentials: 'include' }))
   let json = null
@@ -293,13 +291,8 @@ export async function createComment(commentableType: string, commentableId: stri
 }
 
 export async function uploadImage(formData: FormData) {
-  const token = getCookie(ACCESS_COOKIE_NAME)
-  const headers: Record<string, string> = {}
-  if (token) headers['Authorization'] = `Bearer ${token}`
-
   const res = await fetch(`${API_BASE}/upload/image`, {
     method: 'POST',
-    headers,
     credentials: 'include',
     body: formData
   })
@@ -343,6 +336,7 @@ export async function register(name: string, username: string, email: string, pa
   const res = await fetch(`${API_BASE}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ name, username, email, password })
   })
   let json = null
