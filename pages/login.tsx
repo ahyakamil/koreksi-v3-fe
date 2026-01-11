@@ -3,7 +3,7 @@ import Router from 'next/router'
 import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
-import { login, setCookie } from '../utils/api'
+import { login } from '../utils/api'
 
 
 export default function Login(){

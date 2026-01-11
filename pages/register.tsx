@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Router from 'next/router'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
-import { register, setCookie } from '../utils/api'
+import { register } from '../utils/api'
 
 
 export default function Register(){
