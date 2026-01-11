@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { X, Check, Clock, User, DollarSign, Calendar, CreditCard, Receipt } from 'lucide-react'
 import { Subscription, SubscriptionWithdrawalRequest, Organization } from '../../../../types'
-import { getOrganization, getOrganizationSubscriptions, getOrganizationSubscriptionWithdrawalRequests, adminCancelSubscription, handleSubscriptionWithdrawalRequest, adminCreateWithdrawalRequest, getOrganizationCurrentAmount } from '../../../../utils/api'
+import { getOrganization, getOrganizationSubscriptions, getOrganizationSubscriptionWithdrawalRequests, adminCancelSubscription, handleSubscriptionWithdrawalRequest, adminCreateWithdrawalRequest, getOrganizationCurrentAmount, checkOrganizationMembership } from '../../../../utils/api'
 import { formatNumber } from '../../../../utils/format'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
@@ -50,8 +50,12 @@ const SubscriptionsPage: React.FC = () => {
     if (orgRes.ok) {
       setOrganization(orgRes.body.data.organization)
       // Check member role
-      const role = orgRes.body.data.organization.users?.find((u: any) => u.id === user?.id)?.pivot?.role
-      setMemberRole(role || null)
+      const membershipRes = await checkOrganizationMembership(id as string)
+      if (membershipRes.ok) {
+        setMemberRole(membershipRes.body.data.role || null)
+      } else {
+        setMemberRole(null)
+      }
     }
 
     // Fetch subscriptions

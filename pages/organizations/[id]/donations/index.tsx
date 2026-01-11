@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Plus, Edit, Trash2, Coins, Target, Calendar } from 'lucide-react'
 import { DonationCampaign, Organization } from '../../../../types'
-import { getOrganization, getDonationCampaigns, deleteDonationCampaign } from '../../../../utils/api'
+import { getOrganization, getDonationCampaigns, deleteDonationCampaign, checkOrganizationMembership } from '../../../../utils/api'
 import { formatNumber } from '../../../../utils/format'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
@@ -40,8 +40,12 @@ const DonationsPage: React.FC = () => {
     if (orgRes.ok) {
       setOrganization(orgRes.body.data.organization)
       // Check member role
-      const role = orgRes.body.data.organization.users?.find((u: any) => u.id === user?.id)?.pivot?.role
-      setMemberRole(role || null)
+      const membershipRes = await checkOrganizationMembership(id as string)
+      if (membershipRes.ok) {
+        setMemberRole(membershipRes.body.data.role || null)
+      } else {
+        setMemberRole(null)
+      }
     }
 
     // Fetch campaigns

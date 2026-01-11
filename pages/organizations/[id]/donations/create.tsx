@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Organization } from '../../../../types'
-import { getOrganization, createDonationCampaign } from '../../../../utils/api'
+import { getOrganization, createDonationCampaign, checkOrganizationMembership } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
 
@@ -35,8 +35,12 @@ const CreateDonationPage: React.FC = () => {
     const res = await getOrganization(id as string)
     if (res.ok) {
       setOrganization(res.body.data.organization)
-      const role = res.body.data.organization.users?.find((u: any) => u.id === user?.id)?.pivot?.role
-      setMemberRole(role || null)
+      const membershipRes = await checkOrganizationMembership(id as string)
+      if (membershipRes.ok) {
+        setMemberRole(membershipRes.body.data.role || null)
+      } else {
+        setMemberRole(null)
+      }
     } else {
       alert(res.body.message || t('failed_to_load_organization'))
       router.push('/organizations')
