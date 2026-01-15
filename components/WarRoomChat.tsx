@@ -47,6 +47,8 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
   useEffect(() => {
     if (!joined) {
       fetchActiveRooms();
+      const interval = setInterval(fetchActiveRooms, 10000); // Refresh every 10 seconds
+      return () => clearInterval(interval);
     }
   }, [joined]);
 
@@ -128,14 +130,20 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
 
         {tab === 'join' && (
           <div>
-            <div className="mb-4">
+            <div className="mb-4 flex gap-2">
               <input
                 type="text"
                 value={roomSearch}
                 onChange={(e) => setRoomSearch(e.target.value)}
-                className="w-full p-2 border rounded text-sm sm:text-base"
+                className="flex-1 p-2 border rounded text-sm sm:text-base"
                 placeholder="Search rooms..."
               />
+              <button
+                onClick={fetchActiveRooms}
+                className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+              >
+                Refresh
+              </button>
             </div>
             <div className="max-h-60 overflow-y-auto">
               {filteredRooms.length > 0 ? (
