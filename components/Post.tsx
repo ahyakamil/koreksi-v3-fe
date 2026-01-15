@@ -234,7 +234,7 @@ export function Post({
       </div>
 
       {/* MEDIA */}
-      {(post.medias || post.youtube_video || post.instagram_video) && (
+      {((post.medias && post.medias.length > 0) || post.youtube_video || post.instagram_video) && (
         <Carousel
           medias={post.medias || []}
           youtubeVideo={post.youtube_video}

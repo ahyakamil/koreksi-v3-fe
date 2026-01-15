@@ -23,17 +23,15 @@ export default function Carousel({ medias, youtubeVideo, instagramVideo }: Carou
 
   const slides = useMemo(() => {
     const s: Slide[] = []
+    medias.slice().sort((a, b) => a.order - b.order).forEach(m => s.push({ type: 'image', url: m.url }))
     if (youtubeVideo) s.push({ type: 'video', id: youtubeVideo })
     if (instagramVideo) s.push({ type: 'instagram', id: instagramVideo })
-    medias.forEach(m => s.push({ type: 'image', url: m.url }))
     return s
   }, [youtubeVideo, instagramVideo, medias])
 
   useEffect(() => {
-    if (currentIndex >= slides.length && slides.length > 0) {
-      setCurrentIndex(Math.max(0, slides.length - 1))
-    }
-  }, [slides.length])
+    setCurrentIndex(0)
+  }, [slides])
 
   const next = useCallback(() => {
     if (slides.length > 0) {
