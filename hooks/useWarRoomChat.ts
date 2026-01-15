@@ -19,11 +19,12 @@ export const useWarRoomChat = (apiUrl: string) => {
   const [users, setUsers] = useState<WarRoomUser[]>([]);
   const [joined, setJoined] = useState(false);
   const [currentName, setCurrentName] = useState('');
+  const [currentRoomId, setCurrentRoomId] = useState('');
   const [loading, setLoading] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
   // Join the war room
-  const join = useCallback(async (name: string) => {
+  const join = useCallback(async (name: string, roomId: string) => {
     try {
       setLoading(true);
       const response = await fetch(`${apiUrl}/war-room/join`, {
@@ -32,13 +33,18 @@ export const useWarRoomChat = (apiUrl: string) => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, room_id: roomId }),
       });
 
       const data = await response.json();
       if (data.statusCode === 2000) {
         setJoined(true);
         setCurrentName(data.data.name);
+        setCurrentRoomId(data.data.room_id);
+        // Join the room channel
+        if (socketRef.current) {
+          socketRef.current.emit('join-war-room', { roomId: data.data.room_id, name: data.data.name });
+        }
         // Users will be updated via WebSocket events
       } else {
         throw new Error(data.message || 'Failed to join');
@@ -60,7 +66,7 @@ export const useWarRoomChat = (apiUrl: string) => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ message, name: currentName }),
+        body: JSON.stringify({ message, name: currentName, room_id: currentRoomId }),
       });
 
       const data = await response.json();
@@ -71,7 +77,7 @@ export const useWarRoomChat = (apiUrl: string) => {
       console.error('Error sending message:', error);
       throw error;
     }
-  }, [apiUrl, currentName]);
+  }, [apiUrl, currentName, currentRoomId]);
 
   // Leave the war room
   const leave = useCallback(async () => {
@@ -82,13 +88,14 @@ export const useWarRoomChat = (apiUrl: string) => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ name: currentName }),
+        body: JSON.stringify({ name: currentName, room_id: currentRoomId }),
       });
 
       const data = await response.json();
       if (data.statusCode === 2000) {
         setJoined(false);
         setCurrentName('');
+        setCurrentRoomId('');
         setUsers([]);
         setMessages([]);
       } else {
@@ -98,7 +105,7 @@ export const useWarRoomChat = (apiUrl: string) => {
       console.error('Error leaving war room:', error);
       throw error;
     }
-  }, [apiUrl, currentName]);
+  }, [apiUrl, currentName, currentRoomId]);
 
   // Socket.IO connection setup
   useEffect(() => {
@@ -157,27 +164,29 @@ export const useWarRoomChat = (apiUrl: string) => {
     }
   }, []);
 
-  // Auto-join if user is logged in
+  // Pre-fill name for logged-in users
   useEffect(() => {
-    if (user && !joined && !loading) {
-      join(user.name);
+    if (user && !joined) {
+      setCurrentName(user.name);
     }
-  }, [user, joined, loading, join]);
+  }, [user, joined]);
 
   // Auto-leave on unmount
   useEffect(() => {
     return () => {
-      if (joined) {
+      if (joined && socketRef.current) {
+        socketRef.current.emit('leave-war-room', { roomId: currentRoomId, name: currentName });
         leave();
       }
     };
-  }, [joined, leave]);
+  }, [joined, leave, currentRoomId, currentName]);
 
   return {
     messages,
     users,
     joined,
     currentName,
+    currentRoomId,
     loading,
     join,
     sendMessage,

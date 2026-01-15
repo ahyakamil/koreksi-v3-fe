@@ -2,15 +2,25 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useWarRoomChat } from '../hooks/useWarRoomChat';
 import { useAuth } from '../context/AuthContext';
 
+interface ActiveRoom {
+  id: string;
+  userCount: number;
+  users: string[];
+}
+
 interface WarRoomChatProps {
   apiUrl: string;
 }
 
 const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
   const { user } = useAuth();
-  const { messages, users, joined, currentName, loading, join, sendMessage, leave } = useWarRoomChat(apiUrl);
+  const { messages, users, joined, currentName, currentRoomId, loading, join, sendMessage, leave } = useWarRoomChat(apiUrl);
   const [inputMessage, setInputMessage] = useState('');
   const [inputName, setInputName] = useState('');
+  const [inputRoomId, setInputRoomId] = useState('default');
+  const [activeRooms, setActiveRooms] = useState<ActiveRoom[]>([]);
+  const [roomSearch, setRoomSearch] = useState('');
+  const [tab, setTab] = useState<'join' | 'create'>('join');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -21,11 +31,31 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
     scrollToBottom();
   }, [messages]);
 
-  const handleJoin = async () => {
-    const name = user ? user.name : inputName;
-    if (!name.trim()) return;
+  const fetchActiveRooms = async () => {
     try {
-      await join(name);
+      const websocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001';
+      const response = await fetch(`${websocketUrl}/active-rooms`);
+      if (response.ok) {
+        const rooms = await response.json();
+        setActiveRooms(rooms);
+      }
+    } catch (error) {
+      console.error('Failed to fetch active rooms:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (!joined) {
+      fetchActiveRooms();
+    }
+  }, [joined]);
+
+  const handleJoin = async (roomId?: string) => {
+    const name = user ? user.name : inputName;
+    const finalRoomId = roomId || (inputRoomId.trim() || 'default');
+    if (!name.trim() || !finalRoomId) return;
+    try {
+      await join(name, finalRoomId);
     } catch (error) {
       alert('Failed to join: ' + (error as Error).message);
     }
@@ -56,28 +86,98 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
   };
 
   if (!joined) {
+    const filteredRooms = activeRooms.filter(room =>
+      room.id.toLowerCase().includes(roomSearch.toLowerCase())
+    );
+
     return (
-      <div className="max-w-md mx-auto mt-4 sm:mt-10 p-4 sm:p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4">Join War Room Chat</h2>
-        {!user && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Name</label>
-            <input
-              type="text"
-              value={inputName}
-              onChange={(e) => setInputName(e.target.value)}
-              className="w-full p-2 border rounded text-sm sm:text-base"
-              placeholder="Enter your name"
-            />
+      <div className="max-w-2xl mx-auto mt-4 sm:mt-10 p-4 sm:p-6 bg-white rounded-lg shadow-lg">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4">War Room Chat</h2>
+
+        {/* Tabs */}
+        <div className="flex mb-4">
+          <button
+            onClick={() => setTab('join')}
+            className={`px-4 py-2 ${tab === 'join' ? 'bg-blue-500 text-white' : 'bg-gray-200'} rounded-l`}
+          >
+            Join Room
+          </button>
+          <button
+            onClick={() => setTab('create')}
+            className={`px-4 py-2 ${tab === 'create' ? 'bg-blue-500 text-white' : 'bg-gray-200'} rounded-r`}
+          >
+            Create Room
+          </button>
+        </div>
+
+        {tab === 'join' && (
+          <div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={roomSearch}
+                onChange={(e) => setRoomSearch(e.target.value)}
+                className="w-full p-2 border rounded text-sm sm:text-base"
+                placeholder="Search rooms..."
+              />
+            </div>
+            <div className="max-h-60 overflow-y-auto">
+              {filteredRooms.length > 0 ? (
+                filteredRooms.map((room) => (
+                  <div key={room.id} className="flex justify-between items-center p-2 border-b">
+                    <div>
+                      <div className="font-semibold">{room.id}</div>
+                      <div className="text-sm text-gray-600">{room.userCount} users</div>
+                    </div>
+                    <button
+                      onClick={() => handleJoin(room.id)}
+                      disabled={loading}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 disabled:opacity-50"
+                    >
+                      Join
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">No active rooms found</div>
+              )}
+            </div>
           </div>
         )}
-        <button
-          onClick={handleJoin}
-          disabled={loading || (!user && !inputName.trim())}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50 text-sm sm:text-base"
-        >
-          {loading ? 'Joining...' : 'Join Chat'}
-        </button>
+
+        {tab === 'create' && (
+          <div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Room ID</label>
+              <input
+                type="text"
+                value={inputRoomId}
+                onChange={(e) => setInputRoomId(e.target.value)}
+                className="w-full p-2 border rounded text-sm sm:text-base"
+                placeholder="Enter room ID"
+              />
+            </div>
+            {!user && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Name</label>
+                <input
+                  type="text"
+                  value={inputName}
+                  onChange={(e) => setInputName(e.target.value)}
+                  className="w-full p-2 border rounded text-sm sm:text-base"
+                  placeholder="Enter your name"
+                />
+              </div>
+            )}
+            <button
+              onClick={() => handleJoin()}
+              disabled={loading || (!user && !inputName.trim()) || !inputRoomId.trim()}
+              className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50 text-sm sm:text-base"
+            >
+              {loading ? 'Creating...' : 'Create & Join'}
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -85,7 +185,7 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
   return (
     <div className="max-w-4xl mx-auto mt-4 sm:mt-10 p-4 sm:p-6 bg-white rounded-lg shadow-lg min-h-[600px] sm:min-h-[700px]">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
-        <h2 className="text-xl sm:text-2xl font-bold">War Room Chat</h2>
+        <h2 className="text-xl sm:text-2xl font-bold">War Room: {currentRoomId}</h2>
         <div className="text-sm text-gray-600">
           {users.length === 1 ? 'You are here' : `You and ${users.length - 1} others are here`}
         </div>
