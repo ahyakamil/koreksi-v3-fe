@@ -173,18 +173,6 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
                 placeholder="Enter room ID"
               />
             </div>
-            {!user && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Name</label>
-                <input
-                  type="text"
-                  value={inputName}
-                  onChange={(e) => setInputName(e.target.value)}
-                  className="w-full p-2 border rounded text-sm sm:text-base"
-                  placeholder="Enter your name"
-                />
-              </div>
-            )}
             <button
               onClick={() => handleJoin()}
               disabled={loading || (!user && !inputName.trim()) || !inputRoomId.trim()}
