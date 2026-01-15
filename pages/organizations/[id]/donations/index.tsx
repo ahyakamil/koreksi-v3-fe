@@ -7,6 +7,7 @@ import { getOrganization, getDonationCampaigns, deleteDonationCampaign, checkOrg
 import { formatNumber } from '../../../../utils/format'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
+import { Back } from '@/components/Back'
 
 const DonationsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -81,14 +82,9 @@ const DonationsPage: React.FC = () => {
   if (!organization) return <div>{t('organization_not_found')}</div>
 
   return (
-    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <button
-          onClick={() => router.push(`/organizations/${id}`)}
-          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 text-sm sm:text-base"
-        >
-          {t('back_to_organization')}
-        </button>
+        <Back />
         <h1 className="text-2xl sm:text-3xl font-bold">{t('donation_campaigns')} - {organization.title}</h1>
         {!canManage && (
           <p className="text-gray-600 mt-2 text-sm sm:text-base">{t('viewing_as_guest')}</p>

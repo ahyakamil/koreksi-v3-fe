@@ -8,6 +8,7 @@ import { getOrganization, getPublicOrganization, getDonationCampaign, checkOrgan
 import { formatCurrency, formatNumber } from '../../../../../utils/format'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
+import { Back } from '@/components/Back'
 
 interface WithdrawalDetail {
   id: number
@@ -176,14 +177,8 @@ const WithdrawalsPage: React.FC = () => {
       </Head>
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-          <button
-            onClick={() => router.push(`/organizations/${id}/donations/${donationId}`)}
-            className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t('back_to_donation')}
-          </button>
-          <div className="flex justify-between items-start">
+          <Back />
+          <div className="justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold">{t('withdrawal_requests')}</h1>
               <p className="text-gray-600 mt-2">{campaign.title} - {organization.title}</p>
@@ -191,7 +186,7 @@ const WithdrawalsPage: React.FC = () => {
             {canManage && (
               <button
                 onClick={() => setShowCreateForm(!showCreateForm)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center my-2"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {t('request_withdrawal')}

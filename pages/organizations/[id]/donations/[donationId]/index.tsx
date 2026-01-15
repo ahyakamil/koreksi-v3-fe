@@ -9,6 +9,7 @@ import { getOrganization, getPublicOrganization, getDonationCampaign, donateToCa
 import { formatCurrency, formatNumber } from '../../../../../utils/format'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
+import { Back } from '@/components/Back'
 
 const DonationCampaignPage: React.FC<{ organization: Organization | null; campaign: DonationCampaign | null }> = ({ organization: initialOrganization, campaign: initialCampaign }) => {
   const [organization, setOrganization] = useState<Organization | null>(initialOrganization)
@@ -143,18 +144,13 @@ const DonationCampaignPage: React.FC<{ organization: Organization | null; campai
       <Script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY} />
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <button
-            onClick={() => router.push(`/organizations/${id}/donations`)}
-            className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            {t('back_to_donations')}
-          </button>
-          <div className="flex justify-between items-start">
+          <Back />
+          <div className="justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold">{campaign.title}</h1>
               <p className="text-gray-600 mt-2">{t('by')} {organization.title}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 my-2">
               {canManage && (
                 <Link
                   href={`/organizations/${id}/donations/${donationId}/edit`}

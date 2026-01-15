@@ -4,6 +4,7 @@ import { Organization, DonationCampaign } from '../../../../../types'
 import { getOrganization, getPublicOrganization, getDonationCampaign, updateDonationCampaign, checkOrganizationMembership } from '../../../../../utils/api'
 import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
+import { Back } from '@/components/Back'
 
 const EditDonationPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -119,12 +120,7 @@ const EditDonationPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-8">
-        <button
-          onClick={() => router.push(`/organizations/${id}/donations`)}
-          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-        >
-          {t('back_to_donations')}
-        </button>
+        <Back />
         <h1 className="text-3xl font-bold">{t('edit_donation')} - {organization.title}</h1>
       </div>
 
