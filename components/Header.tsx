@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Home, Users, Newspaper, Bell, Building2, ChevronDown, LogOut, FolderOpen, User as UserIcon, Shield } from 'lucide-react';
+import { Search, Home, Users, Newspaper, Bell, Building2, ChevronDown, LogOut, FolderOpen, User as UserIcon, Shield, LogIn, UserPlus } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
@@ -553,10 +553,7 @@ export function Header() {
             ) : (
               <div className="flex items-center gap-2">
                 <Link href="/login" className="px-4 py-2 text-blue-600 hover:bg-gray-100 rounded-lg">
-                  Login
-                </Link>
-                <Link href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                  Register
+                  <LogIn className="w-6 h-6" />
                 </Link>
               </div>
             )}
