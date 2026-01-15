@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import SpaceForm from '../../components/SpaceForm'
 import NewsItem from '../../components/NewsItem'
+import { Back } from '../../components/Back'
 
 const OrganizationDetailsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -376,12 +377,7 @@ const OrganizationDetailsPage: React.FC = () => {
   return (
     <div className="mx-auto">
       <div className="mb-8">
-        <button
-          onClick={() => router.push('/organizations')}
-          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-        >
-          {t('back_to_organizations')}
-        </button>
+        <Back />
         <h1 className="text-3xl font-bold">{organization.title}</h1>
         {organization.description && (
           <p className="text-gray-600 mt-2">{organization.description}</p>

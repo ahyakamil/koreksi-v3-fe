@@ -101,6 +101,7 @@ type TranslationKeys = {
   latest_page_number_used: string
   show_all: string
   hide: string
+  back: string
   back_to_organizations: string
   cancel: string
   create: string
@@ -456,6 +457,7 @@ const translations: Translations = {
     latest_page_number_used: 'Nomor halaman terakhir yang digunakan',
     show_all: 'Tampilkan semua',
     hide: 'Sembunyikan',
+    back: 'Kembali',
     back_to_organizations: 'Kembali ke Organisasi',
     cancel: 'Batal',
     create: 'Buat',
@@ -802,6 +804,7 @@ const translations: Translations = {
     latest_page_number_used: 'Latest page number used',
     show_all: 'Show all',
     hide: 'Hide',
+    back: 'Back',
     back_to_organizations: 'Back to Organizations',
     cancel: 'Cancel',
     create: 'Create',
