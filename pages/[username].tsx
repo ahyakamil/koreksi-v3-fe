@@ -131,8 +131,8 @@ export default function UserPostsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="mb-8">
+    <div>
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Posts by @{username}
         </h1>

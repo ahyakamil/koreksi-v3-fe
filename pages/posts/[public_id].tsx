@@ -41,7 +41,7 @@ export default function PostDetail({ post, comments, pageable, error, specificCo
     )
   }
 
-  const title = post.title ? `${post.title} - Koreksi` : 'Post - Koreksi'
+  const title = post.title ? `${post.title} - Koreksi` : 'Koreksi.org'
   const description = post.content.length > 160 ? post.content.substring(0, 157) + '...' : post.content
   const imageUrl = post.medias && post.medias.length > 0
     ? (post.medias[0].url.startsWith('http') ? post.medias[0].url : baseUrl + post.medias[0].url)
