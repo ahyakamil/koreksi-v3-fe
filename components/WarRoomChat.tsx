@@ -14,7 +14,7 @@ interface WarRoomChatProps {
 
 const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
   const { user } = useAuth();
-  const { messages, users, joined, currentName, currentRoomId, loading, join, sendMessage, leave } = useWarRoomChat(apiUrl);
+  const { messages, users, joined, currentName, currentRoomId, loading, connected, join, sendMessage, leave, reconnect } = useWarRoomChat(apiUrl);
   const [inputMessage, setInputMessage] = useState('');
   const [inputName, setInputName] = useState('');
   const [inputRoomId, setInputRoomId] = useState('default');
@@ -69,7 +69,7 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
       await sendMessage(inputMessage);
       setInputMessage('');
     } catch (error) {
-      alert('Failed to send: ' + (error as Error).message);
+      console.log('Failed to send: ' + (error as Error).message);
     }
   };
 
@@ -196,10 +196,17 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
 
   return (
     <div className="max-w-4xl mx-auto mt-4 sm:mt-10 p-4 sm:p-6 bg-white rounded-lg shadow-lg min-h-[600px] sm:min-h-[700px]">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl sm:text-2xl font-bold">War Room: {currentRoomId}</h2>
-        <div className="text-sm text-gray-600">
-          {users.length === 1 ? 'You are here' : `You and ${users.length - 1} others are here`}
+        <div className="flex items-center gap-2">
+          <div className="text-sm text-gray-600">
+            {users.length === 1 ? 'You are here' : `You and ${users.length - 1} others are here`}
+          </div>
+          {!connected && (
+            <button onClick={reconnect} className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 text-sm">
+              Reconnect
+            </button>
+          )}
         </div>
       </div>
 

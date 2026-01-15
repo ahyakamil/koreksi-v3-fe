@@ -21,6 +21,7 @@ export const useWarRoomChat = (apiUrl: string) => {
   const [currentName, setCurrentName] = useState('');
   const [currentRoomId, setCurrentRoomId] = useState('');
   const [loading, setLoading] = useState(false);
+  const [connected, setConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
   // Join the war room
@@ -60,15 +61,20 @@ export const useWarRoomChat = (apiUrl: string) => {
   }, [apiUrl]);
 
   // Send message
-  const sendMessage = useCallback(async (message: string) => {
+  const sendMessage = useCallback(async (message: string, name?: string, roomId?: string) => {
+    const finalName = name || currentName;
+    const finalRoomId = roomId || currentRoomId;
     try {
+      if (!joined || finalRoomId !== currentRoomId || finalName !== currentName) {
+        await join(finalName, finalRoomId);
+      }
       const response = await fetch(`${apiUrl}/war-room/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ message, name: currentName, room_id: currentRoomId }),
+        body: JSON.stringify({ message, name: finalName, room_id: finalRoomId }),
       });
 
       const data = await response.json();
@@ -79,7 +85,7 @@ export const useWarRoomChat = (apiUrl: string) => {
       console.error('Error sending message:', error);
       throw error;
     }
-  }, [apiUrl, currentName, currentRoomId]);
+  }, [apiUrl, currentName, currentRoomId, joined, join]);
 
   // Leave the war room
   const leave = useCallback(async () => {
@@ -113,6 +119,14 @@ export const useWarRoomChat = (apiUrl: string) => {
     }
   }, [apiUrl, currentName, currentRoomId]);
 
+  // Reconnect function
+  const reconnect = useCallback(() => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current.connect();
+    }
+  }, []);
+
   // Socket.IO connection setup
   useEffect(() => {
     const websocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001';
@@ -125,29 +139,23 @@ export const useWarRoomChat = (apiUrl: string) => {
 
       socket.on('connect', () => {
         console.log('Connected to WebSocket for war room');
+        setConnected(true);
+        if (joined && currentRoomId && currentName) {
+          socket.emit('join-war-room', { roomId: currentRoomId, name: currentName });
+        }
       });
 
       socket.on('connect_error', (error) => {
         console.error('WebSocket connection error:', error);
+        setConnected(false);
       });
 
       socket.on('disconnect', () => {
         console.log('Disconnected from WebSocket');
+        setConnected(false);
       });
 
-      return () => {
-        socket.disconnect();
-      };
-    } catch (error) {
-      console.error('Error initializing Socket.IO:', error);
-    }
-  }, []);
-
-  // Socket.IO event bindings
-  useEffect(() => {
-    if (socketRef.current) {
-      const socket = socketRef.current;
-
+      // Event bindings
       socket.on('war-room.user.joined', (data: any) => {
         const { name, timestamp } = data;
         setUsers(prev => {
@@ -172,8 +180,15 @@ export const useWarRoomChat = (apiUrl: string) => {
         const { users } = data;
         setUsers(users.map((name: string) => ({ name, joinedAt: new Date().toISOString() })));
       });
+
+      return () => {
+        socket.disconnect();
+      };
+    } catch (error) {
+      console.error('Error initializing Socket.IO:', error);
     }
-  }, []);
+  }, [joined, currentRoomId, currentName]);
+
 
   // Pre-fill name for logged-in users
   useEffect(() => {
@@ -199,8 +214,10 @@ export const useWarRoomChat = (apiUrl: string) => {
     currentName,
     currentRoomId,
     loading,
+    connected,
     join,
     sendMessage,
     leave,
+    reconnect,
   };
 };
