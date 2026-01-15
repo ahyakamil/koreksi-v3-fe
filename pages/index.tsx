@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { apiFetch } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
+import { useFullscreen } from '../context/FullscreenContext'
 import { Post, Pageable } from '../types'
 import { CreatePost } from '../components/CreatePost'
 import { Post as PostComponent } from '../components/Post'
@@ -10,6 +11,7 @@ import { Post as PostComponent } from '../components/Post'
 export default function Home() {
   const { user, loading } = useAuth()
   const { t } = useLocale()
+  const { isFullscreen } = useFullscreen()
   const [posts, setPosts] = useState<Post[]>([])
   const [page, setPage] = useState(0)
   const [size] = useState(10)
@@ -51,6 +53,7 @@ export default function Home() {
   useEffect(()=>{
     function onScroll(){
       try{
+        if (isFullscreen) return
         if (isFetchingRef.current) return
         if (!pageable) return
         const hasMore = (pageable.pageNumber + 1) < pageable.totalPages
@@ -63,7 +66,7 @@ export default function Home() {
     }
     window.addEventListener('scroll', onScroll)
     return ()=> window.removeEventListener('scroll', onScroll)
-  }, [pageable])
+  }, [pageable, isFullscreen])
 
   return (
     <>

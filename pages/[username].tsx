@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { getPostsByUsername } from '../utils/api'
+import { useFullscreen } from '../context/FullscreenContext'
 import { Post } from '../types'
 import { Post as PostComponent } from '../components/Post'
 
 export default function UserPostsPage() {
   const router = useRouter()
   const { username } = router.query
+  const { isFullscreen } = useFullscreen()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -81,7 +83,7 @@ export default function UserPostsPage() {
       if (timeoutId) return // Debounce
 
       timeoutId = setTimeout(() => {
-        if (isFetchingRef.current || !hasMore || loadingMore) {
+        if (isFullscreen || isFetchingRef.current || !hasMore || loadingMore) {
           timeoutId = null
           return
         }
@@ -104,7 +106,7 @@ export default function UserPostsPage() {
       window.removeEventListener('scroll', handleScroll)
       if (timeoutId) clearTimeout(timeoutId)
     }
-  }, [loadMorePosts, hasMore, loadingMore])
+  }, [loadMorePosts, hasMore, loadingMore, isFullscreen])
 
   if (loading) {
     return (
