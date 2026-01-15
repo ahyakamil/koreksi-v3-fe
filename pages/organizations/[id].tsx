@@ -639,7 +639,7 @@ const OrganizationDetailsPage: React.FC = () => {
       {currentUserRole && (
         <div className="mb-8">
           <div className="border-b border-gray-200 mb-6">
-            <nav className="flex overflow-x-auto space-x-8 pb-2 sticky top-0 bg-white z-10">
+            <nav className="flex overflow-x-auto space-x-8 pb-2 sticky top-0 bg-white">
               <button
                 onClick={() => setActiveTab('news')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
