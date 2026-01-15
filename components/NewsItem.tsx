@@ -200,16 +200,33 @@ export default function NewsItem({ news, hideOrganization = false, isDetail = fa
             </div>
           ) : isDetail || isExpanded ? (
             <div
-              className="prose max-w-none"
+              className="prose max-w-none max-w-full overflow-hidden"
+              style={{
+                whiteSpace: 'pre-line',
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word'
+              }}
               dangerouslySetInnerHTML={{ __html: displayContent }}
             />
           ) : shouldTruncate ? (
-            <p className="text-gray-700 leading-relaxed">
+            <p
+              className="text-gray-700 leading-relaxed max-w-full overflow-hidden"
+              style={{
+                whiteSpace: 'pre-line',
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word'
+              }}
+            >
               {displayContent}
             </p>
           ) : (
             <div
-              className="prose max-w-none"
+              className="prose max-w-none max-w-full overflow-hidden"
+              style={{
+                whiteSpace: 'pre-line',
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word'
+              }}
               dangerouslySetInnerHTML={{ __html: displayContent }}
             />
           )}
