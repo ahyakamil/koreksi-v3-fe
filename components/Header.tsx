@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Home, Users, Newspaper, Bell, Building2, ChevronDown, LogOut, FolderOpen, User as UserIcon } from 'lucide-react';
+import { Search, Home, Users, Newspaper, Bell, Building2, ChevronDown, LogOut, FolderOpen, User as UserIcon, Shield } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
@@ -144,6 +144,8 @@ export function Header() {
       setActiveTab('spaces');
     } else if (pathname === '/organizations') {
       setActiveTab('organizations');
+    } else if (pathname === '/war-room') {
+      setActiveTab('war-room');
     } else {
       setActiveTab('');
     }
@@ -430,6 +432,16 @@ export function Header() {
             >
               <Users className="w-6 h-6" />
             </button>
+            <button
+              onClick={() => router.push('/war-room')}
+              className={`px-8 py-2 rounded-lg hover:bg-gray-100 ${
+                activeTab === 'war-room'
+                  ? 'text-blue-600 border-b-4 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Shield className="w-6 h-6" />
+            </button>
           </div>
 
           {/* Right Section */}
@@ -592,6 +604,15 @@ export function Header() {
         >
           <Users className="w-6 h-6" />
           <span className="text-xs mt-1">Friends</span>
+        </button>
+        <button
+          onClick={() => router.push('/war-room')}
+          className={`flex flex-col items-center justify-center flex-1 py-2 ${
+            activeTab === 'war-room' ? 'text-blue-600' : 'text-gray-500'
+          }`}
+        >
+          <Shield className="w-6 h-6" />
+          <span className="text-xs mt-1">War Room</span>
         </button>
       </div>
     </nav>
