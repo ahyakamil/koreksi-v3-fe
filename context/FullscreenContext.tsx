@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/router';
 
 interface FullscreenContextType {
   showFullscreen: (content: ReactNode) => void;
@@ -12,6 +13,7 @@ const FullscreenContext = createContext<FullscreenContextType | undefined>(undef
 export function FullscreenProvider({ children }: { children: ReactNode }) {
   const [fullscreenContent, setFullscreenContent] = useState<ReactNode | null>(null);
   const [scrollY, setScrollY] = useState(0);
+  const router = useRouter();
 
   const showFullscreen = (content: ReactNode) => {
     setScrollY(window.scrollY);
@@ -27,6 +29,18 @@ export function FullscreenProvider({ children }: { children: ReactNode }) {
   const hideFullscreen = () => {
     setFullscreenContent(null);
   };
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      hideFullscreen();
+    };
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
 
   useEffect(() => {
     let originalOverflow = '';
