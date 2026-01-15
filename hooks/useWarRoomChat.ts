@@ -39,8 +39,7 @@ export const useWarRoomChat = (apiUrl: string) => {
       if (data.statusCode === 2000) {
         setJoined(true);
         setCurrentName(data.data.name);
-        // Add self to users list
-        setUsers(prev => [...prev, { name: data.data.name, joinedAt: new Date().toISOString() }]);
+        // Users will be updated via WebSocket events
       } else {
         throw new Error(data.message || 'Failed to join');
       }
@@ -164,6 +163,15 @@ export const useWarRoomChat = (apiUrl: string) => {
       join(user.name);
     }
   }, [user, joined, loading, join]);
+
+  // Auto-leave on unmount
+  useEffect(() => {
+    return () => {
+      if (joined) {
+        leave();
+      }
+    };
+  }, [joined, leave]);
 
   return {
     messages,
