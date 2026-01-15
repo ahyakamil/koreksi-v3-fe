@@ -94,17 +94,33 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
       <div className="max-w-2xl mx-auto mt-4 sm:mt-10 p-4 sm:p-6 bg-white rounded-lg shadow-lg">
         <h2 className="text-xl sm:text-2xl font-bold mb-4">War Room Chat</h2>
 
+        {!user && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">Your Name</label>
+            <input
+              type="text"
+              value={inputName}
+              onChange={(e) => setInputName(e.target.value)}
+              className="w-full p-2 border rounded text-sm sm:text-base"
+              placeholder="Enter your name to join chat"
+            />
+            {!inputName.trim() && <p className="text-sm text-gray-500 mt-1">Please enter your name to continue</p>}
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="flex mb-4">
           <button
             onClick={() => setTab('join')}
             className={`px-4 py-2 ${tab === 'join' ? 'bg-blue-500 text-white' : 'bg-gray-200'} rounded-l`}
+            disabled={!user && !inputName.trim()}
           >
             Join Room
           </button>
           <button
             onClick={() => setTab('create')}
             className={`px-4 py-2 ${tab === 'create' ? 'bg-blue-500 text-white' : 'bg-gray-200'} rounded-r`}
+            disabled={!user && !inputName.trim()}
           >
             Create Room
           </button>
@@ -131,7 +147,7 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
                     </div>
                     <button
                       onClick={() => handleJoin(room.id)}
-                      disabled={loading}
+                      disabled={loading || (!user && !inputName.trim())}
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 disabled:opacity-50"
                     >
                       Join

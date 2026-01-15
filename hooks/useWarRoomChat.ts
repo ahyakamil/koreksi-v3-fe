@@ -163,6 +163,11 @@ export const useWarRoomChat = (apiUrl: string) => {
         const { name, message, timestamp } = data;
         setMessages(prev => [...prev, { name, message, timestamp }]);
       });
+
+      socket.on('war-room.users', (data: any) => {
+        const { users } = data;
+        setUsers(users.map((name: string) => ({ name, joinedAt: new Date().toISOString() })));
+      });
     }
   }, []);
 
