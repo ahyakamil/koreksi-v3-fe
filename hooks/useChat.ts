@@ -222,6 +222,7 @@ export const useChat = (apiUrl: string, userId?: string, isWidgetExpanded?: bool
       try {
         const socket = io(websocketUrl, {
           forceNew: true,
+          withCredentials: true,
         });
         socketRef.current = socket;
 
