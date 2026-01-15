@@ -7,6 +7,7 @@ import { useLocale } from '../../../../context/LocaleContext'
 import RichTextEditor from '../../../../components/RichTextEditor'
 import ImageUpload from '../../../../components/ImageUpload'
 import SpaceForm from '../../../../components/SpaceForm'
+import { Back } from '@/components/Back'
 
 const CreateNewsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -150,14 +151,9 @@ const CreateNewsPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="mb-8">
-        <button
-          onClick={() => router.push(`/organizations/${id}/news`)}
-          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-        >
-          {t('back_to_news')}
-        </button>
+        <Back />
         <h1 className="text-3xl font-bold">{t('create_news')} - {organization.title}</h1>
       </div>
 

@@ -6,6 +6,7 @@ import { useAuth } from '../../../../../context/AuthContext'
 import { useLocale } from '../../../../../context/LocaleContext'
 import RichTextEditor from '../../../../../components/RichTextEditor'
 import ImageUpload from '../../../../../components/ImageUpload'
+import { Back } from '@/components/Back'
 
 const EditNewsPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -161,14 +162,9 @@ const EditNewsPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="mb-8">
-        <button
-          onClick={() => router.push(`/organizations/${id}/news`)}
-          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-        >
-          Back to News
-        </button>
+        <Back />
         <h1 className="text-3xl font-bold">Edit News - {organization.title}</h1>
       </div>
 

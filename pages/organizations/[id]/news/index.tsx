@@ -5,6 +5,7 @@ import { Organization, Space, News } from '../../../../types'
 import { getOrganization, getSpaces, getNews, reviewNews, deleteNews, checkOrganizationMembership } from '../../../../utils/api'
 import { useAuth } from '../../../../context/AuthContext'
 import { useLocale } from '../../../../context/LocaleContext'
+import { Back } from '@/components/Back'
 
 const NewsManagementPage: React.FC = () => {
   const [organization, setOrganization] = useState<Organization | null>(null)
@@ -139,20 +140,15 @@ const NewsManagementPage: React.FC = () => {
   const currentUserRole = getCurrentUserRole()
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <button
-          onClick={() => router.push(`/organizations/${id}`)}
-          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-        >
-          {t('back_to_organization')}
-        </button>
-        <div className="flex justify-between items-center">
+    <div>
+      <div>
+        <Back />
+        <div className="justify-between items-center">
           <h1 className="text-3xl font-bold">{t('manage_news')} - {organization.title}</h1>
           {currentUserRole && ['admin', 'editor', 'author'].includes(currentUserRole) && (
             <button
               onClick={() => router.push(`/organizations/${id}/news/create`)}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              className="bg-blue-500 text-white px-4 py-2 my-2 rounded hover:bg-blue-600"
             >
               {t('create_news')}
             </button>
@@ -160,7 +156,7 @@ const NewsManagementPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-2">
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8">
             {[
