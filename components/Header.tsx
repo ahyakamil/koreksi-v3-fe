@@ -378,6 +378,14 @@ export function Header() {
             >
               <Search className="w-6 h-6 text-gray-600" />
             </button>
+
+            {/* Mobile War Room Icon */}
+            <button
+              onClick={() => router.push('/war-room')}
+              className="sm:hidden w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+            >
+              <Shield className="w-6 h-6 text-gray-600" />
+            </button>
           </div>
 
           {/* Center Navigation */}
@@ -604,15 +612,6 @@ export function Header() {
         >
           <Users className="w-6 h-6" />
           <span className="text-xs mt-1">Friends</span>
-        </button>
-        <button
-          onClick={() => router.push('/war-room')}
-          className={`flex flex-col items-center justify-center flex-1 py-2 ${
-            activeTab === 'war-room' ? 'text-blue-600' : 'text-gray-500'
-          }`}
-        >
-          <Shield className="w-6 h-6" />
-          <span className="text-xs mt-1">War Room</span>
         </button>
       </div>
     </nav>

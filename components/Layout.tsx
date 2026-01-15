@@ -24,7 +24,7 @@ export function Layout({
         {showSidebar && <Sidebar />}
 
         <main className={`flex-1 ${showSidebar ? 'lg:ml-64' : ''} ${showRightSidebar ? 'xl:mr-80' : ''} mx-2 lg:my-4`}>
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto py-2">
             {children}
           </div>
         </main>
