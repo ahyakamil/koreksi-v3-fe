@@ -225,7 +225,7 @@ const WarRoomChat: React.FC<WarRoomChatProps> = ({ apiUrl }) => {
 
         {/* Chat area */}
         <div className="w-full lg:w-3/4 lg:pl-4 flex flex-col min-h-[400px]">
-          <div className="flex-1 min-h-[300px] sm:min-h-[400px] overflow-y-auto mb-4 border rounded p-2">
+          <div className="h-[300px] sm:h-[400px] overflow-y-auto mb-4 border rounded p-2">
             {messages.map((msg, index) => (
               <div key={index} className="mb-2">
                 <span className="font-semibold text-sm sm:text-base">{msg.name}:</span> <span className="text-sm sm:text-base">{msg.message}</span>
