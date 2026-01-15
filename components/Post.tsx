@@ -275,7 +275,7 @@ export function Post({ post, onDelete, onUpdate, alwaysShowComments = false, ini
           </div>
         ) : (
           <>
-            <p className="text-gray-900 mb-3" style={{ whiteSpace: 'pre-wrap' }}>{displayContent}</p>
+            <p className="text-gray-900 mb-3 break-all" style={{ whiteSpace: 'pre-wrap' }}>{displayContent}</p>
             {isLongContent && !showFullContent && (
               <button onClick={() => setShowFullContent(true)} className="text-blue-600 hover:underline text-sm mb-3">See more</button>
             )}
