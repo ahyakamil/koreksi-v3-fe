@@ -95,6 +95,10 @@ export const useWarRoomChat = (apiUrl: string) => {
 
       const data = await response.json();
       if (data.statusCode === 2000) {
+        // Emit leave event to WebSocket server
+        if (socketRef.current) {
+          socketRef.current.emit('leave-war-room', { roomId: currentRoomId, name: currentName });
+        }
         setJoined(false);
         setCurrentName('');
         setCurrentRoomId('');
