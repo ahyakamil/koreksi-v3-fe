@@ -41,6 +41,8 @@ export const useWarRoomChat = (apiUrl: string) => {
         setJoined(true);
         setCurrentName(data.data.name);
         setCurrentRoomId(data.data.room_id);
+        // Add self to users initially
+        setUsers([{ name: data.data.name, joinedAt: new Date().toISOString() }]);
         // Join the room channel
         if (socketRef.current) {
           socketRef.current.emit('join-war-room', { roomId: data.data.room_id, name: data.data.name });
