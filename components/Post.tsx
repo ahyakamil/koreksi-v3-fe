@@ -154,11 +154,11 @@ export function Post({ post, onDelete, onUpdate, alwaysShowComments = false, ini
   if (isDeleted) return null
 
   return (
-    <article className={`bg-white rounded-lg border border-gray-200 mb-4 transition-all duration-300 ${
+    <article className={`bg-white rounded-lg border border-gray-200 mb-4 max-w-full transition-all duration-300 ${
       isDeleting ? 'opacity-50 scale-95 transform' : 'opacity-100 scale-100'
     }`}>
       {/* Post Header */}
-      <div className="p-4">
+      <div className="p-4 max-w-full">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
             <Avatar
@@ -275,7 +275,7 @@ export function Post({ post, onDelete, onUpdate, alwaysShowComments = false, ini
           </div>
         ) : (
           <>
-            <p className="text-gray-900 mb-3 break-all" style={{ whiteSpace: 'pre-wrap' }}>{displayContent}</p>
+            <p className="text-gray-900 mb-3 break-words max-w-full" style={{ whiteSpace: 'pre-line' }}>{displayContent}</p>
             {isLongContent && !showFullContent && (
               <button onClick={() => setShowFullContent(true)} className="text-blue-600 hover:underline text-sm mb-3">See more</button>
             )}
