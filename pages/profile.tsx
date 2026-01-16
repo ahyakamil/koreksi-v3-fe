@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
-import { updateProfile } from '../utils/api'
+import { updateProfile, apiFetch } from '../utils/api'
 import { Layout } from '../components/Layout'
 
 function getNextUsernameChangeDate(changedAt: string | undefined): Date | null {
@@ -27,13 +27,28 @@ export default function Profile() {
   const [errors, setErrors] = useState<{[key: string]: string} | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(false)
 
   useEffect(() => {
     if (!loading && user) {
       setName(user.name)
-      setUsername(user.username)
+      setUsername(user.username || '')
+
+      // If email is missing, fetch complete user data
+      if (!user.email) {
+        setEmailLoading(true)
+        apiFetch('/auth/me').then(res => {
+          if (res.ok && res.body?.user) {
+            // Update user in context
+            setUser && setUser(res.body.user)
+          }
+          setEmailLoading(false)
+        }).catch(() => {
+          setEmailLoading(false)
+        })
+      }
     }
-  }, [user, loading])
+  }, [user, loading, setUser])
 
   useEffect(() => {
     if (!loading && !user) {
@@ -131,7 +146,7 @@ export default function Profile() {
                 type="email"
                 disabled
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
-                value={user.email}
+                value={emailLoading ? 'Loading...' : (user.email || '')}
               />
               <p className="text-sm text-gray-500 mt-1">{t('email_cannot_be_changed')}</p>
             </div>
