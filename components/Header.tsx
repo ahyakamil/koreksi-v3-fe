@@ -214,7 +214,9 @@ export function Header() {
           {/* Left Section */}
           <div className="flex items-center gap-2 flex-1">
             <div className="w-10 h-10 rounded-full flex items-center justify-center">
-              <img src="/icon-512x512.png" alt="Koreksi Logo" className="w-10 h-10 rounded-full object-cover" />
+              <button onClick={() => router.push('/')}>
+                <img src="/icon-512x512.png" alt="Koreksi Logo" className="w-10 h-10 rounded-full object-cover" />
+              </button>
             </div>
             {/* Desktop Search */}
             <div className="relative hidden sm:block">
