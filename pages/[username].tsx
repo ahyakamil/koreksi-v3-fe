@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { getPostsByUsername } from '../utils/api'
+import { getPostsByUsername, sendFriendRequest } from '../utils/api'
 import { useFullscreen } from '../context/FullscreenContext'
+import { useAuth } from '../context/AuthContext'
 import { Post } from '../types'
 import { Post as PostComponent } from '../components/Post'
 
@@ -10,6 +11,7 @@ export default function UserPostsPage() {
   const router = useRouter()
   const { username } = router.query
   const { isFullscreen } = useFullscreen()
+  const { user: currentUser } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -17,6 +19,8 @@ export default function UserPostsPage() {
   const [currentPage, setCurrentPage] = useState(0)
   const [hasMore, setHasMore] = useState(true)
   const [totalElements, setTotalElements] = useState(0)
+  const [profileUser, setProfileUser] = useState<any>(null)
+  const [sendingRequest, setSendingRequest] = useState(false)
   const isFetchingRef = useRef(false)
   const currentPageRef = useRef(0)
 
@@ -44,6 +48,10 @@ export default function UserPostsPage() {
         if (reset) {
           setPosts(newPosts)
           setTotalElements(data.pageable?.totalElements || 0)
+          // Set profile user from first post
+          if (newPosts.length > 0 && newPosts[0].user) {
+            setProfileUser(newPosts[0].user)
+          }
         } else {
           setPosts(prev => [...prev, ...newPosts])
         }
@@ -75,6 +83,24 @@ export default function UserPostsPage() {
       })
     }
   }, [loadingMore, hasMore, username])
+
+  const handleSendFriendRequest = async () => {
+    if (!profileUser || !currentUser) return
+
+    setSendingRequest(true)
+    try {
+      const res = await sendFriendRequest(profileUser.id)
+      if (res.ok) {
+        alert('Friend request sent!')
+      } else {
+        alert('Failed to send friend request: ' + (res.body?.message || 'Unknown error'))
+      }
+    } catch (error) {
+      alert('Failed to send friend request')
+    } finally {
+      setSendingRequest(false)
+    }
+  }
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null
@@ -133,13 +159,26 @@ export default function UserPostsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Posts by @{username}
-        </h1>
-        <p className="text-gray-600">
-          {posts.length} post{posts.length !== 1 ? 's' : ''} loaded
-          {totalElements > 0 && ` (${totalElements} total)`}
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Posts by @{username}
+            </h1>
+            <p className="text-gray-600">
+              {posts.length} post{posts.length !== 1 ? 's' : ''} loaded
+              {totalElements > 0 && ` (${totalElements} total)`}
+            </p>
+          </div>
+          {currentUser && profileUser && currentUser.id !== profileUser.id && (
+            <button
+              onClick={handleSendFriendRequest}
+              disabled={sendingRequest}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {sendingRequest ? 'Sending...' : 'Add Friend'}
+            </button>
+          )}
+        </div>
       </div>
 
       {posts.length === 0 ? (

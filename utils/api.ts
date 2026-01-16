@@ -505,3 +505,44 @@ export async function adminCreateWithdrawalRequest(organizationId: string, data:
   })
   return res
 }
+
+// Friendship API functions
+export async function sendFriendRequest(friendId: string) {
+  const res = await apiFetch('/friends/request', {
+    method: 'POST',
+    body: JSON.stringify({ friend_id: friendId })
+  })
+  return res
+}
+
+export async function getFriends(page: number = 0, size: number = 10) {
+  const params = new URLSearchParams({ page: page.toString(), size: size.toString() })
+  const res = await apiFetch(`/friends?${params}`)
+  return res
+}
+
+export async function getFriendRequests() {
+  const res = await apiFetch('/friends/requests')
+  return res
+}
+
+export async function acceptFriendRequest(friendshipId: string) {
+  const res = await apiFetch(`/friends/${friendshipId}/accept`, {
+    method: 'POST'
+  })
+  return res
+}
+
+export async function declineFriendRequest(friendshipId: string) {
+  const res = await apiFetch(`/friends/${friendshipId}/decline`, {
+    method: 'POST'
+  })
+  return res
+}
+
+export async function removeFriend(friendshipId: string) {
+  const res = await apiFetch(`/friends/${friendshipId}`, {
+    method: 'DELETE'
+  })
+  return res
+}
