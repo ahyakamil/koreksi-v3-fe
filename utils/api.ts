@@ -507,6 +507,11 @@ export async function adminCreateWithdrawalRequest(organizationId: string, data:
 }
 
 // Friendship API functions
+export async function checkFriendshipStatus(userId: string) {
+  const res = await apiFetch(`/friends/status/${userId}`)
+  return res
+}
+
 export async function sendFriendRequest(friendId: string) {
   const res = await apiFetch('/friends/request', {
     method: 'POST',

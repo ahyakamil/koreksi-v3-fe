@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { getPostsByUsername, sendFriendRequest } from '../utils/api'
+import { getPostsByUsername, sendFriendRequest, checkFriendshipStatus } from '../utils/api'
 import { useFullscreen } from '../context/FullscreenContext'
 import { useAuth } from '../context/AuthContext'
 import { Post } from '../types'
@@ -21,6 +21,8 @@ export default function UserPostsPage() {
   const [totalElements, setTotalElements] = useState(0)
   const [profileUser, setProfileUser] = useState<any>(null)
   const [sendingRequest, setSendingRequest] = useState(false)
+  const [friendshipStatus, setFriendshipStatus] = useState<string>('none')
+  const [checkingStatus, setCheckingStatus] = useState(false)
   const isFetchingRef = useRef(false)
   const currentPageRef = useRef(0)
 
@@ -29,6 +31,12 @@ export default function UserPostsPage() {
       fetchPosts(username, 0, true)
     }
   }, [username])
+
+  useEffect(() => {
+    if (profileUser && currentUser && currentUser.id !== profileUser.id) {
+      fetchFriendshipStatus()
+    }
+  }, [profileUser, currentUser])
 
   const fetchPosts = async (user: string, page: number, reset: boolean = false) => {
     try {
@@ -51,6 +59,7 @@ export default function UserPostsPage() {
           // Set profile user from first post
           if (newPosts.length > 0 && newPosts[0].user) {
             setProfileUser(newPosts[0].user)
+            setFriendshipStatus('none') // Reset status when user changes
           }
         } else {
           setPosts(prev => [...prev, ...newPosts])
@@ -92,6 +101,8 @@ export default function UserPostsPage() {
       const res = await sendFriendRequest(profileUser.id)
       if (res.ok) {
         alert('Friend request sent!')
+        // Refresh status after sending
+        fetchFriendshipStatus()
       } else {
         alert('Failed to send friend request: ' + (res.body?.message || 'Unknown error'))
       }
@@ -99,6 +110,22 @@ export default function UserPostsPage() {
       alert('Failed to send friend request')
     } finally {
       setSendingRequest(false)
+    }
+  }
+
+  const fetchFriendshipStatus = async () => {
+    if (!profileUser || !currentUser) return
+
+    setCheckingStatus(true)
+    try {
+      const res = await checkFriendshipStatus(profileUser.id)
+      if (res.ok && res.body?.data) {
+        setFriendshipStatus(res.body.data.status)
+      }
+    } catch (error) {
+      console.error('Failed to check friendship status:', error)
+    } finally {
+      setCheckingStatus(false)
     }
   }
 
@@ -159,7 +186,7 @@ export default function UserPostsPage() {
   return (
     <div>
       <div className="mb-6">
-        <div className="flex items-center justify-between">
+        <div className="items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Posts by @{username}
@@ -171,11 +198,29 @@ export default function UserPostsPage() {
           </div>
           {currentUser && profileUser && currentUser.id !== profileUser.id && (
             <button
-              onClick={handleSendFriendRequest}
-              disabled={sendingRequest}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={friendshipStatus === 'none' ? handleSendFriendRequest : undefined}
+              disabled={sendingRequest || checkingStatus || friendshipStatus !== 'none'}
+              className={`px-4 py-2 my-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+                friendshipStatus === 'accepted'
+                  ? 'bg-green-600 text-white'
+                  : friendshipStatus === 'pending'
+                  ? 'bg-yellow-600 text-white'
+                  : friendshipStatus === 'blocked'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             >
-              {sendingRequest ? 'Sending...' : 'Add Friend'}
+              {checkingStatus
+                ? 'Checking...'
+                : sendingRequest
+                ? 'Sending...'
+                : friendshipStatus === 'accepted'
+                ? 'Friends'
+                : friendshipStatus === 'pending'
+                ? 'Request Sent'
+                : friendshipStatus === 'blocked'
+                ? 'Blocked'
+                : 'Add Friend'}
             </button>
           )}
         </div>
