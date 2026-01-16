@@ -168,11 +168,6 @@ export default function Profile() {
                     Name: {Array.isArray(errors.name) ? errors.name[0] : errors.name}
                   </div>
                 )}
-                {errors.username && (
-                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                    Username: {Array.isArray(errors.username) ? errors.username[0] : errors.username}
-                  </div>
-                )}
               </div>
             )}
 
