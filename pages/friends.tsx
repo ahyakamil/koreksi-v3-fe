@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import { apiFetch } from '../utils/api'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
@@ -225,6 +226,9 @@ export default function Friends() {
                           <Avatar name={u.name} size={32} />
                           <div>
                             <div className="font-medium text-gray-900 break-all">{u.name}</div>
+                            {u.username && (
+                              <div className="text-sm text-gray-600">@{u.username}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -300,6 +304,11 @@ export default function Friends() {
                           <Avatar name={r.user.name} size={40} />
                           <div>
                             <div className="font-medium text-gray-900 break-all">{r.user.name}</div>
+                            {r.user.username && (
+                              <Link href={`/${r.user.username}`} className="text-sm text-blue-600 hover:text-blue-700 hover:underline">
+                                @{r.user.username}
+                              </Link>
+                            )}
                             <div className="text-sm text-gray-600">{t('friend_request')}</div>
                           </div>
                         </div>
@@ -351,11 +360,16 @@ export default function Friends() {
                     <div key={f.friendship_id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <Avatar name={f.user.name} size={40} />
-                          <div>
-                            <div className="font-medium text-gray-900 break-all">{f.user.name}</div>
-                          </div>
-                        </div>
+                           <Avatar name={f.user.name} size={40} />
+                           <div>
+                             <div className="font-medium text-gray-900 break-all">{f.user.name}</div>
+                             {f.user.username && (
+                               <Link href={`/${f.user.username}`} className="text-sm text-blue-600 hover:text-blue-700 hover:underline">
+                                 @{f.user.username}
+                               </Link>
+                             )}
+                           </div>
+                         </div>
                         <button
                           onClick={() => removeFriend(f.friendship_id)}
                           className="px-2 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium flex items-center justify-center"
@@ -398,6 +412,11 @@ export default function Friends() {
                           <Avatar name={b.user.name} size={40} />
                           <div>
                             <div className="font-medium text-gray-900 break-all">{b.user.name}</div>
+                            {b.user.username && (
+                              <Link href={`/${b.user.username}`} className="text-sm text-blue-600 hover:text-blue-700 hover:underline">
+                                @{b.user.username}
+                              </Link>
+                            )}
                           </div>
                         </div>
                         <button
